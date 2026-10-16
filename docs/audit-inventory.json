@@ -1,14 +1,15 @@
 {
-  "generatedAt": "2026-10-16T14:52:27.878Z",
+  "generatedAt": "2026-10-16T16:14:51.085Z",
   "counts": {
+    ".yml": 1,
     "(none)": 1,
     ".md": 5,
     ".html": 6,
     ".json": 7,
     ".mjs": 35,
-    ".cjs": 13,
+    ".cjs": 14,
     ".py": 1,
-    ".js": 66,
+    ".js": 67,
     ".png": 1666,
     ".woff2": 1,
     ".ttf": 3,
@@ -19,9 +20,17 @@
   "issues": [],
   "inventory": [
     {
+      "file": ".github/workflows/release.yml",
+      "bytes": 1085,
+      "sha256": "d69375ad68c53dfa8a30616a729bec919ddae180cbd3ead0d3b744785f6dc0d0",
+      "checks": [
+        "read-and-sha256"
+      ]
+    },
+    {
       "file": ".gitignore",
-      "bytes": 319,
-      "sha256": "dda430389d39b983bc4bd8ce2246ae0247b3dd7772e5b9fdc11fe6410148700a",
+      "bytes": 538,
+      "sha256": "1c5403f5dda5843c10e68e7318f38ac79528573262c66219143c839b258a4874",
       "checks": [
         "read-and-sha256"
       ]
@@ -70,8 +79,8 @@
     },
     {
       "file": "package-lock.json",
-      "bytes": 147735,
-      "sha256": "1b01d38262b6f5528262044d394f0ea3e776e9a1e39ab5366cbdc51b792b7382",
+      "bytes": 150712,
+      "sha256": "f359a980be745b2823c67051e9d3f6d6adaabd9fc79b1e6d7cf031c351543176",
       "checks": [
         "json",
         "read-and-sha256"
@@ -79,8 +88,8 @@
     },
     {
       "file": "package.json",
-      "bytes": 2717,
-      "sha256": "3a3afcd69b751777a7e37f471aabdda8a89936a9d8bd86d1b1fbb1ac419e62af",
+      "bytes": 3031,
+      "sha256": "82aae28963cd1beb735cbd4282c6fa871417b7ea4cd3029004ea7e97b118702e",
       "checks": [
         "json",
         "read-and-sha256"
@@ -88,8 +97,8 @@
     },
     {
       "file": "README.md",
-      "bytes": 9706,
-      "sha256": "99f8c09eb9fdf725fca61e82112792ea13a94906e981524525d8d91791bfbb2c",
+      "bytes": 11491,
+      "sha256": "67036710d475ab1b5d6caa9ceafeab3f845bcc49f3e6737b903f2e5e4084c937",
       "checks": [
         "read-and-sha256"
       ]
@@ -223,8 +232,8 @@
     },
     {
       "file": "scripts/utility-scenarios.cjs",
-      "bytes": 8593,
-      "sha256": "6801d1cf6f30af3bb0bc84240b05d615c8725733bf59a1c4317213cf3fe889b7",
+      "bytes": 8931,
+      "sha256": "4d27d89af08d74d9eb786dec386e7d3d4ba2ec82ace6ef6961fdeb9262c4c184",
       "checks": [
         "javascript-syntax",
         "relative-module-references",
@@ -235,6 +244,16 @@
       "file": "scripts/visual-regression.cjs",
       "bytes": 9536,
       "sha256": "e2c3d3df3e3e5de625e4dffe187cda58a02159238a9c1ad78f31b6344f18a264",
+      "checks": [
+        "javascript-syntax",
+        "relative-module-references",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "src/main/autoUpdater.js",
+      "bytes": 3095,
+      "sha256": "3d2db0e8db757a9002530cdb04aa6a7f4f94e6d642f43c8788848b67d3bba952",
       "checks": [
         "javascript-syntax",
         "relative-module-references",
@@ -263,8 +282,8 @@
     },
     {
       "file": "src/main/main.js",
-      "bytes": 20294,
-      "sha256": "7fe4f3e11fe7491a76caed6b51842c88576cfadb6867734009b8b4ff45946b98",
+      "bytes": 20490,
+      "sha256": "59fdf26acd4335edec5cac4ba1049cdf58cee68e715bf755b301a539a858de7a",
       "checks": [
         "javascript-syntax",
         "relative-module-references",
@@ -315,6 +334,16 @@
       "file": "tests/audit-regression.test.mjs",
       "bytes": 15063,
       "sha256": "51d3ed12ecc85db66197b5e82488c0d7e5c9a0f2e3b54733e1b5ceeed69bde32",
+      "checks": [
+        "javascript-syntax",
+        "relative-module-references",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/auto-updater.test.cjs",
+      "bytes": 3617,
+      "sha256": "9fee56f1723a6c8f91d0cb5f9a65e9262facc8d84e5e764795fde7dcd3e3f98e",
       "checks": [
         "javascript-syntax",
         "relative-module-references",
@@ -15687,8 +15716,8 @@
     },
     {
       "file": "www/css/utilities.css",
-      "bytes": 5954,
-      "sha256": "e0ce62dfbc93abdbb108140322d97074a0508112c46d74317655f2f60bf8a026",
+      "bytes": 6727,
+      "sha256": "9da857ba83ca13e04ea3278ac798cd09a3e9cfb446f50729150f2abb6a944e17",
       "checks": [
         "css-local-references",
         "read-and-sha256"
@@ -16335,8 +16364,8 @@
     },
     {
       "file": "www/js/ui/UtilitiesPanel.js",
-      "bytes": 14523,
-      "sha256": "6ae04ed87cb2c3e7dfc1e564308f4900de210e8a0709463681cc143ffbb0a6a5",
+      "bytes": 15978,
+      "sha256": "bdf9717ab00b309e4821b5ab37b1fc10d6f0b36348f2785e52a02443e477a253",
       "checks": [
         "javascript-syntax",
         "relative-module-references",
