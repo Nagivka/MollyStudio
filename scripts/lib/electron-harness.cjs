@@ -15,7 +15,7 @@ function setupIPC({ durable = false, beforeRecoveryWrite } = {}) {
     const store = durable ? createRecoveryStore(path.join(profile, 'recovery-drafts')) : null;
     for (const channel of ['discord-set-activity', 'discord-clear-activity', 'discord-set-enabled', 'discord-set-client-id', 'recovery-drafts-flushed']) ipcMain.handle(channel, () => true);
     ipcMain.handle('discord-get-status', () => ({ connected: false, isReady: false }));
-    ipcMain.handle('get-app-version', () => '1.3.0');
+    ipcMain.handle('get-app-version', () => require('../../package.json').version);
     ipcMain.handle('window-is-maximized', () => false);
     ipcMain.handle('settings-broadcast', () => true);
     ipcMain.handle('recovery-draft-write', async (_event, draft) => {
@@ -42,12 +42,12 @@ async function ready(options) {
     session.defaultSession.webRequest.onBeforeRequest({ urls: ['http://*/*', 'https://*/*'] }, (_details, done) => done({ cancel: true }));
 }
 
-function makeWindow(width = 1280, height = 800) {
+function makeWindow(width = 1280, height = 800, { offscreen = true } = {}) {
     const window = new BrowserWindow({ show: false, frame: false, useContentSize: true, width, height,
-        webPreferences: { preload: path.join(root, 'src/preload/preload.js'), contextIsolation: true, sandbox: true, nodeIntegration: false, backgroundThrottling: false, offscreen: true } });
+        webPreferences: { preload: path.join(root, 'src/preload/preload.js'), contextIsolation: true, sandbox: true, nodeIntegration: false, backgroundThrottling: false, offscreen } });
     window.__testErrors = [];
-    window.webContents.on('console-message', (_event, level, message) => {
-        if (level === 3 && !/ERR_BLOCKED_BY_CLIENT/.test(message)) window.__testErrors.push(message);
+    window.webContents.on('console-message', ({ level, message }) => {
+        if (level === 'error' && !/ERR_BLOCKED_BY_CLIENT/.test(message)) window.__testErrors.push(message);
     });
     return window;
 }
@@ -62,7 +62,7 @@ async function settle(window) {
         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     })(), new Promise((_, reject) => setTimeout(() => reject(new Error('Page frames/fonts did not settle')), 4000))])`);
     // Offscreen Chromium swaps a painted frame after the DOM resize and zoom callbacks.
-    window.webContents.invalidate();
+    if (window.webContents.isOffscreen()) window.webContents.invalidate();
     await new Promise(resolve => setTimeout(resolve, 120));
 }
 

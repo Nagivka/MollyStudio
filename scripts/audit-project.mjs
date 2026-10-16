@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const inventory = [], issues = [], counts = {};
-const excluded = new Set(['node_modules', 'dist', '.git', '.codex', '.agents', '.playwright-mcp', '.test-output', '.rollback']);
+const excluded = new Set(['node_modules', 'dist', '.git', '.codex', '.agents', '.playwright-mcp', '.test-output', '.rollback', '.secrets']);
 
 function crc32(data) {
     let crc = 0xffffffff;
@@ -20,7 +20,7 @@ function crc32(data) {
 async function visit(directory) {
     const entries = await fs.readdir(directory, { withFileTypes: true });
     for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
-        if (excluded.has(entry.name) || entry.name.startsWith('.molly-audit-')) continue;
+        if (excluded.has(entry.name) || entry.name.startsWith('.molly-audit-') || /^\.env(?:\.|$)/.test(entry.name) || /\.(pem|pfx|p12|key|private-key)$/i.test(entry.name)) continue;
         const file = path.join(directory, entry.name);
         if (entry.isDirectory()) { await visit(file); continue; }
         if (!entry.isFile()) continue;

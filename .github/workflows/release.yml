@@ -1,6 +1,7 @@
 name: Build and publish MollyStudio update
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*.*.*'
@@ -11,6 +12,8 @@ permissions:
 jobs:
   release:
     runs-on: windows-latest
+    env:
+      CAN_PUBLISH: ${{ secrets.UPDATES_REPO_TOKEN != '' && secrets.UPDATES_SIGNING_KEY != '' }}
     steps:
       - name: Check out private source
         uses: actions/checkout@v4
@@ -18,7 +21,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
@@ -27,19 +30,36 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Check Electron integration
+        run: npm run test:electron
+
+      - name: Verify real updater download and cache behavior
+        run: npm run test:updates
+
       - name: Build NSIS installer
         run: npm run dist:nsis -- --publish never
 
-      - name: Publish installer and update metadata
-        uses: softprops/action-gh-release@v2
+      - name: Verify packaged update channel and privacy
+        run: npm run release:verify
+
+      - name: Sign update files and publish only allowed artifacts
+        if: env.CAN_PUBLISH == 'true'
+        env:
+          UPDATES_REPO_TOKEN: ${{ secrets.UPDATES_REPO_TOKEN }}
+          UPDATES_SIGNING_KEY: ${{ secrets.UPDATES_SIGNING_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          npm run release:sign
+          npm run release:publish
+
+      - name: Save build privately when automatic publication is not configured
+        if: env.CAN_PUBLISH != 'true'
+        uses: actions/upload-artifact@v4
         with:
-          repository: Nagivka/MollyStudio-Updates
-          token: ${{ secrets.UPDATES_REPO_TOKEN }}
-          tag_name: ${{ github.ref_name }}
-          name: MollyStudio ${{ github.ref_name }}
-          generate_release_notes: true
-          files: |
+          name: MollyStudio-installer
+          retention-days: 7
+          path: |
             dist/MollyStudio-Setup-*.exe
             dist/MollyStudio-Setup-*.exe.blockmap
             dist/latest.yml
-          fail_on_unmatched_files: true
+          if-no-files-found: error

@@ -40,6 +40,11 @@ function inspect(page, theme) {
     if (document.documentElement.dataset.theme !== theme) throw new Error('Theme did not apply');
     if (!document.title || document.body.innerText.length < 50) throw new Error('Blank page');
     if (document.documentElement.scrollWidth > innerWidth + 1) throw new Error('Root horizontal overflow');
+    if (page === 'editor' || page === 'buttons') {
+        const canvas = document.getElementById(page === 'editor' ? 'main-canvas' : 'previewCanvas');
+        const pixels = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+        if (!pixels.some((value, index) => index % 4 === 3 && value > 0)) throw new Error('Canvas fixture lost its rendered content');
+    }
     for (const select of document.querySelectorAll('select:not([multiple])')) {
         if (parseFloat(getComputedStyle(select).paddingRight) < 32) throw new Error(`Select arrow overlaps its label: ${select.id}`);
     }
@@ -72,16 +77,45 @@ function compare(expected, actual) {
     return { changed, ratio: changed / (a.length / 4), diff: nativeImage.createFromBitmap(diff, actualSize) };
 }
 
+function canvasSamples(page) {
+    const canvas = document.getElementById(page === 'editor' ? 'main-canvas' : 'previewCanvas');
+    const rect = canvas.getBoundingClientRect(), samples = [];
+    const data = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+    for (let y = 0; y < canvas.height && samples.length < 12; y++) for (let x = 0; x < canvas.width && samples.length < 12; x++) {
+        const index = (y * canvas.width + x) * 4;
+        if (data[index + 3] !== 255) continue;
+        const screenX = Math.floor(rect.left + (x + .5) * rect.width / canvas.width);
+        const screenY = Math.floor(rect.top + (y + .5) * rect.height / canvas.height);
+        if (screenX < 60 || screenX >= innerWidth - 2 || screenY < 120 || screenY >= innerHeight - 32) continue;
+        samples.push({ x: screenX, y: screenY, rgb: [...data.slice(index, index + 3)] });
+    }
+    return samples;
+}
+
+function verifyCapturedCanvas(actual, samples) {
+    if (!samples.length) throw new Error('No visible opaque canvas samples');
+    const bitmap = actual.toBitmap(), { width } = actual.getSize();
+    const matches = samples.filter(sample => {
+        const offset = (sample.y * width + sample.x) * 4;
+        return Math.max(Math.abs(bitmap[offset + 2] - sample.rgb[0]), Math.abs(bitmap[offset + 1] - sample.rgb[1]), Math.abs(bitmap[offset] - sample.rgb[2])) < 36;
+    }).length;
+    if (matches < samples.length * .75) throw new Error('Captured screenshot lost canvas pixels although the drawing buffer is populated');
+}
+
 (async () => {
     let window;
     const results = [], failures = [];
-    const watchdog = setTimeout(() => { console.error('Visual matrix timed out'); app.exit(1); }, 240000);
+    const watchdog = setTimeout(() => { console.error('Visual matrix timed out'); app.exit(1); }, 360000);
     try {
         await ready();
         await fs.mkdir(baselineRoot, { recursive: true });
         await fs.mkdir(outputRoot, { recursive: true });
-        window = makeWindow();
         for (const page of pages) {
+            window?.destroy();
+            window = makeWindow(1280, 800, { offscreen: false });
+            // Chromium 44 defers compositor viewport updates for hidden windows after
+            // zoom changes. Validate the same visible-window path users actually see.
+            window.showInactive();
             await window.loadFile(path.join(root, `www/${page}.html`), page === 'editor'
                 ? { query: { new: 'true', type: 'canvas', width: '32', height: '32', name: 'Очень длинное название проекта для проверки подписей и вкладок' } } : {});
             await window.webContents.executeJavaScript(`(${prepare.toString()})(${JSON.stringify(page)})`);
@@ -101,6 +135,7 @@ function compare(expected, actual) {
                             if (width === 1280 && zoom === 1) {
                                 const file = `${page}-${theme}.png`, destination = path.join(baselineRoot, file);
                                 const actual = await window.webContents.capturePage(undefined, { stayHidden: true });
+                                if (page === 'editor' || page === 'buttons') verifyCapturedCanvas(actual, await window.webContents.executeJavaScript(`(${canvasSamples.toString()})('${page}')`));
                                 if (update) await fs.writeFile(destination, actual.toPNG());
                                 else {
                                     const previous = await fs.readFile(destination).catch(() => null);
@@ -122,8 +157,8 @@ function compare(expected, actual) {
                 }
             }
             console.log(`Visual ${page}: ${results.length} cases passed, ${failures.length} failures`);
+            if (window.__testErrors.length) failures.push(...window.__testErrors.map(message => ({ page, message })));
         }
-        if (window.__testErrors.length) failures.push(...window.__testErrors.map(message => ({ message })));
         const report = { electron: process.versions.electron, platform: process.platform, offlineFonts: true, baselineScreenshots: 50, passed: results.length, failures };
         await fs.writeFile(path.join(outputRoot, 'report.json'), JSON.stringify(report, null, 2));
         if (update) await fs.writeFile(path.join(baselineRoot, 'manifest.json'), JSON.stringify({ electron: process.versions.electron, platform: process.platform, themes, pages, viewport: [1280, 800], zoom: 1, offlineFonts: true }, null, 2));

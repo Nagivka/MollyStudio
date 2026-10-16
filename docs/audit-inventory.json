@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-10-16T16:14:51.085Z",
+  "generatedAt": "2026-10-16T16:47:54.127Z",
   "counts": {
     ".yml": 1,
     "(none)": 1,
     ".md": 5,
+    ".cjs": 20,
     ".html": 6,
-    ".json": 7,
+    ".json": 9,
     ".mjs": 35,
-    ".cjs": 14,
     ".py": 1,
-    ".js": 67,
-    ".png": 1666,
+    ".js": 68,
+    ".png": 1716,
     ".woff2": 1,
     ".ttf": 3,
     ".ico": 2,
@@ -21,16 +21,16 @@
   "inventory": [
     {
       "file": ".github/workflows/release.yml",
-      "bytes": 1085,
-      "sha256": "d69375ad68c53dfa8a30616a729bec919ddae180cbd3ead0d3b744785f6dc0d0",
+      "bytes": 1740,
+      "sha256": "2c06e15f42a412ff72221a981ed77323a2000dd2505080e291d9557ed16c7b72",
       "checks": [
         "read-and-sha256"
       ]
     },
     {
       "file": ".gitignore",
-      "bytes": 538,
-      "sha256": "1c5403f5dda5843c10e68e7318f38ac79528573262c66219143c839b258a4874",
+      "bytes": 549,
+      "sha256": "ff469e63a9a60c8a5e6db73770f8540faeef7d2a71d95cc25c0ec473e0c1a170",
       "checks": [
         "read-and-sha256"
       ]
@@ -61,9 +61,19 @@
     },
     {
       "file": "docs/regression-checks.md",
-      "bytes": 11287,
-      "sha256": "11adfd013de35bba92321ad26f4d3c28e53f0fe55fb9f284f377da1e3656c791",
+      "bytes": 13707,
+      "sha256": "c9320d1c6f9503cb9b345279658aeb50658e6136e22befca213017a691f4516b",
       "checks": [
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "electron-builder.signed.cjs",
+      "bytes": 335,
+      "sha256": "932703a9a4ace0403e0cfe4e88b6eeae3ffb0571229582affebfbd25c93b9d70",
+      "checks": [
+        "javascript-syntax",
+        "relative-module-references",
         "read-and-sha256"
       ]
     },
@@ -79,8 +89,8 @@
     },
     {
       "file": "package-lock.json",
-      "bytes": 150712,
-      "sha256": "f359a980be745b2823c67051e9d3f6d6adaabd9fc79b1e6d7cf031c351543176",
+      "bytes": 146901,
+      "sha256": "bf91e80240cffc6e32fc6f33d29cb79094a892de9c41f877fa58a6faa4bb1d9b",
       "checks": [
         "json",
         "read-and-sha256"
@@ -88,8 +98,8 @@
     },
     {
       "file": "package.json",
-      "bytes": 3031,
-      "sha256": "82aae28963cd1beb735cbd4282c6fa871417b7ea4cd3029004ea7e97b118702e",
+      "bytes": 3459,
+      "sha256": "c80aa18191815b2442239b4d18a624ed1a0021223529d688bfcdd85f0a317e8c",
       "checks": [
         "json",
         "read-and-sha256"
@@ -97,16 +107,16 @@
     },
     {
       "file": "README.md",
-      "bytes": 11491,
-      "sha256": "67036710d475ab1b5d6caa9ceafeab3f845bcc49f3e6737b903f2e5e4084c937",
+      "bytes": 14536,
+      "sha256": "73682d86b01c956e17794349772073162219ee5840621445353a2efd626a25e8",
       "checks": [
         "read-and-sha256"
       ]
     },
     {
       "file": "scripts/audit-project.mjs",
-      "bytes": 5926,
-      "sha256": "d391b49c425b0dfebf23a1d9a00b5f48168dd93f329e432657c7e9d7fcdcb671",
+      "bytes": 6031,
+      "sha256": "d0d209ff57568a45fdf2fbc6a7053ae8815203eee8943f465cfcf4126ad040a1",
       "checks": [
         "javascript-syntax",
         "relative-module-references",
@@ -144,8 +154,8 @@
     },
     {
       "file": "scripts/electron-smoke.cjs",
-      "bytes": 23713,
-      "sha256": "3b934e07888388399e3708bfff0b473179a2f300b10dbc73f05b1f3aa12b7b08",
+      "bytes": 23717,
+      "sha256": "ace52e0dfc4de3f80e221e0758f3d786ce21740ce6061469285aad2249702bc1",
       "checks": [
         "javascript-syntax",
         "relative-module-references",
@@ -172,8 +182,8 @@
     },
     {
       "file": "scripts/lib/electron-harness.cjs",
-      "bytes": 4167,
-      "sha256": "284000ed218acedf61137c7e3e2e7a8b2645082240bf1be73e8dc72fb6052353",
+      "bytes": 4258,
+      "sha256": "a8ffdcaac34060e872e16029bc8fb6f9f4c0a3f1279c6fc9edef7fcec35f95b6",
       "checks": [
         "javascript-syntax",
         "relative-module-references",
@@ -201,6 +211,16 @@
       ]
     },
     {
+      "file": "scripts/publish-release.cjs",
+      "bytes": 9085,
+      "sha256": "eccfc5fb2b372015dd964ca727d50327e0f585461b8c0ae9ef5720452b467522",
+      "checks": [
+        "javascript-syntax",
+        "relative-module-references",
+        "read-and-sha256"
+      ]
+    },
+    {
       "file": "scripts/run-electron-check.cjs",
       "bytes": 1335,
       "sha256": "52c702234d0cacf1447e414c1b4219366ebe59452952af6ee41d257266926a94",
@@ -211,9 +231,39 @@
       ]
     },
     {
+      "file": "scripts/sign-release.cjs",
+      "bytes": 1828,
+      "sha256": "94a1ba6542142f34bc67a509b0b92d0fe761ff33f936129d9ad9287f17d85bc0",
+      "checks": [
+        "javascript-syntax",
+        "relative-module-references",
+        "read-and-sha256"
+      ]
+    },
+    {
       "file": "scripts/tool-scenarios.cjs",
       "bytes": 20125,
       "sha256": "d8c0573ecd474817f04c1e677b1a815313bafdc74895fc7e9e0b6d82e2abe153",
+      "checks": [
+        "javascript-syntax",
+        "relative-module-references",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "scripts/update-keys.cjs",
+      "bytes": 2090,
+      "sha256": "28b9185ef80ed88514808372c6d5b64d21ced7d0e84ac8cd467a8cfc976b2663",
+      "checks": [
+        "javascript-syntax",
+        "relative-module-references",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "scripts/update-scenarios.cjs",
+      "bytes": 6309,
+      "sha256": "37a2222b2413d37a81b5ac81960fb4e18e9cbf125e303bddb041a907d4dd488e",
       "checks": [
         "javascript-syntax",
         "relative-module-references",
@@ -241,9 +291,19 @@
       ]
     },
     {
+      "file": "scripts/verify-build.cjs",
+      "bytes": 2067,
+      "sha256": "8c8365508516fc3e9be69ba1d99743c2801f5ce0376916d66be7c8f799538223",
+      "checks": [
+        "javascript-syntax",
+        "relative-module-references",
+        "read-and-sha256"
+      ]
+    },
+    {
       "file": "scripts/visual-regression.cjs",
-      "bytes": 9536,
-      "sha256": "e2c3d3df3e3e5de625e4dffe187cda58a02159238a9c1ad78f31b6344f18a264",
+      "bytes": 11951,
+      "sha256": "4b6bdee5d8e1b8c6ad07897f0fd4a22009d858190419144f5fccb0743861f88d",
       "checks": [
         "javascript-syntax",
         "relative-module-references",
@@ -252,8 +312,8 @@
     },
     {
       "file": "src/main/autoUpdater.js",
-      "bytes": 3095,
-      "sha256": "3d2db0e8db757a9002530cdb04aa6a7f4f94e6d642f43c8788848b67d3bba952",
+      "bytes": 5771,
+      "sha256": "afec572f3abe4d5db44b11873a807ccef5ac540b2846779332bd6902ff0e3c9b",
       "checks": [
         "javascript-syntax",
         "relative-module-references",
@@ -282,8 +342,8 @@
     },
     {
       "file": "src/main/main.js",
-      "bytes": 20490,
-      "sha256": "59fdf26acd4335edec5cac4ba1049cdf58cee68e715bf755b301a539a858de7a",
+      "bytes": 20640,
+      "sha256": "c4d5c66d39639a956ca43e7f56a9db6c3e915d37cd1923771ed96cb064885eff",
       "checks": [
         "javascript-syntax",
         "relative-module-references",
@@ -294,6 +354,25 @@
       "file": "src/main/recoveryStore.js",
       "bytes": 5786,
       "sha256": "abe8dbd2cc90b097165c529d274b2e109ed61f0b0409fdc5decf105db4733655",
+      "checks": [
+        "javascript-syntax",
+        "relative-module-references",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "src/main/update-trust.json",
+      "bytes": 164,
+      "sha256": "8df805e1885759343300566a29cb46d5cc55ed4742d2d0d7c93cf093f674f26d",
+      "checks": [
+        "json",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "src/main/updateSignature.js",
+      "bytes": 3329,
+      "sha256": "f44af68bb9896040d26f569f63ccf92f88e846cdc62d0a4d5a9482675483513a",
       "checks": [
         "javascript-syntax",
         "relative-module-references",
@@ -342,8 +421,8 @@
     },
     {
       "file": "tests/auto-updater.test.cjs",
-      "bytes": 3617,
-      "sha256": "9fee56f1723a6c8f91d0cb5f9a65e9262facc8d84e5e764795fde7dcd3e3f98e",
+      "bytes": 6151,
+      "sha256": "99834720f1fba6e0e3d8b2234636d140276bb14233f6d6711f68104d03d2a961",
       "checks": [
         "javascript-syntax",
         "relative-module-references",
@@ -1003,6 +1082,465 @@
       "file": "tests/visual/baselines/win32-electron34/settings-oled.png",
       "bytes": 92117,
       "sha256": "b59e0d0d705fcf512a66b75185138e0a5493ea0f96927012165f9b7681f1854e",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/buttons-amethyst.png",
+      "bytes": 63073,
+      "sha256": "f614cf3f6b6fc3552070906e43f748e57b938afcc296c13a2754637eb533d0ed",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/buttons-dark.png",
+      "bytes": 62204,
+      "sha256": "415e4b7119b4d2337d4a5972cfda92f61400bf00a48d63ad7ecb518a98aaf6f3",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/buttons-forest.png",
+      "bytes": 61939,
+      "sha256": "bafb0a4f24a2b99cb68d9cb11fab0bd5315fb312cc8a9a77e5e9c6c06a0f0a55",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/buttons-light-mint.png",
+      "bytes": 66945,
+      "sha256": "2b11359a55012b06fbe03a0e9607294176ec6c9d0326a005d14d640d79b7fb55",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/buttons-light-nord.png",
+      "bytes": 67082,
+      "sha256": "3b89cd46eb9766a48d6ca5a9bb2c88bd9f519f854b0d21295a79e110e52ac105",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/buttons-light-rose.png",
+      "bytes": 66953,
+      "sha256": "61646fc706da8e576716e40c5622145833d977474133111cc02a6ac12efc1e60",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/buttons-light-warm.png",
+      "bytes": 66963,
+      "sha256": "a093f21192ff850e1c44a5043f22cd2cd0d5859f6e30c6fb5d7c8973fb09a2c5",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/buttons-light.png",
+      "bytes": 66849,
+      "sha256": "26ec13909627a668fa3de5f168cd74a99abc63077c3017b9213662b1b2d6ce2b",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/buttons-midnight.png",
+      "bytes": 62074,
+      "sha256": "b921b23e952e4cd0c6b5029bb8d4561f994e5baa6fc1b7c697f776175c27b8f8",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/buttons-oled.png",
+      "bytes": 57914,
+      "sha256": "868cb4c026bcfd1a1823731a2564fae22549310d5fa3d4bcf101e6ac9664d34f",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/editor-amethyst.png",
+      "bytes": 86225,
+      "sha256": "6cc75b11366a80b730414618e5112117acc5fe3c0fd5744b0bb00f60ea15fe57",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/editor-dark.png",
+      "bytes": 85904,
+      "sha256": "fa79c0bc84dd5a1c7d3b9a79f61e5a4d50f4cdf2ff7e0446ad2179c2aa77e47a",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/editor-forest.png",
+      "bytes": 85748,
+      "sha256": "86431450468d288fc50cd27ec3f7b1fdec66516939d12feb376a973a31e3a4c8",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/editor-light-mint.png",
+      "bytes": 84796,
+      "sha256": "c0bd9eb2f10f620a7c029c69391a7e903a684afddd7f084eb03d3f653b8cb320",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/editor-light-nord.png",
+      "bytes": 84773,
+      "sha256": "9fced06d92e757dd19ba45fcdbfaf909356a7ef80a8d7d510b46ae0b4592b68b",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/editor-light-rose.png",
+      "bytes": 84558,
+      "sha256": "ffad75a4413e487d8ebe33968476f0cc2d2966da0bbb99d2768fada69073ac9f",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/editor-light-warm.png",
+      "bytes": 85131,
+      "sha256": "1dd686d209a77fc39b6d06ff333159ba6cde287380e0ecdae7eb5908fb653133",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/editor-light.png",
+      "bytes": 84316,
+      "sha256": "d4d20306c6e7bfed6f7ea7736f448c050bc9a4154aa56c9d980d568a97d5cba9",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/editor-midnight.png",
+      "bytes": 85678,
+      "sha256": "b761844fc7e153c887412fa57eede69805cef6205826f2260c596af364d00ba2",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/editor-oled.png",
+      "bytes": 83507,
+      "sha256": "d9491e39f28b53c6c69df9ceb96f7a7db1ac11c17c1bc0d5a1cd354c8d1e36f5",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/index-amethyst.png",
+      "bytes": 62968,
+      "sha256": "883804e6791f7cd9777203f879b3e08bce0ef5dda44d09148d5c5155da85a6d6",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/index-dark.png",
+      "bytes": 62128,
+      "sha256": "1a1943ccf920311a0824766a650ddc854d63e261df9d5b440405e117b1d08213",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/index-forest.png",
+      "bytes": 62430,
+      "sha256": "338d888665cca745e05e7ce151096e7e2764f04e69e15b9426c5eed82e86129c",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/index-light-mint.png",
+      "bytes": 63215,
+      "sha256": "4f5622bed360413254c7b885005dc9268fca5ea43c2d870d1e4417f1f0b2ec9d",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/index-light-nord.png",
+      "bytes": 62911,
+      "sha256": "7fe068ed91eb0a241790eaf7f4b69c76e283e5bf42322be3c3173ebaea0d014c",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/index-light-rose.png",
+      "bytes": 63151,
+      "sha256": "a85dc07406fefd64fd3e18ea152c2056f50f491c25dda4750e1c67587f4ad64b",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/index-light-warm.png",
+      "bytes": 63218,
+      "sha256": "d07d23b875818753f182a08cd57efefc2f6803963fce9434af8c9989e8b5bcd7",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/index-light.png",
+      "bytes": 61754,
+      "sha256": "e737f05a6ab2354b500c16e5ac031daa71a7ef1e3e2758d52942bae9ba5a8f34",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/index-midnight.png",
+      "bytes": 62836,
+      "sha256": "48a33e48619178d279047081fe1fb5e591349119ea161c332679005e8940a612",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/index-oled.png",
+      "bytes": 59805,
+      "sha256": "82fa19feac96f10beea2f695380fa4d88c748a7a6fe6f928368b21cffb55a277",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/manifest.json",
+      "bytes": 392,
+      "sha256": "86e2e63a240a6a954f4c8c07598465862b06f25dd1bf6eb8295fc447850a9667",
+      "checks": [
+        "json",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/new-project-amethyst.png",
+      "bytes": 47470,
+      "sha256": "c354da489107e2d1abcc6491f1722122aa45736522abcc1d09792534b631711c",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/new-project-dark.png",
+      "bytes": 47378,
+      "sha256": "10524192dc1d57fa2a1cb84a64087559908bcd8b108267b2f62039f3135397b0",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/new-project-forest.png",
+      "bytes": 47116,
+      "sha256": "25f05f2aac9afcaeefbb302d01729899f4e168d2955f59dab6e53105629e7246",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/new-project-light-mint.png",
+      "bytes": 46707,
+      "sha256": "4d40e870a88c12dc3dc6390243b6b71966a7fdc4ca5ff5ea503af4098564e325",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/new-project-light-nord.png",
+      "bytes": 46831,
+      "sha256": "18f61e41096cc80d6c47f7317cbcb84373515ad6cfadfafd8032f6a214fb41e6",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/new-project-light-rose.png",
+      "bytes": 46797,
+      "sha256": "9d2c6bc7e5b759b5daa3f81bb2aa32bd3b175d52c9770f67cc00490732b3b058",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/new-project-light-warm.png",
+      "bytes": 46802,
+      "sha256": "f041bd1cac1d08e6d09b62de2ec2e59fb1daeeec1363c89582456fa935c39a54",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/new-project-light.png",
+      "bytes": 46196,
+      "sha256": "e7de72d35c8d7bbeb7d2d44dbdb6f675ae5787a10bf8b4449012eb7763e2ed35",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/new-project-midnight.png",
+      "bytes": 47142,
+      "sha256": "6b864ea35cdee3a9fe106471a82d2fea9d2a83fdb569494a3ca1ec07632bf75b",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/new-project-oled.png",
+      "bytes": 45809,
+      "sha256": "4dc88417bfd9c4427f4465a157bc82557e3b07405bfce79d304969ee0ff13055",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/settings-amethyst.png",
+      "bytes": 90279,
+      "sha256": "c74fa3246ef5c612bf18691dda1f3825beb679df5877fec7f56d67614ca10109",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/settings-dark.png",
+      "bytes": 89488,
+      "sha256": "03804ddc4a897857f58d434f0781bafd45ad9dde99c6f71b8d50cf40015f9c57",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/settings-forest.png",
+      "bytes": 89554,
+      "sha256": "14f1f8b34955502a82c7c710d57510857ac9aa5b97c641c7293c277b6adbda40",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/settings-light-mint.png",
+      "bytes": 89398,
+      "sha256": "69c5424ea8ea415e10e0051bde69559664c31c643d964418944aebe3609bdc3c",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/settings-light-nord.png",
+      "bytes": 89683,
+      "sha256": "40b2012cd0945129c4886313a0b8beb94e3cc5420bcf206481a039fcadde1d38",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/settings-light-rose.png",
+      "bytes": 89564,
+      "sha256": "49302ec556a1b483228bb24a5dd4568d0219f16d02af1130cf3068051fe95960",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/settings-light-warm.png",
+      "bytes": 89680,
+      "sha256": "fd0c4af9bbe3a70aa7f8a4fbba940f0e90f8b3337d52aebaad68c2b28468dec3",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/settings-light.png",
+      "bytes": 89222,
+      "sha256": "2dc9b1230e0203de9e520339b68b2c9ba11cee05d396b60b3bc2bcba486d3e9d",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/settings-midnight.png",
+      "bytes": 90055,
+      "sha256": "62a98498920f7034c4523afd855a195978cc0471802dcaf49617f5f2713352b8",
+      "checks": [
+        "png-signature-and-chunk-checksums",
+        "read-and-sha256"
+      ]
+    },
+    {
+      "file": "tests/visual/baselines/win32-electron44/settings-oled.png",
+      "bytes": 89006,
+      "sha256": "40c508670585d88099cfdefc3cd6a5b145e66cdd74e371ca30aac72add3e9286",
       "checks": [
         "png-signature-and-chunk-checksums",
         "read-and-sha256"

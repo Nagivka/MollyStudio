@@ -211,7 +211,7 @@ app.whenReady().then(async () => {
             preload: path.join(root, 'src/preload/preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true
         } });
         editorWindow = window;
-        window.webContents.on('console-message', (_event, level, message) => { if (level === 3 && !/ERR_BLOCKED_BY_CLIENT/.test(message)) errors.push(message); });
+        window.webContents.on('console-message', ({ level, message }) => { if (level === 'error' && !/ERR_BLOCKED_BY_CLIENT/.test(message)) errors.push(message); });
         await window.loadFile(path.join(root, 'www/editor.html'), { query: { new: 'true', type: 'canvas', width: '32', height: '32', name: 'Isolated audit test' } });
         const results = await window.webContents.executeJavaScript(`(${exerciseEditor.toString()})()`);
         await window.webContents.executeJavaScript(`(${inspectSharedControls.toString()})()`);
@@ -220,7 +220,7 @@ app.whenReady().then(async () => {
         secondary = new BrowserWindow({ show: false, width: 1120, height: 760, webPreferences: {
             preload: path.join(root, 'src/preload/preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true
         } });
-        secondary.webContents.on('console-message', (_event, level, message) => { if (level === 3 && !/ERR_BLOCKED_BY_CLIENT/.test(message)) errors.push(message); });
+        secondary.webContents.on('console-message', ({ level, message }) => { if (level === 'error' && !/ERR_BLOCKED_BY_CLIENT/.test(message)) errors.push(message); });
         await secondary.loadFile(path.join(root, 'www/buttons.html'));
         const generatorReady = await secondary.webContents.executeJavaScript('!!window.buttonGenApp && window.buttonGenApp.currentChin === 0');
         if (!generatorReady) throw new Error('Standalone generator did not initialize');
@@ -287,7 +287,7 @@ app.whenReady().then(async () => {
         results.push('new-project uses shared select arrows');
         await secondary.loadFile(path.join(root, 'www/index.html'));
         const launcher = await secondary.webContents.executeJavaScript(`(async () => {
-            document.querySelector('.create-proj-btn').click();
+            document.getElementById('btn-hero-create').click();
             await new Promise(resolve => setTimeout(resolve, 50));
             return !document.querySelector('#new-project-modal').classList.contains('show') && !window.MaterialUI;
         })()`);

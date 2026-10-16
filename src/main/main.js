@@ -7,6 +7,7 @@ const { fileURLToPath } = require('node:url');
 const { initializeAutoUpdater } = require('./autoUpdater.js');
 
 let mainWindow = null;
+let updateController = null;
 const recoveryCloseWaiters = new Map();
 ipcMain.handle('recovery-drafts-flushed', (event, success = true, confirmClose = false) => {
     const win = BrowserWindow.fromWebContents(event.sender);
@@ -33,11 +34,12 @@ function waitForRecoveryBeforeClose(win) {
                     const result = await dialog.showMessageBox(win, { type: 'question', title: 'Закрыть MollyStudio?',
                         message: 'Есть изменения, не сохранённые в файл.', detail: 'Автокопии сохранены. Их можно открыть на главном экране при следующем запуске.',
                         buttons: ['Вернуться', 'Закрыть'], defaultId: 0, cancelId: 0 });
-                    if (result.response !== 1 || win.isDestroyed()) return;
+                    if (result.response !== 1 || win.isDestroyed()) { updateController?.cancelRestart?.(); return; }
                 }
                 win.__recoveryFlushComplete = true;
                 win.close();
             } else {
+                updateController?.cancelRestart?.();
                 win.webContents.send('recovery-flush-failed');
             }
         };
@@ -139,8 +141,8 @@ function createWindow() {
         console.error(`[RENDERER FAIL LOAD] ${errorCode}: ${errorDescription} for ${validatedURL}`);
     });
 
-    mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
-        console.log(`[RENDERER CONSOLE ${level}] ${message} (${sourceId}:${line})`);
+    mainWindow.webContents.on('console-message', details => {
+        console.log(`[RENDERER CONSOLE ${details.level}] ${details.message} (${details.sourceId}:${details.lineNumber})`);
     });
 
     // Show window smoothly
@@ -553,7 +555,7 @@ ipcMain.handle('discord-reconnect', () => {
 app.whenReady().then(() => {
     if (gotTheLock) {
         createWindow();
-        initializeAutoUpdater({ app, autoUpdater: require('electron-updater').autoUpdater, dialog, getWindow: () => mainWindow });
+        updateController = initializeAutoUpdater({ app, autoUpdater: require('electron-updater').autoUpdater, dialog, getWindow: () => mainWindow });
         try {
             discordRPC.connect();
             discordRPC.setActivity({
