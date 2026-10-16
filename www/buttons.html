@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com;">
+    <title>Генератор кнопок GUI</title>
+    <link rel="icon" type="image/png" href="assets/images/icon/icon256.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/buttons.css">
+    <link rel="stylesheet" href="css/material-you.css">
+    <link rel="stylesheet" href="css/application-ui.css">
+    
+    <script src="js/theme-init.js"></script>
+    <script type="module" src="js/ui/ApplicationUI.js"></script>
+</head>
+<body>
+
+<div class="buttons-win-shell">
+    
+    <!-- Custom Frameless Titlebar -->
+    <header class="buttons-win-titlebar">
+        <div class="buttons-win-titlebar-left">
+            <span class="material-symbols-rounded buttons-win-titlebar-icon">smart_button</span>
+            <span>Генератор кнопок</span>
+        </div>
+
+        <div class="buttons-win-titlebar-controls">
+            <button class="titlebar-btn m3-bubble-action" id="btn-win-min" title="Свернуть" aria-label="Свернуть" type="button">
+                <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 5.5h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </button>
+            <button class="titlebar-btn m3-bubble-action" id="btn-win-max" title="Развернуть" aria-label="Развернуть" type="button">
+                <svg width="10" height="10" viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.2" rx="0.5"/></svg>
+            </button>
+            <button class="titlebar-btn titlebar-btn-close m3-bubble-action" id="btn-win-close" title="Закрыть" aria-label="Закрыть" type="button">
+                <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1.8 1.8l6.4 6.4M8.2 1.8l-6.4 6.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace Body -->
+    <div class="buttons-win-body">
+
+        <!-- Left Controls Column: Guaranteed Effortless Wheel Scroll -->
+        <aside class="buttons-sidebar">
+            <div class="buttons-sidebar-scroll-area">
+
+                <!-- 1. Размеры и слоты -->
+                <div class="m3-card">
+                    <div class="card-header">
+                        <span class="card-title">
+                            <span class="material-symbols-rounded">grid_on</span>
+                            Размеры и слоты
+                        </span>
+                    </div>
+
+                    <!-- Режим сетки слотов -->
+                    <div class="control-group">
+                        <div class="control-label-row">
+                            <span>Режим сетки слотов:</span>
+                        </div>
+                        <div class="m3-segmented-button" role="group" aria-label="Режим сетки слотов">
+                            <button type="button" class="m3-segment-item active" id="segSlotFull" aria-pressed="true">Полный 18×18 px</button>
+                            <button type="button" class="m3-segment-item" id="segSlotInner" aria-pressed="false">Внутренний 16×16 px</button>
+                        </div>
+                    </div>
+
+                    <!-- Колонки -->
+                    <div class="control-group">
+                        <div class="control-label-row">
+                            <span>Колонки:</span>
+                            <span class="control-value-text" id="colsValText">1 слот 18 px</span>
+                        </div>
+                        <div class="m3-chip-row" id="colsChipsRow"></div>
+                    </div>
+
+                    <!-- Ряды -->
+                    <div class="control-group">
+                        <div class="control-label-row">
+                            <span>Ряды:</span>
+                            <span class="control-value-text" id="rowsValText">1 ряд 18 px</span>
+                        </div>
+                        <div class="m3-chip-row" id="rowsChipsRow"></div>
+                    </div>
+
+                    <!-- Пресеты -->
+                    <div class="m3-presets-row" id="presetsRow"></div>
+                </div>
+
+                <!-- 2. Внешний вид и геометрия -->
+                <div class="m3-card">
+                    <div class="card-header">
+                        <span class="card-title">
+                            <span class="material-symbols-rounded">palette</span>
+                            Внешний вид и геометрия
+                        </span>
+                    </div>
+
+                    <!-- Стиль кнопки -->
+                    <div class="control-group">
+                        <div class="control-label-row">
+                            <span>Стиль кнопки:</span>
+                        </div>
+                        <div class="m3-segmented-button" role="group" aria-label="Стиль кнопки">
+                            <button type="button" class="m3-segment-item active" id="segStyleDefault" aria-pressed="true">DEFAULT</button>
+                            <button type="button" class="m3-segment-item" id="segStyleTen" aria-pressed="false">TEN</button>
+                            <button type="button" class="m3-segment-item" id="segStyleFlat" aria-pressed="false">FLAT</button>
+                        </div>
+                    </div>
+
+                    <!-- Высота подбородка: по умолчанию 1 px -->
+                    <div class="control-group">
+                        <div class="control-label-row">
+                            <span>Высота подбородка:</span>
+                            <span class="control-value-text" id="chinValText">0 px</span>
+                        </div>
+                        <input type="range" class="m3-slider" id="chinInput" min="0" max="5" value="0">
+                        <div class="m3-chip-row" id="chinChipsRow"></div>
+                    </div>
+
+                    <!-- Толщина фаски -->
+                    <div class="control-group">
+                        <div class="control-label-row">
+                            <span>Толщина фаски:</span>
+                            <span class="control-value-text" id="shadowValText">1 px</span>
+                        </div>
+                        <input type="range" class="m3-slider" id="shadowInput" min="1" max="5" value="1">
+                        <div class="m3-chip-row" id="shadowChipsRow"></div>
+                    </div>
+
+                    <!-- Непрозрачность поверхности -->
+                    <div class="control-group">
+                        <div class="control-label-row">
+                            <span>Непрозрачность поверхности:</span>
+                            <span class="control-value-text" id="opacityValText">100%</span>
+                        </div>
+                        <input type="range" class="m3-slider" id="opacityInput" min="0" max="100" value="100">
+                    </div>
+
+                    <!-- Тонированная рамка -->
+                    <div class="m3-switch-row">
+                        <span>Тонированная рамка</span>
+                        <label class="m3-switch">
+                            <input type="checkbox" id="tintedBorderCheck">
+                            <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+                        </label>
+                    </div>
+
+                    <!-- Прозрачная рамка -->
+                    <div class="m3-switch-row">
+                        <span>Прозрачная рамка</span>
+                        <label class="m3-switch">
+                            <input type="checkbox" id="transpBorderCheck">
+                            <span class="m3-switch-track"><span class="m3-switch-thumb"></span></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 3. Цвет и градиенты -->
+                <div class="m3-card">
+                    <div class="card-header">
+                        <span class="card-title">
+                            <span class="material-symbols-rounded">format_paint</span>
+                            Цвет и градиенты
+                        </span>
+                    </div>
+
+                    <!-- Режим цвета -->
+                    <div class="control-group">
+                        <div class="m3-segmented-button" role="group" aria-label="Заливка кнопки">
+                            <button type="button" class="m3-segment-item active" id="segColorSolid" aria-pressed="true">
+                            <span class="material-symbols-rounded" style="font-size: 1rem;">format_color_fill</span>
+                            Сплошной цвет
+                            </button>
+                            <button type="button" class="m3-segment-item" id="segColorGradient" aria-pressed="false">
+                            <span class="material-symbols-rounded" style="font-size: 1rem;">gradient</span>
+                            Градиент
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Сплошной цвет -->
+                    <div id="solidColorSection" class="control-group">
+                        <div class="color-picker-box" id="solidColorBox">
+                            <div class="color-preview-circle" id="colorPreviewWrap">
+                                <input type="color" id="masterColorInput" value="#C5C5C5">
+                            </div>
+                            <input type="text" class="m3-text-field" id="hexTextInput" value="#C5C5C5" maxlength="7">
+                            
+                            <div class="mini-shades-palette" title="Палитра: Рамка, Блик, Тень, Поверхность">
+                                <div class="mini-swatch" id="miniSwatchBd" style="background: #000000;" title="Рамка"></div>
+                                <div class="mini-swatch" id="miniSwatchHl" style="background: #ECECEC;" title="Блик"></div>
+                                <div class="mini-swatch" id="miniSwatchSh" style="background: #7C7C7C;" title="Тень"></div>
+                                <div class="mini-swatch" id="miniSwatchSf" style="background: #C5C5C5;" title="Поверхность"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Градиент -->
+                    <div id="gradientColorSection" class="control-group" style="display: none; flex-direction: column; gap: 8px;">
+                        <div id="gradPreviewBar" style="height: 12px; border-radius: var(--md-shape-corner-small); border: 1px solid var(--md-outline-variant);"></div>
+                        <div id="gradientStopsList" style="display: flex; flex-direction: column; gap: 6px;"></div>
+                        <button type="button" class="m3-btn m3-btn-outlined" id="btnAddGradColor" style="padding: 7px 12px; font-size: 0.78rem; gap: 6px; width: 100%;">
+                            <span class="material-symbols-rounded" style="font-size: 16px;">add</span>
+                            Добавить цвет
+                        </button>
+
+                        <!-- Угол градиента -->
+                        <div class="control-group" style="margin-top: 4px;">
+                            <div class="control-label-row">
+                                <span>Угол градиента:</span>
+                                <span class="control-value-text" id="gradAngleValText">90°</span>
+                            </div>
+                            <input type="range" class="m3-slider" id="gradAngleInput" min="0" max="360" value="90">
+                            <div class="m3-chip-row" id="gradAngleChipsRow"></div>
+                        </div>
+                    </div>
+
+                    <!-- Библиотека палитр MollyStudio -->
+                    <div class="control-group" style="margin-top: 4px;">
+                        <div class="control-label-row">
+                            <span>Библиотека палитр:</span>
+                            <select class="m3-select" id="paletteSelect">
+                                <option value="minecraft" selected>Minecraft Vanilla</option>
+                                <option value="material">Google Material</option>
+                                <option value="nord">Nord Theme</option>
+                                <option value="dracula">Dracula</option>
+                                <option value="pico8">PICO-8</option>
+                                <option value="endesga32">Endesga 32</option>
+                                <option value="resurrect64">Resurrect 64</option>
+                                <option value="dawnbringer16">DawnBringer</option>
+                                <option value="solarized">Solarized</option>
+                                <option value="gameboy">Game Boy</option>
+                                <option value="c64">Commodore 64</option>
+                            </select>
+                        </div>
+                        <div class="color-palette-grid" id="paletteSwatchesGrid"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Импорт только в проект -->
+            <div class="buttons-sidebar-footer">
+                <button type="button" class="m3-btn m3-btn-primary" id="btnImportProject">
+                    <span class="material-symbols-rounded">smart_button</span>
+                    Импортировать в проект
+                </button>
+            </div>
+        </aside>
+
+        <!-- Right Viewport Column: Canvas Preview -->
+        <main class="buttons-viewport">
+
+            <!-- Toolbar -->
+            <div class="viewport-toolbar">
+                <div class="toolbar-group">
+                    <button type="button" class="icon-btn" data-z="1">1x</button>
+                    <button type="button" class="icon-btn" data-z="2">2x</button>
+                    <button type="button" class="icon-btn active" id="zoomBtn3" data-z="3">3x</button>
+                    <button type="button" class="icon-btn" data-z="4">4x</button>
+                </div>
+            </div>
+
+            <!-- Canvas Stage -->
+            <div class="canvas-stage" id="canvasStageArea">
+                <div class="canvas-card-wrapper" id="canvasWrapper">
+                    <canvas id="previewCanvas"></canvas>
+                </div>
+            </div>
+
+        </main>
+
+    </div>
+
+</div>
+
+<!-- Toast notification -->
+<div class="m3-toast" id="toast">
+    <span class="material-symbols-rounded">check_circle</span>
+    <span id="toastText">Готово!</span>
+</div>
+
+<script type="module" src="js/windows/button-generator-window.js"></script>
+</body>
+</html>

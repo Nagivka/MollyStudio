@@ -1,0 +1,29 @@
+{
+  "electron": "34.5.8",
+  "platform": "win32",
+  "themes": [
+    "dark",
+    "oled",
+    "midnight",
+    "forest",
+    "amethyst",
+    "light",
+    "light-nord",
+    "light-warm",
+    "light-rose",
+    "light-mint"
+  ],
+  "pages": [
+    "index",
+    "editor",
+    "settings",
+    "new-project",
+    "buttons"
+  ],
+  "viewport": [
+    1280,
+    800
+  ],
+  "zoom": 1,
+  "offlineFonts": true
+}

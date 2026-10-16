@@ -1,0 +1,19 @@
+{
+  "version": "1.2.5",
+  "source": "MollyStudio-Setup-1.2.5.exe",
+  "files": {
+    "index.html": "95ebfd24bebac41b44f57d3cf9e316eec9aa847c970d80b7ff9d2bcfcd041097",
+    "editor.html": "6a840e226d2ecb03712f4a9c3c919f959b527dc1b24cd23441a77e9527b9e139",
+    "settings.html": "ae0a22b556e842f7785559d50c16b561cc0213c4d68722ec5a7c690147c77bf6",
+    "new-project.html": "d2ee17f5633ac9524577de6fc379599e640aee96f02b7395b7e9af4e92748e91",
+    "buttons.html": "f0772f6ed7356f75232dd08348f6854d31625f179ba1f16ae25a7caeca3b6f11",
+    "css/style.css": "bb37970d71b911e6f816486ca82c0f481b7cf1c6737b02f1bfc90a6aee2481ef",
+    "css/material-you.css": "9a95b595157d8f2680b50cce69322da9155b36c10583ea8f9060318050ff8728",
+    "css/buttons.css": "bdfed3b33b66475e533423e4975a0e6b3c834487f48f600014cf377bc2a63b8d",
+    "css/launcher.css": "77d8a8387a6eaae5b9d5ea9453e2d0f5668d2790394130a7c7c3744d17d7b203",
+    "js/launcher.js": "1072bcfce5a7e1621b5f2972af2f19b1d355047ea8743d4c1453da76665102ba",
+    "js/ui/Ripple.js": "042dbaaef95904c93b8e5d70d587f7d8aaf3cfa43fb1d1589ad4b2692a97fe8e",
+    "js/ui/ConfirmDialog.js": "74a3b3c065bd1ab2b2b02559b17a4565c1e43ff7b1d5c1789c4e581ab8918c82"
+  },
+  "htmlAdjustment": "Remove only obsolete js/desktop-bridge.js script; current controllers use Electron preload."
+}

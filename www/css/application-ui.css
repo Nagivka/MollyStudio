@@ -1,0 +1,549 @@
+/* Shared application controls. Extends the accepted 1.2.5 design without changing page layouts. */
+:root {
+    --ui-control-height: 36px;
+    --ui-compact-height: 30px;
+    --ui-chip-height: 32px;
+    --ui-control-gap: 8px;
+    --ui-switch-width: 48px;
+    --ui-switch-height: 28px;
+    --ui-track-height: 6px;
+    --ui-thumb-size: 16px;
+    --ui-transition: 160ms var(--md-motion-easing-standard);
+    --ui-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='m3 4.5 3 3 3-3' fill='none' stroke='%23c4c7c5' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+:root[data-theme^="light"] {
+    --ui-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='m3 4.5 3 3 3-3' fill='none' stroke='%23444746' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* Identical type, spacing and state treatments in standalone windows and embedded panels. */
+:is(button, input, select, textarea) {
+    font-family: var(--md-sys-font-family);
+}
+
+button > .material-symbols-rounded {
+    pointer-events: none;
+}
+
+:is(button, [role="button"], [role="tab"]) {
+    -webkit-tap-highlight-color: transparent;
+}
+
+:is(.md-btn, .m3-btn) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ui-control-gap);
+    max-width: 100%;
+    flex-shrink: 0;
+    line-height: 1.25;
+    transition: background-color var(--ui-transition), color var(--ui-transition),
+        border-color var(--ui-transition), box-shadow var(--ui-transition);
+}
+
+:is(.md-btn, .m3-btn):disabled {
+    filter: none;
+    box-shadow: none;
+}
+
+:is(.md-btn.danger, .m3-btn.danger) {
+    background: var(--md-error-container);
+    color: var(--md-on-error-container);
+}
+
+:is(.md-chip-btn, .m3-chip, .m3-preset-btn, .preset-chip, .anchor-btn, .icon-btn) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: var(--ui-chip-height);
+    border: 1px solid var(--md-outline);
+    border-radius: var(--md-shape-corner-chip);
+    background: transparent;
+    color: var(--md-on-surface-variant);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.2;
+    transition: background-color var(--ui-transition), color var(--ui-transition),
+        border-color var(--ui-transition);
+}
+
+:is(.md-chip-btn, .m3-chip, .m3-preset-btn, .preset-chip, .anchor-btn, .icon-btn):hover:not(:disabled) {
+    background: var(--md-state-hover);
+    color: var(--md-on-surface);
+    transform: none;
+}
+
+:is(.md-chip-btn, .m3-chip, .preset-chip, .anchor-btn, .icon-btn).active,
+:is(.md-chip-btn, .m3-chip, .preset-chip, .anchor-btn, .icon-btn)[aria-pressed="true"] {
+    background: var(--md-secondary-container);
+    color: var(--md-on-secondary-container);
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.m3-segment-item {
+    min-width: 0;
+    line-height: 1.25;
+}
+
+:is(.md-icon-btn, .md-icon-btn-micro, .md-zoom-btn, .md-zoom-text-btn,
+    .btn-icon-sm, .m3-icon-action-btn, .layer-btn, .cat-nav-btn, .clear-search-btn, .btn-micro-text) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--md-on-surface-variant);
+    border-radius: var(--md-shape-corner-full);
+    transition: background-color var(--ui-transition), color var(--ui-transition);
+}
+
+:is(.md-icon-btn, .md-icon-btn-micro, .md-zoom-btn, .md-zoom-text-btn,
+    .btn-icon-sm, .m3-icon-action-btn, .layer-btn, .cat-nav-btn, .clear-search-btn, .btn-micro-text):hover:not(:disabled) {
+    background-color: var(--md-state-hover);
+    color: var(--md-on-surface);
+}
+
+/* Match the outlined fields already used by project creation and settings. */
+:is(.md-input, .md-select, .m3-text-field, .m3-select, .md-number-input,
+    .prop-select-full, .prop-text-area, .md-hex-input, .md-palette-select,
+    .ramp-mini-select, .md-items-search-input, .layer-rename-input) {
+    border-radius: var(--md-shape-corner-input);
+    border: 1px solid var(--md-outline);
+    background-color: var(--md-surface-container-lowest);
+    color: var(--md-on-surface);
+    transition: border-color var(--ui-transition), box-shadow var(--ui-transition);
+}
+
+:is(.md-input, .md-select, .m3-text-field, .m3-select, .md-number-input) {
+    min-height: var(--ui-control-height);
+}
+
+:is(.options-bar, .right-panel, .bottom-status-bar, .m3-layer-context-menu)
+    :is(.md-input, .md-select, .m3-text-field, .m3-select, .md-number-input) {
+    min-height: var(--ui-compact-height);
+}
+
+:is(input, textarea)::placeholder {
+    color: var(--md-on-surface-variant);
+    opacity: 0.7;
+}
+
+:is(input, select, textarea)[aria-invalid="true"] {
+    border-color: var(--md-error);
+}
+
+.prop-input-field {
+    min-width: 0;
+    min-height: var(--ui-compact-height);
+    background: var(--md-surface-container-lowest);
+    border-color: var(--md-outline);
+    border-radius: var(--md-shape-corner-input);
+}
+
+.prop-input-field:focus-within {
+    outline: 2px solid var(--md-primary);
+    outline-offset: 2px;
+}
+
+.prop-input-field .prop-num-input:focus-visible {
+    outline: none !important;
+}
+
+.prop-action-btn {
+    min-width: 0;
+    min-height: var(--ui-compact-height);
+    border: 1px solid var(--md-outline);
+    background: transparent;
+    color: var(--md-on-surface);
+}
+
+.prop-action-btn:hover:not(:disabled) {
+    background: var(--md-state-hover);
+}
+
+select option,
+select optgroup {
+    color: var(--md-on-surface);
+    background-color: var(--md-surface-container);
+}
+
+/* The arrow has a reserved area, including compact toolbar and inspector selects. */
+:root select:not([multiple]) {
+    appearance: none;
+    padding-inline-start: 10px !important;
+    padding-inline-end: 32px !important;
+    background-image: var(--ui-select-arrow) !important;
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+/* Preserve the native input and keyboard interaction. Hue tracks keep their spectrum. */
+:root input[type="range"]:not(.md-hue-slider) {
+    appearance: none;
+    height: var(--ui-track-height);
+    padding: 0;
+    border: 0;
+    border-radius: var(--md-shape-corner-full);
+    background: var(--md-surface-container-highest);
+    cursor: pointer;
+}
+
+:root input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: var(--ui-thumb-size);
+    height: var(--ui-thumb-size);
+    margin: 0;
+    border: 2px solid var(--md-surface);
+    border-radius: 50%;
+    background: var(--md-primary);
+    box-shadow: var(--md-elevation-level1);
+    transition: box-shadow var(--ui-transition), transform var(--ui-transition);
+}
+
+:root input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 5px var(--md-state-hover);
+}
+
+:root input[type="range"]::-webkit-slider-thumb:active {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 7px var(--md-state-pressed);
+}
+
+/* Both historic switch class names now share the settings switch's geometry. */
+:is(.md-switch, .m3-switch) {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    min-height: var(--ui-switch-height);
+    width: auto;
+    height: auto;
+    cursor: pointer;
+}
+
+.md-switch > input[type="checkbox"],
+.m3-switch > input[type="checkbox"] {
+    position: absolute;
+    display: block;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+
+:is(.md-switch-track, .m3-switch-track) {
+    position: relative;
+    display: block;
+    inset: auto;
+    width: var(--ui-switch-width);
+    height: var(--ui-switch-height);
+    flex: 0 0 var(--ui-switch-width);
+    border: 2px solid var(--md-outline);
+    border-radius: var(--md-shape-corner-full);
+    background: var(--md-surface-container-highest);
+    transition: background-color var(--ui-transition), border-color var(--ui-transition);
+}
+
+:is(.md-switch-thumb, .m3-switch-thumb) {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    bottom: auto;
+    width: 16px;
+    height: 16px;
+    transform: none;
+    border-radius: 50%;
+    background: var(--md-outline);
+    transition: transform var(--ui-transition), background-color var(--ui-transition),
+        width var(--ui-transition), height var(--ui-transition), top var(--ui-transition), left var(--ui-transition);
+}
+
+.md-switch input:checked + .md-switch-track,
+.m3-switch input:checked + .m3-switch-track {
+    background: var(--md-primary);
+    border-color: var(--md-primary);
+}
+
+.md-switch input:checked + .md-switch-track .md-switch-thumb,
+.m3-switch input:checked + .m3-switch-track .m3-switch-thumb {
+    top: 2px;
+    left: 2px;
+    bottom: auto;
+    width: 20px;
+    height: 20px;
+    transform: translateX(20px);
+    background: var(--md-on-primary);
+}
+
+:is(.md-switch, .m3-switch) input:focus-visible + span {
+    outline: 2px solid var(--md-primary);
+    outline-offset: 2px;
+}
+
+:is(.md-switch, .m3-switch) input:disabled + span {
+    opacity: 0.38;
+    cursor: not-allowed;
+}
+
+input[type="checkbox"]:not(.md-switch input, .m3-switch input),
+input[type="radio"] {
+    appearance: none;
+    display: inline-grid;
+    place-content: center;
+    vertical-align: middle;
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    border: 2px solid var(--md-outline);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--md-on-primary);
+    cursor: pointer;
+}
+
+input[type="checkbox"]:not(.md-switch input, .m3-switch input):checked {
+    background: var(--md-primary);
+    border-color: var(--md-primary);
+}
+
+input[type="checkbox"]:not(.md-switch input, .m3-switch input)::before {
+    content: '';
+    width: 10px;
+    height: 6px;
+    border-left: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-1px) rotate(-45deg) scale(0);
+}
+
+input[type="checkbox"]:not(.md-switch input, .m3-switch input):checked::before {
+    transform: translateY(-1px) rotate(-45deg) scale(1);
+}
+
+input[type="checkbox"]:indeterminate::before {
+    width: 8px;
+    height: 0;
+    border-left: 0;
+    border-color: var(--md-primary);
+    transform: none;
+}
+
+input[type="radio"] {
+    border-radius: 50%;
+}
+
+input[type="radio"]:checked {
+    border-color: var(--md-primary);
+    background: radial-gradient(circle, var(--md-primary) 0 4px, transparent 4.5px);
+}
+
+/* Color swatches expose the selected color rather than a cropped OS widget. */
+.color-preview-circle > input[type="color"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    appearance: none;
+    border-radius: inherit;
+    opacity: 1;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border: 0;
+    border-radius: inherit;
+}
+
+.color-preview-circle:focus-within {
+    outline: 2px solid var(--md-primary);
+    outline-offset: 2px;
+}
+
+.grad-stop-row {
+    min-width: 0;
+}
+
+.grad-stop-row .gradient-stop-select {
+    flex: 0 0 24px;
+    width: 24px;
+    min-height: 28px;
+}
+
+.grad-stop-row .m3-text-field {
+    width: 0;
+    min-width: 0;
+    flex: 1 1 0;
+}
+
+/* Menus, inspector sections and modal variants use the same tonal surfaces. */
+:is(.menu-dropdown, .m3-layer-context-menu) {
+    background: var(--md-surface-container-high);
+    color: var(--md-on-surface);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: var(--md-shape-corner-card);
+    box-shadow: var(--md-elevation-level2);
+}
+
+:is(.menu-dropdown [role="menuitem"], .m3-ctx-item) {
+    border-radius: var(--md-shape-corner-small);
+    color: var(--md-on-surface);
+}
+
+:is(.menu-dropdown [role="menuitem"], .m3-ctx-item):is(:hover, :focus-visible) {
+    background: var(--md-state-hover);
+}
+
+.m3-ctx-item.destructive,
+.m3-ctx-item.destructive i {
+    color: var(--md-error);
+}
+
+.modal-header > h2,
+.modal-header h2 {
+    color: var(--md-on-surface);
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+.modal-footer {
+    gap: var(--ui-control-gap);
+    flex-wrap: wrap;
+}
+
+.btn-gen-modal {
+    width: min(1040px, calc(100vw - 32px));
+    height: min(86vh, 840px);
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - 24px);
+}
+
+.btn-gen-modal .modal-header {
+    flex-shrink: 0;
+}
+
+.btn-gen-modal .modal-body {
+    padding: 0;
+}
+
+.btn-gen-modal .btn-close-modal {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+}
+
+.canvas-stage {
+    background: var(--md-surface-container-lowest);
+}
+
+.m3-toast .material-symbols-rounded {
+    color: inherit;
+}
+
+.btn-gen-modal .buttons-sidebar {
+    background: var(--md-surface-container-low);
+    height: auto;
+}
+
+.btn-gen-modal .buttons-viewport {
+    background: var(--md-surface-container-lowest);
+}
+
+.btn-gen-modal .viewport-toolbar {
+    background: var(--md-surface-container);
+}
+
+.settings-custom-accent-row,
+.settings-row-wrap,
+.hotkeys-header-row {
+    min-width: 0;
+    flex-wrap: wrap;
+}
+
+.settings-group-desc,
+.settings-group-title,
+.md-switch-label {
+    overflow-wrap: anywhere;
+}
+
+.settings-col {
+    min-width: min(200px, 100%);
+}
+
+.settings-win-body > *,
+.settings-modal-layout > * {
+    min-width: 0;
+}
+
+@media (max-width: 760px) {
+    .settings-modal-container {
+        width: calc(100vw - 16px);
+        height: calc(100dvh - 24px);
+        min-height: 0;
+        max-height: calc(100dvh - 24px);
+    }
+
+    .settings-modal-layout {
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    .settings-tabs-sidebar {
+        flex-direction: row;
+        width: 100%;
+        padding: 6px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        border-right: 0;
+        border-bottom: 1px solid var(--md-outline-variant);
+    }
+
+    .settings-tabs-sidebar .settings-tab-btn {
+        min-width: max-content;
+        flex-shrink: 0;
+    }
+
+    .settings-modal-layout .settings-content-body {
+        min-height: 0;
+        padding: 16px;
+    }
+}
+
+@media (max-width: 680px) {
+    .btn-gen-modal {
+        width: calc(100vw - 16px);
+        height: calc(100dvh - 24px);
+        max-height: none;
+    }
+
+    .btn-gen-modal .buttons-win-body {
+        min-height: 0;
+    }
+
+    .modal-footer .md-btn {
+        min-width: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+    }
+}

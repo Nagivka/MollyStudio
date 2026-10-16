@@ -1,0 +1,41 @@
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+out/
+coverage/
+
+# Local credentials and signing material
+.env
+.env.*
+!.env.example
+*.p12
+*.pfx
+*.pem
+*.private-key
+*.key
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Local browser QA artifacts
+.playwright-mcp/
+.test-output/
+
+# Local rollback backups
+.rollback/
+
+# Electron profiles and temporary project files produced by local tests
+tests/.molly-*/

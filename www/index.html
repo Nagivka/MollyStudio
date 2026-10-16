@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com;">
+    <title>MollyStudio</title>
+    <link rel="icon" type="image/png" href="assets/images/icon/icon256.png">
+    <link rel="apple-touch-icon" href="assets/images/icon/icon256.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="js/theme-init.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/launcher.css">
+    <link rel="stylesheet" href="css/material-you.css">
+    <link rel="stylesheet" href="css/application-ui.css">
+    <link rel="stylesheet" href="css/utilities.css">
+    <link rel="stylesheet" href="css/feature-panels.css">
+    <link rel="stylesheet" href="css/launcher-home.css">
+    <script type="module" src="js/ui/ApplicationUI.js"></script>
+</head>
+<body>
+<div id="app">
+
+    <!-- Custom Frameless Window Titlebar -->
+    <header class="custom-titlebar">
+        <div class="titlebar-left">
+            <img src="assets/images/icon/icon256.png" class="titlebar-icon" alt="MollyStudio">
+            <span class="titlebar-title">MollyStudio</span>
+        </div>
+        <div class="titlebar-center">Главное меню</div>
+        <div class="titlebar-controls">
+            <button class="titlebar-btn m3-bubble-action" id="btn-win-min" title="Свернуть" aria-label="Свернуть" type="button">
+                <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 5.5h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </button>
+            <button class="titlebar-btn m3-bubble-action" id="btn-win-max" title="Развернуть" aria-label="Развернуть" type="button">
+                <svg width="10" height="10" viewBox="0 0 10 10" id="icon-win-max"><rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.2" rx="0.5"/></svg>
+            </button>
+            <button class="titlebar-btn titlebar-btn-close m3-bubble-action" id="btn-win-close" title="Закрыть" aria-label="Закрыть" type="button">
+                <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1.8 1.8l6.4 6.4M8.2 1.8l-6.4 6.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="workspace-layout launcher-home">
+        <div class="launcher-grid-layout">
+            <header class="launcher-home-topline">
+                <div class="launcher-hero-brand">
+                    <img src="assets/images/icon/icon256.png" class="launcher-hero-logo" alt="">
+                    <div><h1 class="launcher-hero-title">MollyStudio</h1><p class="launcher-hero-desc">Редактор GUI, текстур и игровых меню для Minecraft</p></div>
+                </div>
+                <div class="launcher-home-settings">
+                    <button id="btn-toggle-theme" class="md-icon-btn" title="Переключить тему" aria-label="Переключить тему" type="button"><i class="material-symbols-rounded" aria-hidden="true">dark_mode</i></button>
+                    <button id="btn-open-settings" class="md-icon-btn" title="Настройки — Ctrl+," aria-label="Настройки" type="button"><i class="material-symbols-rounded" aria-hidden="true">settings</i></button>
+                </div>
+            </header>
+            <section class="launcher-welcome" aria-labelledby="launcher-welcome-heading">
+                <div><h2 id="launcher-welcome-heading">С возвращением!</h2><p>Продолжите недавний проект или начните новый.</p></div>
+                <div class="launcher-main-actions">
+                    <button id="btn-hero-create" class="md-btn primary" type="button"><i class="material-symbols-rounded" aria-hidden="true">add</i>Создать проект</button>
+                    <button id="btn-hero-open" class="md-btn outlined" type="button"><i class="material-symbols-rounded" aria-hidden="true">file_open</i>Открыть файл</button>
+                </div>
+            </section>
+            <section class="launcher-utilities" aria-label="Утилиты Minecraft">
+                <span>Утилиты</span>
+                <button class="md-btn flat" type="button" data-open-utility="smallcaps"><i class="material-symbols-rounded" aria-hidden="true">text_fields</i>Капитель</button>
+                <button class="md-btn flat" type="button" data-open-utility="gradient"><i class="material-symbols-rounded" aria-hidden="true">gradient</i>Градиент</button>
+            </section>
+            <section class="launcher-recent-panel" id="recent-projects-panel" aria-labelledby="recent-projects-heading">
+                <div class="launcher-project-header">
+                    <h3 id="recent-projects-heading">Недавние проекты</h3><span id="recent-count-chip" class="recent-count" aria-live="polite">0 проектов</span>
+                    <div class="launcher-project-tools">
+                        <label class="launcher-search"><i class="material-symbols-rounded" aria-hidden="true">search</i><input id="recent-search" type="search" placeholder="Найти проект…" aria-label="Найти проект"></label>
+                        <select id="recent-sort" class="md-select" aria-label="Сортировка проектов"><option value="recent">Сначала недавние</option><option value="name">По названию</option></select>
+                        <button id="btn-clear-recent" class="md-icon-btn" title="Очистить список недавних" aria-label="Очистить историю" type="button"><i class="material-symbols-rounded" aria-hidden="true">delete_sweep</i></button>
+                    </div>
+                </div>
+                <div id="recent-list" class="recent-list-container" aria-live="polite"></div>
+            </section>
+            <div class="launcher-drop-strip" id="card-explorer-dropzone"><i class="material-symbols-rounded" aria-hidden="true">drive_folder_upload</i><span>Перетащите сюда файл .mlst, чтобы открыть проект</span><button id="btn-open-projects-folder" class="md-btn flat" type="button"><i class="material-symbols-rounded" aria-hidden="true">folder_open</i>Папка проектов</button></div>
+        </div>
+    </main>
+
+    <!-- New Project Modal Dialog -->
+    <div id="new-project-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-new-title">
+        <div class="modal" style="max-width: 520px;">
+            <div class="modal-header">
+                <h2 id="modal-new-title">Создать новый проект</h2>
+                <button class="md-icon-btn btn-close-modal m3-bubble-action" title="Закрыть" aria-label="Закрыть" type="button"><i class="material-symbols-rounded">close</i></button>
+            </div>
+            <div class="modal-body">
+                <!-- Project type selector -->
+        <div class="project-type-selector" id="new-proj-type-selector" role="tablist" aria-label="Тип проекта">
+                    <button type="button" id="new-proj-tab-gui" class="type-option active" data-type="gui" role="tab" aria-selected="true" aria-controls="new-proj-section-gui">
+                        <i class="material-symbols-rounded">grid_view</i>
+                        <div class="type-option-text">
+                            <span class="type-title">Minecraft GUI</span>
+                            <span class="type-desc">Меню сундука 256×256</span>
+                        </div>
+                    </button>
+                    <button type="button" id="new-proj-tab-canvas" class="type-option" data-type="canvas" role="tab" aria-selected="false" aria-controls="new-proj-section-canvas">
+                        <i class="material-symbols-rounded">palette</i>
+                        <div class="type-option-text">
+                            <span class="type-title">Обычный холст</span>
+                            <span class="type-desc">Пиксель-арт</span>
+                        </div>
+                    </button>
+                    <button type="button" id="new-proj-tab-deluxemenu" class="type-option" data-type="deluxemenu" role="tab" aria-selected="false" aria-controls="new-proj-section-deluxemenu">
+                        <i class="material-symbols-rounded">dashboard_customize</i>
+                        <div class="type-option-text"><span class="type-title">Конструктор меню</span><span class="type-desc">DeluxeMenus и zMenu</span></div>
+                    </button>
+                <button type="button" id="new-proj-tab-prefix" class="type-option" data-type="prefix" role="tab" aria-selected="false" aria-controls="new-proj-section-prefix"><i class="material-symbols-rounded">badge</i><div class="type-option-text"><span class="type-title">Префиксы</span><span class="type-desc">Пиксельные плашки</span></div></button>
+</div>
+
+                <div id="new-proj-section-deluxemenu" role="tabpanel" aria-labelledby="new-proj-tab-deluxemenu" tabindex="0" style="display: none;"><div class="form-group"><label for="new-deluxemenu-name">Название проекта</label><input type="text" id="new-deluxemenu-name" class="md-input" value="Меню 1" maxlength="120" autocomplete="off"></div><div class="form-group"><label for="new-menu-plugin">Плагин меню</label><select id="new-menu-plugin" class="md-select"><option value="deluxemenus">DeluxeMenus</option><option value="zmenu">zMenu</option></select></div><p class="field-hint">Соберите меню из предметов, настройте кнопки и действия. Проект сохраняется в .mlst, конфигурация выбранного плагина экспортируется в YAML.</p></div>
+                <div id="new-proj-section-prefix" role="tabpanel" aria-labelledby="new-proj-tab-prefix" tabindex="0" style="display: none;"><div class="form-group"><label for="new-prefix-name">Название проекта</label><input type="text" id="new-prefix-name" class="md-input" value="Префиксы 1" maxlength="120" autocomplete="off"></div><p class="field-hint">Текст, значки, градиенты, обводка и тени. До 8 блоков в одном префиксе. Размер подбирается автоматически.</p></div>
+<!-- Section: GUI Mode -->
+                <div id="new-proj-section-gui" role="tabpanel" aria-labelledby="new-proj-tab-gui" tabindex="0">
+                    <div class="form-group">
+                        <label for="new-proj-name">Название проекта</label>
+                        <input type="text" id="new-proj-name" class="md-input" value="GUI Меню" placeholder="Название проекта..." autocomplete="off">
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label for="new-proj-template">Заготовка контейнера</label>
+                        <select id="new-proj-template" class="md-select">
+                            <optgroup label="Модульные сундуки">
+                                <option value="container_54" selected>Сундук 54 слота</option>
+                                <option value="container_45">Сундук 45 слотов</option>
+                                <option value="container_36">Сундук 36 слотов</option>
+                                <option value="container_27">Малый сундук 27 слотов</option>
+                                <option value="container_18">Сундук 18 слотов</option>
+                                <option value="container_9">Дроппер 9 слотов</option>
+                            </optgroup>
+                            <optgroup label="Оригинальные контейнеры Minecraft">
+                                <option value="gui_container/generic_54.png">Большой сундук 54 слота</option>
+                                <option value="gui_container/inventory.png">Инвентарь игрока</option>
+                                <option value="gui_container/crafting_table.png">Верстак</option>
+                                <option value="gui_container/anvil.png">Наковальня</option>
+                                <option value="gui_container/furnace.png">Печь</option>
+                                <option value="gui_container/blast_furnace.png">Плавильная печь</option>
+                                <option value="gui_container/smoker.png">Коптильня</option>
+                                <option value="gui_container/brewing_stand.png">Зельеварочная стойка</option>
+                                <option value="gui_container/enchanting_table.png">Стол зачарований</option>
+                                <option value="gui_container/beacon.png">Маяк</option>
+                                <option value="gui_container/dispenser.png">Раздатчик</option>
+                                <option value="gui_container/hopper.png">Воронка</option>
+                                <option value="gui_container/shulker_box.png">Шалкеровый ящик</option>
+                                <option value="gui_container/crafter.png">Авто-крафтер</option>
+                                <option value="gui_container/cartography_table.png">Стол картографа</option>
+                                <option value="gui_container/grindstone.png">Точило</option>
+                                <option value="gui_container/loom.png">Ткацкий станок</option>
+                                <option value="gui_container/smithing.png">Кузнечный стол</option>
+                                <option value="gui_container/stonecutter.png">Камнерез</option>
+                                <option value="gui_container/villager.png">Торговля с жителем</option>
+                                <option value="gui_container/horse.png">Лошадь</option>
+                                <option value="gui_container/gamemode_switcher.png">Выбор режима игры</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label for="new-proj-style">Стиль интерфейса</label>
+                        <select id="new-proj-style" class="md-select">
+                            <option value="default" selected>Vanilla</option>
+                            <option value="bedrock">Bedrock</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="new-proj-frame-group" style="margin-top: 14px;">
+                        <label for="new-proj-frame">Шапка контейнера</label>
+                        <select id="new-proj-frame" class="md-select">
+                            <option value="yes" selected>Включена</option>
+                            <option value="no">Выключена</option>
+                        </select>
+                        <div id="new-proj-frame-hint" class="field-hint" style="display: none;">
+                            <i class="material-symbols-rounded">info</i>
+                            <span id="new-proj-frame-hint-text">Шапка контейнера является частью выбранного интерфейса.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Canvas Mode -->
+                <div id="new-proj-section-canvas" role="tabpanel" aria-labelledby="new-proj-tab-canvas" tabindex="0" style="display: none;">
+                    <div class="form-group">
+                        <label for="new-canvas-name">Название холста</label>
+                        <input type="text" id="new-canvas-name" class="md-input" value="Холст 1" placeholder="Название холста..." autocomplete="off">
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label style="font-size: 11px; font-weight: 600; color: var(--md-on-surface-variant); margin-bottom: 6px; display: block;">Быстрые пресеты:</label>
+                        <div class="preset-chips-row" id="new-canvas-presets">
+                            <button type="button" class="preset-chip" data-w="16" data-h="16" aria-pressed="false">16×16</button>
+                            <button type="button" class="preset-chip active" data-w="32" data-h="32" aria-pressed="true">32×32</button>
+                            <button type="button" class="preset-chip" data-w="48" data-h="48" aria-pressed="false">48×48</button>
+                            <button type="button" class="preset-chip" data-w="64" data-h="64" aria-pressed="false">64×64</button>
+                            <button type="button" class="preset-chip" data-w="128" data-h="128" aria-pressed="false">128×128</button>
+                            <button type="button" class="preset-chip" data-w="256" data-h="256" aria-pressed="false">256×256</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label style="font-size: 12px; font-weight: 600; color: var(--md-on-surface-variant); margin-bottom: 6px; display: block;">Разрешение:</label>
+                        <div class="canvas-dims-row">
+                            <div class="canvas-dim-col">
+                                <span class="dim-label">Ширина</span>
+                                <input type="number" id="new-canvas-w" class="md-input" min="1" max="4096" value="32" required aria-label="Ширина холста">
+                            </div>
+                            <button type="button" id="btn-new-canvas-lock-aspect" class="btn-lock-aspect active" title="Сохранять соотношение сторон" aria-label="Сохранять соотношение сторон" aria-pressed="true">
+                                <i class="material-symbols-rounded">link</i>
+                            </button>
+                            <div class="canvas-dim-col">
+                                <span class="dim-label">Высота</span>
+                                <input type="number" id="new-canvas-h" class="md-input" min="1" max="4096" value="32" required aria-label="Высота холста">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label for="new-canvas-bg">Фон холста</label>
+                        <select id="new-canvas-bg" class="md-select">
+                            <option value="transparent" selected>Прозрачный</option>
+                            <option value="white">Белый</option>
+                            <option value="black">Чёрный</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="md-btn flat btn-cancel-modal m3-bubble-action" type="button">Отмена</button>
+                <button class="md-btn primary m3-bubble-action" id="btn-create-project" type="button">Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+</div>
+
+<script type="module" src="js/launcher.js"></script>
+</body>
+</html>

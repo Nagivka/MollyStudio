@@ -1,0 +1,43 @@
+const fs=require('node:fs/promises'),path=require('node:path');
+const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
+async function exercise(){
+ const editor=window.mollyEditor,lm=editor.layerManager,history=editor.history,move=editor.tools.tools.move,checks=[];
+ const expect=(value,message)=>{if(!value)throw new Error(message);checks.push(message);};
+ const pixels=layer=>Array.from(layer.ctx.getImageData(0,0,layer.width,layer.height).data);
+ const reset=()=>{editor.addProject('Audit','none',64,64,false,'canvas');editor.tools.setTool('move');history.clear();};
+ const fill=(name,color,x=5,y=5,w=10,h=8)=>{const layer=lm.addLayer(name);layer.ctx.fillStyle=color;layer.ctx.fillRect(x,y,w,h);layer.invalidateSource();return layer;};
+ await new Promise(resolve=>{const poll=()=>editor.tools.tools.text.fontImages.minecraft?resolve():setTimeout(poll,20);poll();});
+ reset();let layer=fill('Master','#EE4411'),before=pixels(layer);move.nudge(-100,0);move.invert();move.invert();move.nudge(100,0);
+ expect(JSON.stringify(pixels(layer))===JSON.stringify(before),'Double inversion preserves the full off-canvas master');
+ history.undo();history.undo();history.undo();history.undo();expect(JSON.stringify(pixels(layer))===JSON.stringify(before),'Undo across inversion and movement restores original pixels');
+ move.nudge(-100,0);const master=layer.sourceCanvas;editor.resizeCanvas(128,128,'left','top');
+ expect(layer.sourceCanvas===master&&layer.sourceRect.x===-95,'Canvas resize retains a transformed master outside its bounds');
+ history.undo();move.nudge(100,0);expect(JSON.stringify(pixels(layer))===JSON.stringify(before),'Resize undo and return from outside canvas preserve every pixel');
+ reset();const red=fill('Red','#FF0000'),blue=fill('Blue','#0000FF');const inner=lm.addGroup('Inner'),outer=lm.addGroup('Outer');red.groupId=inner.id;blue.groupId=inner.id;inner.groupId=outer.id;outer.opacity=.5;inner.opacity=.5;
+ editor.renderer.render();const alpha=editor.renderer.ctx.getImageData(7,7,1,1).data[3];expect(alpha>=63&&alpha<=65,'Overlapping children receive group opacity only once per ancestor');
+ const composition=Array.from(editor.renderer.ctx.getImageData(0,0,64,64).data);const merged=lm.mergeGroup(inner.id);editor.renderer.render();
+ expect(merged.groupId===outer.id&&!lm.layers.includes(red)&&!lm.layers.includes(blue),'Merging nested groups removes descendants and retains parent membership');
+ expect(JSON.stringify(Array.from(editor.renderer.ctx.getImageData(0,0,64,64).data))===JSON.stringify(composition),'Merging a nested group preserves composited pixels');
+ expect(!lm.setLayerGroup(outer.id,outer.id),'Group self-parenting is rejected');
+ const nested=lm.addGroup('Nested');nested.groupId=outer.id;expect(!lm.setLayerGroup(outer.id,nested.id),'Group ancestry cycles are rejected');
+ const child=fill('Hidden child','#fff');child.groupId=nested.id;outer.expanded=false;nested.expanded=true;editor.layerPanel.render();
+ expect(!document.querySelector(`[data-id="${child.id}"]`),'Collapsed ancestor hides grandchildren in the layer panel');
+ reset();layer=fill('Opacity','#fff');editor.layerPanel.openLayerContextMenu({clientX:100,clientY:100},layer);const slider=document.querySelector('#layer-context-menu input[type=range]');slider.dispatchEvent(new Event('focus'));for(const value of [99,98]){slider.value=String(value);slider.dispatchEvent(new Event('input',{bubbles:true}));slider.dispatchEvent(new Event('change',{bubbles:true}));}
+ expect(history.undo()&&layer.opacity===.99,'Consecutive keyboard opacity changes undo to the immediately preceding value');editor.layerPanel.closeLayerContextMenu();
+ reset();const text=lm.addTextLayer('Text',{text:'Test',fontId:'minecraft',color:'#FFFFFF',x:5,y:5});editor.tools.setTool('text');editor.tools.tools.text.renderTextLayer(text);history.clear();
+ document.querySelector('#textPaletteSwatchesGrid button').click();const color=text.textData.color;expect(color!=='#FFFFFF'&&history.undo()&&text.textData.color==='#FFFFFF','Text palette color is undoable');expect(history.redo()&&text.textData.color===color,'Text palette redo restores its color');
+ text.textData.colorMode='gradient';text.textData.gradientColors=['#123456','#FEDCBA'];editor.tools.tools.text.syncUIWithLayer(text);history.clear();document.querySelector('#textPaletteSwatchesGrid button').click();expect(history.undo()&&text.textData.gradientColors[0]==='#123456','Gradient text palette edit is undoable');
+ const picker=editor.colorPicker;picker.customPalette=[];picker.appendPaletteColors(Array.from({length:800},(_,i)=>'#'+i.toString(16).padStart(6,'0')));picker.saveCustomPalette();expect(picker.customPalette.length===512&&picker.loadCustomPalette().length===512,'Palette import and reload share the same 512-color limit');
+ reset();layer=fill('Ref','#FFAA00');editor.workspace.guides={horizontal:[7,19],vertical:[12]};editor.workspace.tilingMode=true;editor.workspace.referenceImg.src=layer.canvas.toDataURL();editor.workspace.referenceOpacity=.7;editor.bus.emit('CANVAS_UPDATED');
+ const doc=editor.projectManager.serializeProject();expect(doc.workspace.guides.horizontal.length===2&&doc.workspace.referenceOpacity===.7,'Document serializes guides, tiling and reference opacity');
+ await editor.projectManager.deserializeProject(doc);expect(editor.workspace.guides.vertical[0]===12&&editor.workspace.tilingMode&&editor.workspace.referenceOpacity===.7&&editor.workspace.referenceImg.getAttribute('src')===doc.workspace.referenceSrc,'Reopening restores the complete workspace state');
+ editor.addProject('Template QA','none',256,256,false,'gui');layer=fill('Edge','#FF0000',220,220,10,10);before=pixels(layer);history.clear();
+ expect(await editor.loadTemplate('gui_container/gamemode_switcher.png'),'Template replacement loads successfully');
+ expect(editor.config.width===128&&history.undoStack.length===1,'Template replacement is a single undoable document action');
+ expect(history.undo()&&editor.config.width===256&&JSON.stringify(pixels(layer))===JSON.stringify(before),'Undo template replacement restores dimensions and edge pixels');
+ expect(history.redo()&&editor.config.width===128,'Redo template replacement restores target size');
+ expect(await editor.loadTemplate('none')&&editor.getActiveProject().templatePath===null&&!editor.getActiveProject().hasFrame,'Removing a template clears saved template metadata');
+ expect(history.undo()&&editor.getActiveProject().templatePath==='gui_container/gamemode_switcher.png','Removing the template can be undone');
+ return checks;
+}
+(async()=>{let win;const watchdog=setTimeout(()=>app.exit(1),90000);try{await ready();win=makeWindow();await win.loadFile(path.join(root,'www/editor.html'),{query:{new:'true',type:'canvas',width:'64',height:'64'}});const checks=await win.webContents.executeJavaScript(`(${exercise.toString()})()`);await settle(win);if(win.__testErrors.length)throw new Error(win.__testErrors.join('\n'));await fs.mkdir(path.join(root,'.test-output'),{recursive:true});await fs.writeFile(path.join(root,'.test-output/audit-scenarios.json'),JSON.stringify({passed:checks.length,checks},null,2));console.log(JSON.stringify({passed:checks.length,checks},null,2));}catch(error){console.error(error);process.exitCode=1;}finally{clearTimeout(watchdog);win?.destroy();app.exit(process.exitCode||0);}})();

@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com;">
+    <title>MollyStudio</title>
+    <link rel="icon" type="image/png" href="assets/images/icon/icon256.png">
+    <link rel="apple-touch-icon" href="assets/images/icon/icon256.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="js/theme-init.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/buttons.css">
+    <link rel="stylesheet" href="css/material-you.css">
+    <link rel="stylesheet" href="css/application-ui.css">
+    <link rel="stylesheet" href="css/utilities.css">
+    <link rel="stylesheet" href="css/prefixes.css">
+    <link rel="stylesheet" href="css/deluxemenus.css">
+    <link rel="stylesheet" href="css/feature-panels.css">
+    <script type="module" src="js/ui/ApplicationUI.js"></script>
+</head>
+<body>
+<div id="app">
+
+    <!-- Custom Frameless Titlebar (Pure Flat Bubble, z-10) -->
+    <header class="custom-titlebar">
+        <div class="titlebar-left">
+            <img src="assets/images/icon/icon256.png" class="titlebar-icon" alt="MollyStudio">
+            <span class="titlebar-title">MollyStudio</span>
+        </div>
+        <div class="titlebar-center" id="titlebar-doc-title">MollyStudio</div>
+        <div class="titlebar-controls">
+            <button class="titlebar-btn m3-bubble-action" id="btn-win-min" title="Свернуть" aria-label="Свернуть" type="button">
+                <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 5.5h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </button>
+            <button class="titlebar-btn m3-bubble-action" id="btn-win-max" title="Развернуть" aria-label="Развернуть" type="button">
+                <svg width="10" height="10" viewBox="0 0 10 10" id="icon-win-max"><rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.2" rx="0.5"/></svg>
+            </button>
+            <button class="titlebar-btn titlebar-btn-close m3-bubble-action" id="btn-win-close" title="Закрыть" aria-label="Закрыть" type="button">
+                <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1.8 1.8l6.4 6.4M8.2 1.8l-6.4 6.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Top Bar with Fast Actions and Dropdown Menus (z-10) -->
+    <div class="top-bar">
+        <nav class="top-menu" aria-label="Главное меню программы">
+            <div class="menu-item">
+                <button class="menu-btn m3-bubble-action" type="button">Файл</button>
+                <div class="menu-dropdown">
+                    <div class="dropdown-item m3-bubble-action" data-action="file-home"><span>Главное меню</span><span class="shortcut">Home</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="file-new"><span>Новый проект...</span><span class="shortcut">Ctrl+N</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="file-open"><span>Открыть проект...</span><span class="shortcut">Ctrl+O</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="file-save"><span>Сохранить проект</span><span class="shortcut">Ctrl+S</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="file-save-as"><span>Сохранить как...</span><span class="shortcut">Ctrl+Shift+S</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="file-template"><span>Выбрать шаблон GUI...</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="file-export-png"><span>Экспорт в PNG</span><span class="shortcut">Ctrl+Shift+E</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="file-export-layer"><span>Экспорт активного слоя</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="settings-open"><span>Настройки...</span><span class="shortcut">Ctrl+,</span></div>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <button class="menu-btn m3-bubble-action" type="button">Правка</button>
+                <div class="menu-dropdown">
+                    <div class="dropdown-item m3-bubble-action" data-action="edit-undo"><span>Отменить</span><span class="shortcut">Ctrl+Z</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="edit-redo"><span>Повторить</span><span class="shortcut">Ctrl+Y</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="select-cut"><span>Вырезать</span><span class="shortcut">Ctrl+X</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="select-copy"><span>Скопировать</span><span class="shortcut">Ctrl+C</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="select-paste"><span>Вставить</span><span class="shortcut">Ctrl+V</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="edit-clear-layer"><span>Очистить слой</span><span class="shortcut">Del</span></div>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <button class="menu-btn m3-bubble-action" type="button">Изображение</button>
+                <div class="menu-dropdown">
+                    <div class="dropdown-item m3-bubble-action" data-action="image-canvas-size"><span>Размер холста...</span><span class="shortcut">Ctrl+Alt+C</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="transform-fliph"><span>Отразить по горизонтали</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="transform-flipv"><span>Отразить по вертикали</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="transform-rotcw"><span>Повернуть на 90° по часовой</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="transform-rotccw"><span>Повернуть на 90° против часовой</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="transform-invert"><span>Инвертировать цвета</span><span class="shortcut">Ctrl+I</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="image-recolor"><span>Замена цвета...</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="image-load-ref"><span>Загрузить подложку...</span><span class="shortcut">Ctrl+Shift+R</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="image-clear-ref"><span>Удалить подложку</span></div>
+                </div>
+            </div>
+
+            <div class="menu-item" id="top-menu-layers">
+                <button class="menu-btn m3-bubble-action" type="button">Слой</button>
+                <div class="menu-dropdown">
+                    <div class="dropdown-item m3-bubble-action" data-action="layer-new"><span>Новый слой</span><span class="shortcut">Ctrl+Shift+N</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="layer-duplicate"><span>Дублировать слой</span><span class="shortcut">Ctrl+J</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="layer-mergedown"><span>Слить с нижним</span><span class="shortcut">Ctrl+E</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="layer-flatten"><span>Свести изображение</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="tools-button-generator"><span>Сгенерировать кнопку GUI...</span><span class="shortcut">Ctrl+Shift+B</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="layer-outline"><span>Запечь 1px контур в пиксели...</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="layer-dropshadow"><span>Запечь пиксельную тень...</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="layer-delete"><span>Удалить слой</span><span class="shortcut">Shift+Del</span></div>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <button class="menu-btn m3-bubble-action" type="button">Инструменты</button>
+                <div class="menu-dropdown">
+                    <div class="dropdown-item" data-action="utility-smallcaps"><span>Small Caps…</span></div>
+                    <div class="dropdown-item" data-action="utility-gradient"><span>Градиентный текст…</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="tools-button-generator"><span>Генератор кнопок GUI...</span><span class="shortcut">Ctrl+Shift+B</span></div>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <button class="menu-btn m3-bubble-action" type="button">Выделение</button>
+                <div class="menu-dropdown">
+                    <div class="dropdown-item m3-bubble-action" data-action="select-all"><span>Выделить всё</span><span class="shortcut">Ctrl+A</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="select-deselect"><span>Снять выделение</span><span class="shortcut">Ctrl+D</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="select-invert"><span>Инвертировать выделение</span><span class="shortcut">Ctrl+Shift+I</span></div>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <button class="menu-btn m3-bubble-action" type="button">Вид</button>
+                <div class="menu-dropdown">
+                    <div class="dropdown-item m3-bubble-action" data-action="view-rulers"><span>Линейки</span><span class="shortcut">Ctrl+R</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="view-guides"><span>Направляющие</span><span class="shortcut">Ctrl+;</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="view-clear-guides"><span>Очистить направляющие</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="view-tiling"><span>Бесшовный тайлинг 3×3</span><span class="shortcut">W</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="view-grid"><span>Пиксельная сетка</span><span class="shortcut">Ctrl+'</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="view-zoom-in"><span>Увеличить</span><span class="shortcut">Ctrl++</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="view-zoom-out"><span>Уменьшить</span><span class="shortcut">Ctrl+-</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="view-zoom-fit"><span>По размеру экрана</span><span class="shortcut">F</span></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="view-zoom-reset"><span>Масштаб 100%</span><span class="shortcut">Ctrl+0</span></div>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <button class="menu-btn m3-bubble-action" type="button">Помощь</button>
+                <div class="menu-dropdown">
+                    <div class="dropdown-item m3-bubble-action" data-action="help-hotkeys"><span>Горячие клавиши</span><span class="shortcut">?</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item m3-bubble-action" data-action="settings-open"><span>Параметры программы</span><span class="shortcut">Ctrl+,</span></div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="top-actions-right">
+            <div class="top-controls">
+                <button id="btn-undo" class="md-icon-btn m3-bubble-action" title="Отменить Ctrl+Z" aria-label="Отменить" type="button"><i class="material-symbols-rounded">undo</i></button>
+                <button id="btn-redo" class="md-icon-btn m3-bubble-action" title="Повторить Ctrl+Y" aria-label="Повторить" type="button"><i class="material-symbols-rounded">redo</i></button>
+                <div class="top-sep"></div>
+                <button id="btn-top-settings" class="md-icon-btn m3-bubble-action" title="Настройки программы Ctrl+," aria-label="Настройки программы" type="button"><i class="material-symbols-rounded">settings</i></button>
+                <div class="top-sep"></div>
+                <button id="btn-export-png" class="md-btn primary m3-bubble-action" title="Экспорт в PNG Ctrl+Shift+E" type="button"><i class="material-symbols-rounded">download</i> Экспорт</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Options Bar (Strictly Focused on Context Tool Options) -->
+    <div class="options-bar" role="toolbar" aria-label="Панель параметров инструмента">
+        
+        <!-- 1. Brush Option Bar -->
+        <div id="opt-bar-brush" class="opt-group visible">
+            <span class="opt-label">Размер:</span>
+            <input type="range" id="tool-size" class="md-slider opt-slider" min="1" max="64" value="1" title="Размер кисти">
+            <input type="number" id="tool-size-num" class="md-number-input opt-input-num" min="1" max="64" value="1">
+            <div class="opt-sep"></div>
+            <span class="opt-label">Наложение:</span>
+            <select id="brush-mode" class="md-select opt-select">
+                <option value="normal">Обычный</option>
+                <option value="multiply">Умножение</option>
+                <option value="screen">Осветление</option>
+                <option value="overlay">Перекрытие</option>
+            </select>
+            <div class="opt-sep"></div>
+            <span class="opt-label">Узор:</span>
+            <select id="brush-dither" class="md-select opt-select" title="Режим пиксельного дизеринга">
+                <option value="none">Сплошной</option>
+                <option value="checker">Дизеринг 50% Шахматы</option>
+                <option value="bayer25">Bayer 25% Редкий</option>
+                <option value="bayer75">Bayer 75% Плотный</option>
+            </select>
+            <div class="opt-sep"></div>
+            <button class="md-chip-btn m3-bubble-action btn-toggle-symm-x" title="Зеркало по горизонтали" type="button"><i class="material-symbols-rounded">swap_horiz</i> Зеркало X</button>
+            <button class="md-chip-btn m3-bubble-action btn-toggle-symm-y" title="Зеркало по вертикали" type="button"><i class="material-symbols-rounded">swap_vert</i> Зеркало Y</button>
+        </div>
+
+        <!-- 2. Pencil Option Bar -->
+        <div id="opt-bar-pencil" class="opt-group">
+            <span class="opt-label">Размер:</span>
+            <input type="range" id="pencil-size" class="md-slider opt-slider" min="1" max="16" value="1" title="Размер карандаша">
+            <input type="number" id="pencil-size-num" class="md-number-input opt-input-num" min="1" max="16" value="1">
+            <div class="opt-sep"></div>
+            <label class="md-switch">
+                <input type="checkbox" id="pencil-pixel-perfect" checked>
+                <span class="md-switch-track"><span class="md-switch-thumb"></span></span>
+                <span class="md-switch-label">Pixel-Perfect</span>
+            </label>
+            <div class="opt-sep"></div>
+            <button class="md-chip-btn m3-bubble-action btn-toggle-symm-x" title="Зеркало по горизонтали" type="button"><i class="material-symbols-rounded">swap_horiz</i> Зеркало X</button>
+            <button class="md-chip-btn m3-bubble-action btn-toggle-symm-y" title="Зеркало по вертикали" type="button"><i class="material-symbols-rounded">swap_vert</i> Зеркало Y</button>
+        </div>
+
+        <!-- 3. Eraser Option Bar -->
+        <div id="opt-bar-eraser" class="opt-group">
+            <span class="opt-label">Размер:</span>
+            <input type="range" id="eraser-size" class="md-slider opt-slider" min="1" max="64" value="1" title="Размер ластика">
+            <input type="number" id="eraser-size-num" class="md-number-input opt-input-num" min="1" max="64" value="1">
+            <div class="opt-sep"></div>
+            <button class="md-chip-btn m3-bubble-action btn-toggle-symm-x" title="Зеркало по горизонтали" type="button"><i class="material-symbols-rounded">swap_horiz</i> Зеркало X</button>
+            <button class="md-chip-btn m3-bubble-action btn-toggle-symm-y" title="Зеркало по вертикали" type="button"><i class="material-symbols-rounded">swap_vert</i> Зеркало Y</button>
+        </div>
+
+        <!-- 4. Move & Transform Option Bar -->
+        <div id="opt-bar-move" class="opt-group">
+            <span class="opt-label">Инструмент:</span>
+            <label class="md-switch" title="Магнитная привязка к сетке, центру холста и другим слоям">
+                <input type="checkbox" id="move-snap" checked>
+                <span class="md-switch-track"><span class="md-switch-thumb"></span></span>
+                <span class="md-switch-label">Привязка</span>
+            </label>
+            <div class="opt-sep"></div>
+            <label class="md-switch" title="Автоматический выбор слоя при клике по объекту">
+                <input type="checkbox" id="move-autosel" checked>
+                <span class="md-switch-track"><span class="md-switch-thumb"></span></span>
+                <span class="md-switch-label">Автовыбор слоя</span>
+            </label>
+            <div class="opt-sep"></div>
+            <span class="opt-label">Сглаживание:</span>
+            <select id="move-resample-mode" class="md-select opt-select" title="Алгоритм масштабирования при трансформации">
+                <option value="auto">Пиксельное</option>
+                <option value="smooth">Плавное</option>
+            </select>
+        </div>
+
+        <!-- 5. Marquee Selection Option Bar -->
+        <div id="opt-bar-marquee" class="opt-group">
+            <span class="opt-label">Выделение:</span>
+            <button id="btn-marquee-copy" class="md-chip-btn m3-bubble-action" title="Копировать" type="button"><i class="material-symbols-rounded">content_copy</i> Копировать</button>
+            <button id="btn-marquee-cut" class="md-chip-btn m3-bubble-action" title="Вырезать" type="button"><i class="material-symbols-rounded">content_cut</i> Вырезать</button>
+            <button id="btn-marquee-paste" class="md-chip-btn m3-bubble-action" title="Вставить" type="button"><i class="material-symbols-rounded">content_paste</i> Вставить</button>
+            <div class="opt-sep"></div>
+            <button id="btn-marquee-fill" class="md-chip-btn m3-bubble-action" title="Залить выделенную область цветом" type="button"><i class="material-symbols-rounded">format_color_fill</i> Залить</button>
+            <button id="btn-marquee-stroke" class="md-chip-btn m3-bubble-action" title="Обвести контур выделения" type="button"><i class="material-symbols-rounded">crop_square</i> Контур</button>
+            <button id="btn-marquee-delete" class="md-chip-btn m3-bubble-action" title="Очистить пиксели" type="button"><i class="material-symbols-rounded">delete</i> Очистить</button>
+            <div class="opt-sep"></div>
+            <button id="btn-marquee-fliph" class="md-chip-btn m3-bubble-action" title="Отразить выделение по горизонтали" type="button"><i class="material-symbols-rounded">swap_horiz</i> Отр. Г</button>
+            <button id="btn-marquee-flipv" class="md-chip-btn m3-bubble-action" title="Отразить выделение по вертикали" type="button"><i class="material-symbols-rounded">swap_vert</i> Отр. В</button>
+            <button id="btn-marquee-rotcw" class="md-chip-btn m3-bubble-action" title="Повернуть выделение на 90°" type="button"><i class="material-symbols-rounded">rotate_right</i> 90°</button>
+            <button id="btn-marquee-rotccw" class="md-chip-btn m3-bubble-action" title="Повернуть выделение на -90°" type="button"><i class="material-symbols-rounded">rotate_left</i> -90°</button>
+            <div class="opt-sep"></div>
+            <button id="btn-marquee-deselect" class="md-chip-btn m3-bubble-action" title="Снять выделение" type="button"><i class="material-symbols-rounded">close</i> Снять</button>
+        </div>
+
+        <!-- 6. Bucket Option Bar -->
+        <div id="opt-bar-bucket" class="opt-group">
+            <span class="opt-label">Допуск:</span>
+            <input type="number" id="bucket-tol" class="md-number-input opt-input-num" min="0" max="255" value="32">
+            <div class="opt-sep"></div>
+            <label class="md-switch">
+                <input type="checkbox" id="bucket-contiguous" checked>
+                <span class="md-switch-track"><span class="md-switch-thumb"></span></span>
+                <span class="md-switch-label">Смежные</span>
+            </label>
+            <div class="opt-sep"></div>
+            <span class="opt-label">Узор:</span>
+            <select id="bucket-dither" class="md-select opt-select" title="Режим пиксельного дизеринга при заливке">
+                <option value="none">Сплошной</option>
+                <option value="checker">Дизеринг 50% Шахматы</option>
+                <option value="bayer25">Bayer 25% Редкий</option>
+                <option value="bayer75">Bayer 75% Плотный</option>
+            </select>
+            <div class="opt-sep"></div>
+            <button class="md-chip-btn m3-bubble-action btn-toggle-symm-x" title="Зеркало по горизонтали" type="button"><i class="material-symbols-rounded">swap_horiz</i> Зеркало X</button>
+            <button class="md-chip-btn m3-bubble-action btn-toggle-symm-y" title="Зеркало по вертикали" type="button"><i class="material-symbols-rounded">swap_vert</i> Зеркало Y</button>
+        </div>
+
+        <!-- 7. Gradient Option Bar -->
+        <div id="opt-bar-gradient" class="opt-group">
+            <span class="opt-label">Тип:</span>
+            <select id="grad-type" class="md-select opt-select">
+                <option value="linear">Линейный</option>
+                <option value="radial">Радиальный</option>
+            </select>
+            <div class="opt-sep"></div>
+            <span class="opt-label">Режим:</span>
+            <select id="grad-mode" class="md-select opt-select">
+                <option value="overlay">По объекту</option>
+                <option value="full">На весь слой</option>
+            </select>
+            <div class="opt-sep"></div>
+            <span class="opt-label">Цвета:</span>
+            <input type="color" id="grad-color-1" class="md-color-chip" value="#3B82F6">
+            <input type="color" id="grad-color-2" class="md-color-chip" value="#111318">
+            <button id="btn-apply-grad-layer" class="md-btn primary opt-btn m3-bubble-action" type="button"><i class="material-symbols-rounded">format_color_fill</i> Залить</button>
+        </div>
+
+        <!-- 8. Line Option Bar -->
+        <div id="opt-bar-line" class="opt-group">
+            <span class="opt-label">Толщина линии:</span>
+            <input type="range" id="line-size" class="md-slider opt-slider" min="1" max="16" value="1">
+            <input type="number" id="line-size-num" class="md-number-input opt-input-num" min="1" max="16" value="1">
+        </div>
+
+        <!-- 9. Rect Empty Option Bar -->
+        <div id="opt-bar-rect-empty" class="opt-group">
+            <span class="opt-label">Толщина рамки:</span>
+            <input type="range" id="rect-stroke" class="md-slider opt-slider" min="1" max="16" value="1">
+            <input type="number" id="rect-stroke-num" class="md-number-input opt-input-num" min="1" max="16" value="1">
+            <div class="opt-sep"></div>
+            <span class="opt-label">Скругление:</span>
+            <input type="number" id="rect-empty-radius" class="md-number-input opt-input-num" min="0" max="64" value="0">
+            <div class="opt-sep"></div>
+            <span class="opt-label">Shift — квадрат, Alt — от центра</span>
+        </div>
+
+        <!-- 10. Rect Filled Option Bar -->
+        <div id="opt-bar-rect-filled" class="opt-group">
+            <span class="opt-label">Скругление:</span>
+            <input type="number" id="rect-filled-radius" class="md-number-input opt-input-num" min="0" max="64" value="0">
+            <div class="opt-sep"></div>
+            <span class="opt-label">Shift — квадрат, Alt — от центра</span>
+        </div>
+
+        <!-- 11. Circle Empty Option Bar -->
+        <div id="opt-bar-circle-empty" class="opt-group">
+            <span class="opt-label">Толщина контура:</span>
+            <input type="range" id="circle-stroke" class="md-slider opt-slider" min="1" max="16" value="1">
+            <input type="number" id="circle-stroke-num" class="md-number-input opt-input-num" min="1" max="16" value="1">
+            <div class="opt-sep"></div>
+            <span class="opt-label">Shift — круг, Alt — от центра</span>
+        </div>
+
+        <!-- 12. Circle Filled Option Bar -->
+        <div id="opt-bar-circle-filled" class="opt-group">
+            <span class="opt-label">Shift — круг, Alt — от центра. Параметры — в панели «Свойства».</span>
+        </div>
+
+        <!-- 13. Text Option Bar -->
+        <div id="opt-bar-text" class="opt-group">
+            <span class="opt-label">Инструмент текста: кликните по холсту для ввода. Все параметры текста настраиваются в панели «Свойства».</span>
+        </div>
+
+        <!-- 14. Hand Option Bar -->
+        <div id="opt-bar-hand" class="opt-group">
+            <span class="opt-label">Пробел или H — панорамирование холста. Колесико мыши — масштабирование.</span>
+        </div>
+
+        <!-- 15. Pipette Option Bar -->
+        <div id="opt-bar-pipette" class="opt-group">
+            <span class="opt-label">Размер образца:</span>
+            <select id="pipette-sample" class="md-select opt-select" aria-label="Размер образца пипетки">
+                <option value="point">Точка 1×1</option>
+                <option value="3x3">3×3 среднее</option>
+                <option value="5x5">5×5 среднее</option>
+            </select>
+            <span class="opt-label">Источник:</span>
+            <select id="pipette-source" class="md-select opt-select" aria-label="Источник цвета пипетки">
+                <option value="merged">Все видимые слои</option>
+                <option value="layer">Активный слой</option>
+            </select>
+        </div>
+
+    </div>
+
+    <!-- Main Workspace Layout -->
+    <div class="workspace-layout">
+
+        <!-- Toolbar (Left) -->
+        <aside class="toolbar single-column-toolbar" id="main-toolbar" aria-label="Панель инструментов">
+            <div class="tools-group single-column">
+                <button class="tool-btn m3-bubble-action" data-tool="move" title="Перемещение и трансформация" aria-label="Перемещение и трансформация" type="button"><i class="material-symbols-rounded">open_with</i></button>
+                <button class="tool-btn m3-bubble-action" data-tool="marquee" title="Прямоугольное выделение" aria-label="Прямоугольное выделение" type="button"><i class="material-symbols-rounded">crop_free</i></button>
+                <div class="toolbar-divider"></div>
+                <button class="tool-btn active m3-bubble-action" data-tool="brush" title="Кисть" aria-label="Кисть" type="button"><i class="material-symbols-rounded">brush</i></button>
+                <button class="tool-btn m3-bubble-action" data-tool="pencil" title="Карандаш Pixel-Perfect" aria-label="Карандаш Pixel-Perfect" type="button"><i class="material-symbols-rounded">edit</i></button>
+                <button class="tool-btn m3-bubble-action" data-tool="eraser" title="Ластик" aria-label="Ластик" type="button"><i class="material-symbols-rounded">ink_eraser</i></button>
+                <button class="tool-btn m3-bubble-action" data-tool="bucket" title="Заливка" aria-label="Заливка" type="button"><i class="material-symbols-rounded">format_color_fill</i></button>
+                <button class="tool-btn m3-bubble-action" data-tool="gradient" title="Градиент" aria-label="Градиент" type="button"><i class="material-symbols-rounded">gradient</i></button>
+                <button class="tool-btn m3-bubble-action" data-tool="pipette" title="Пипетка" aria-label="Пипетка" type="button"><i class="material-symbols-rounded">colorize</i></button>
+                <div class="toolbar-divider"></div>
+                <button class="tool-btn m3-bubble-action" data-tool="line" title="Линия" aria-label="Линия" type="button"><i class="material-symbols-rounded">horizontal_rule</i></button>
+                <button class="tool-btn m3-bubble-action" data-tool="rect-empty" title="Контур прямоугольника" aria-label="Контур прямоугольника" type="button"><i class="material-symbols-rounded">crop_square</i></button>
+                <button class="tool-btn m3-bubble-action" data-tool="rect-filled" title="Залитый прямоугольник" aria-label="Залитый прямоугольник" type="button"><i class="material-symbols-rounded filled">square</i></button>
+                <button class="tool-btn m3-bubble-action" data-tool="circle-empty" title="Контур эллипса" aria-label="Контур эллипса" type="button"><i class="material-symbols-rounded">radio_button_unchecked</i></button>
+                <button class="tool-btn m3-bubble-action" data-tool="circle-filled" title="Залитый эллипс" aria-label="Залитый эллипс" type="button"><i class="material-symbols-rounded filled">circle</i></button>
+                <div class="toolbar-divider"></div>
+                <button class="tool-btn m3-bubble-action" data-tool="text" title="Текст Minecraft" aria-label="Текст Minecraft" type="button"><i class="material-symbols-rounded">title</i></button>
+                <button class="tool-btn m3-bubble-action" data-tool="hand" title="Панорамирование холста" aria-label="Панорамирование холста" type="button"><i class="material-symbols-rounded">pan_tool</i></button>
+                <div class="toolbar-divider"></div>
+                <button class="tool-btn m3-bubble-action" id="btn-toolbar-btn-gen" title="Генератор кнопок GUI" aria-label="Генератор кнопок GUI" type="button"><i class="material-symbols-rounded">smart_button</i></button>
+            </div>
+
+            <div class="md-toolbar-colors">
+                <button id="btn-default-colors" class="md-color-sub-btn md-btn-default m3-bubble-action" title="Цвета по умолчанию" type="button"></button>
+                <button id="btn-swap-colors" class="md-color-sub-btn md-btn-swap m3-bubble-action" title="Поменять цвета местами" aria-label="Поменять цвета местами" type="button"><i class="material-symbols-rounded">sync_alt</i></button>
+                <button id="btn-quick-recolor" class="md-color-sub-btn m3-bubble-action" title="Замена цвета на холсте" aria-label="Замена цвета на холсте" type="button"><i class="material-symbols-rounded" style="font-size: 14px;">find_replace</i></button>
+                <div class="md-color-swatches">
+                    <div id="swatch-bg" class="md-swatch md-swatch-bg" title="Фоновый цвет"></div>
+                    <div id="swatch-fg" class="md-swatch md-swatch-fg active" title="Основной цвет"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Central Canvas Area & Viewport -->
+        <main class="canvas-area" id="workspace">
+            <!-- Crash Recovery Banner -->
+            <div id="crash-recovery-banner" class="crash-recovery-banner" style="display: none;" role="alert"></div>
+
+            <div class="doc-tab-bar">
+                <div id="doc-tab-container" class="doc-tabs-container" role="tablist" aria-label="Открытые проекты"></div>
+                <button id="btn-add-tab" class="md-icon-btn add-tab-btn m3-bubble-action" title="Новый проект" aria-label="Новый проект" type="button"><i class="material-symbols-rounded">add</i></button>
+            </div>
+
+            <!-- Pixel Rulers Top & Left -->
+            <div id="ruler-corner" class="ruler-corner" title="Линейка пикселей Ctrl+R">px</div>
+            <canvas id="ruler-top" class="ruler-top" aria-hidden="true"></canvas>
+            <canvas id="ruler-left" class="ruler-left" aria-hidden="true"></canvas>
+
+            <div id="canvas-wrapper" role="tabpanel" tabindex="0" aria-label="Холст проекта" aria-describedby="canvas-keyboard-help">
+                <span id="canvas-keyboard-help" class="md-sr-only">Фокусируйтесь на холсте клавишей Tab. Пробел с перетаскиванием перемещает холст, F вписывает его в окно, Ctrl и плюс или минус меняют масштаб. Клавиши инструментов доступны в панели инструментов.</span>
+                <img id="reference-img" class="reference-overlay" alt="" style="display: none;">
+                <canvas id="main-canvas" width="256" height="256" role="img" aria-label="Растровое изображение текущего проекта"></canvas>
+                <canvas id="preview-canvas" width="256" height="256" aria-hidden="true"></canvas>
+            </div>
+            <canvas id="grid-screen-canvas" aria-hidden="true"></canvas>
+
+            <div class="bottom-status-bar">
+                <div class="status-left">
+                    <span class="status-indicator md-badge" id="doc-info">256 × 256 px</span>
+                    <span class="status-indicator md-badge" id="cursor-pos">X: --, Y: --</span>
+                    <button id="btn-toggle-grid" class="md-icon-btn-micro m3-bubble-action active" title="Показать или скрыть сетку пикселей Ctrl+'" aria-label="Показать или скрыть сетку пикселей" type="button"><i class="material-symbols-rounded">grid_4x4</i></button>
+                    <button id="btn-toggle-rulers" class="md-icon-btn-micro m3-bubble-action active" title="Показать или скрыть линейки Ctrl+R" aria-label="Показать или скрыть линейки" type="button"><i class="material-symbols-rounded">straighten</i></button>
+                    <button id="btn-toggle-guides" class="md-icon-btn-micro m3-bubble-action active" title="Показать или скрыть направляющие Ctrl+;" aria-label="Показать или скрыть направляющие" type="button"><i class="material-symbols-rounded">grid_guides</i></button>
+                    <button id="btn-toggle-tiling" class="md-icon-btn-micro m3-bubble-action" title="Бесшовный тайлинг 3×3 клавиша W" aria-label="Бесшовный тайлинг 3×3" type="button"><i class="material-symbols-rounded">texture</i></button>
+                    <div id="status-ref-badge" class="md-badge" style="display: none; align-items: center; gap: 4px; cursor: pointer;" title="Клик для настройки прозрачности подложки"><i class="material-symbols-rounded" style="font-size: 14px;">image</i> Подложка: <span id="ref-opacity-val">40%</span></div>
+                </div>
+                <div class="zoom-controls">
+                    <button id="btn-zoom-out" class="md-zoom-btn md-icon-btn m3-bubble-action" title="Уменьшить масштаб" aria-label="Уменьшить" type="button"><i class="material-symbols-rounded">remove</i></button>
+                    <span id="zoom-level" class="md-badge">200%</span>
+                    <button id="btn-zoom-in" class="md-zoom-btn md-icon-btn m3-bubble-action" title="Увеличить масштаб" aria-label="Увеличить" type="button"><i class="material-symbols-rounded">add</i></button>
+                    <div class="top-sep" style="height:12px;"></div>
+                    <button id="btn-zoom-fit" class="md-zoom-text-btn md-btn m3-bubble-action" title="По размеру экрана клавиша F" type="button">По экрану</button>
+                    <button id="btn-zoom-reset" class="md-zoom-text-btn md-btn m3-bubble-action" title="Масштаб 100% Ctrl+0" type="button">100%</button>
+                </div>
+            </div>
+            <input type="file" id="input-ref-file" accept="image/*" style="display: none;">
+        </main>
+
+        <!-- Vertical Panel Splitter -->
+        <div class="panel-resizer-v" id="right-panel-resizer" title="Перетащите для изменения ширины панели"></div>
+
+        <!-- Right Panel (Inspector) -->
+        <aside class="right-panel" id="main-right-panel" aria-label="Инспектор слоев и ресурсов">
+
+            <!-- 1. Properties Section -->
+            <div class="md-panel expanded" id="properties-panel-section">
+                <div class="md-panel-header collapsable">
+                    <i class="material-symbols-rounded md-collapse-icon">keyboard_arrow_down</i>
+                    <span class="md-panel-title">Свойства</span>
+                    <span id="prop-target-type-badge" class="md-badge" style="margin-left: auto; font-size: 10px;">Слой</span>
+                </div>
+                <div class="md-panel-body md-panel-props">
+                    <!-- Layer / Object Title and Dimensions -->
+                    <div class="prop-row prop-title-row" id="prop-title-row" style="display: none;">
+                        <span id="prop-layer-name" class="prop-object-name">Слой 1</span>
+                        <span id="prop-dimension-badge" class="prop-dim-badge">0 × 0 px</span>
+                    </div>
+
+                    <!-- Empty state when no layer or object is active -->
+                    <div id="prop-empty-state" class="prop-empty-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px 12px; text-align: center; color: var(--md-on-surface-variant); font-size: 12px; gap: 8px;">
+                        <i class="material-symbols-rounded" style="font-size: 38px; opacity: 0.4;">touch_app</i>
+                        <span>Объект не выбран</span>
+                    </div>
+
+                    <!-- Context Group: Text (shown when text layer is active) -->
+                    <div class="prop-group-box" id="prop-group-text" style="display: none;">
+                        <div class="prop-section-label">Текст и шрифт</div>
+                        <div class="prop-field-block">
+                            <span class="prop-field-label">Текст:</span>
+                            <textarea id="text-input" class="md-input prop-text-area" rows="2" maxlength="4096" placeholder="Введите текст..."></textarea>
+                        </div>
+                        <div class="prop-field-block" style="margin-top: 6px;">
+                            <span class="prop-field-label">Шрифт:</span>
+                            <select id="font-select" class="md-select prop-select-full">
+                                <option value="minecraft">Minecraft Default</option>
+                                <option value="smallcaps">SmallCaps</option>
+                                <option value="minecraft-ten">Minecraft Ten</option>
+                            </select>
+                        </div>
+                        <div class="prop-row" style="margin-top: 6px; align-items: center; justify-content: space-between;">
+                            <span class="prop-field-label">Интервал:</span>
+                            <input type="number" id="text-spacing" class="md-number-input prop-num-input" min="-5" max="20" value="0" title="Межбуквенный интервал">
+                        </div>
+
+                        <!-- Тень текста -->
+                        <div class="prop-sub-section" style="padding-top: 8px; border-top: 1px solid var(--md-outline-variant); margin-top: 6px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                <label class="md-switch">
+                                    <input type="checkbox" id="text-shadow-toggle" checked>
+                                    <span class="md-switch-track"><span class="md-switch-thumb"></span></span>
+                                    <span class="md-switch-label" style="font-weight: 500;">Тень текста</span>
+                                </label>
+                                <div style="display: flex; align-items: center; gap: 4px;">
+                                    <span class="prop-field-label">X:</span>
+                                    <input type="number" id="text-shadow-ox" class="md-number-input prop-num-input" style="width: 40px; text-align: center;" min="-10" max="10" value="1" title="Смещение тени по горизонтали">
+                                    <span class="prop-field-label">Y:</span>
+                                    <input type="number" id="text-shadow-oy" class="md-number-input prop-num-input" style="width: 40px; text-align: center;" min="-10" max="10" value="1" title="Смещение тени по вертикали">
+                                </div>
+                            </div>
+
+                            <!-- Настройки цвета тени: Автошейдинг vs Кастомный цвет -->
+                            <div id="text-shadow-options" style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px;">
+                                <div class="m3-segmented-button" style="margin-bottom: 2px;">
+                                    <button type="button" aria-pressed="true" class="m3-segment-item active" id="textSegShadowAuto" style="padding: 5px 8px; font-size: 11px;">
+                                        <span class="material-symbols-rounded" style="font-size: 14px;">auto_awesome</span>
+                                        Автошейдинг
+                                    </button>
+                                    <button type="button" aria-pressed="false" class="m3-segment-item" id="textSegShadowCustom" style="padding: 5px 8px; font-size: 11px;">
+                                        <span class="material-symbols-rounded" style="font-size: 14px;">palette</span>
+                                        Свой цвет
+                                    </button>
+                                </div>
+
+                                <!-- Автошейдинг информационная строка -->
+                                <div id="textShadowAutoSection" style="display: flex; align-items: center; justify-content: space-between; padding: 4px 8px; background: var(--md-surface-container-high); border-radius: var(--md-shape-corner-small, 8px);">
+                                    <span style="font-size: 11px; color: var(--md-on-surface-variant);">Цвет шейдинга:</span>
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <div id="textShadowAutoColorPreview" style="width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.18); background: #3F3F3F;"></div>
+                                        <span id="textShadowAutoColorHex" style="font-size: 11px; color: var(--md-on-surface);">#3F3F3F</span>
+                                    </div>
+                                </div>
+
+                                <!-- Свой цвет тени контролы -->
+                                <div id="textShadowCustomSection" style="display: none; align-items: center; gap: 8px;">
+                                    <div class="color-preview-circle" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--md-outline-variant); position: relative; overflow: hidden; cursor: pointer; flex-shrink: 0;">
+                                        <input type="color" id="textShadowCustomColorInput" value="#000000" style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; cursor: pointer; border: none; padding: 0;">
+                                    </div>
+                                    <input type="text" class="m3-text-field" id="textShadowCustomHexInput" value="#000000" maxlength="7" style="flex: 1; padding: 4px 8px; font-size: 11px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Цвет и заливка текста -->
+                        <div class="prop-sub-section" style="padding-top: 8px; border-top: 1px solid var(--md-outline-variant); margin-top: 6px;">
+                            <div class="prop-section-label" style="margin-bottom: 6px;">Цвет текста</div>
+
+                            <!-- Режим цвета: Сплошной / Градиент -->
+                            <div class="m3-segmented-button" style="margin-bottom: 8px;">
+                                <button type="button" aria-pressed="true" class="m3-segment-item active" id="textSegColorSolid" style="padding: 5px 8px; font-size: 11px;">
+                                    <span class="material-symbols-rounded" style="font-size: 14px;">format_color_fill</span>
+                                    Сплошной
+                                </button>
+                                <button type="button" aria-pressed="false" class="m3-segment-item" id="textSegColorGradient" style="padding: 5px 8px; font-size: 11px;">
+                                    <span class="material-symbols-rounded" style="font-size: 14px;">gradient</span>
+                                    Градиент
+                                </button>
+                            </div>
+
+                            <!-- Сплошной цвет -->
+                            <div id="textSolidColorSection" class="control-group" style="display: flex; flex-direction: column; gap: 6px;">
+                                <div class="color-picker-box" id="textSolidColorBox" style="display: flex; align-items: center; gap: 8px;">
+                                    <div class="color-preview-circle" id="textColorPreviewWrap" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--md-outline-variant); position: relative; overflow: hidden; cursor: pointer; flex-shrink: 0;">
+                                        <input type="color" id="textMasterColorInput" value="#FFFFFF" style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; cursor: pointer; border: none; padding: 0;">
+                                    </div>
+                                    <input type="text" class="m3-text-field" id="textHexTextInput" value="#FFFFFF" maxlength="7" style="flex: 1; padding: 4px 8px; font-size: 11px;">
+                                    
+                                    <div class="mini-shades-palette" title="Палитра: Рамка, Блик, Тень, Поверхность" style="display: flex; gap: 4px;">
+                                        <div class="mini-swatch" id="textMiniSwatchBd" style="background: #000000; width: 14px; height: 14px; border-radius: 3px; cursor: pointer;" title="Рамка"></div>
+                                        <div class="mini-swatch" id="textMiniSwatchHl" style="background: #ECECEC; width: 14px; height: 14px; border-radius: 3px; cursor: pointer;" title="Блик"></div>
+                                        <div class="mini-swatch" id="textMiniSwatchSh" style="background: #7C7C7C; width: 14px; height: 14px; border-radius: 3px; cursor: pointer;" title="Тень"></div>
+                                        <div class="mini-swatch" id="textMiniSwatchSf" style="background: #FFFFFF; width: 14px; height: 14px; border-radius: 3px; cursor: pointer;" title="Поверхность"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Градиент -->
+                            <div id="textGradientColorSection" class="control-group" style="display: none; flex-direction: column; gap: 8px;">
+                                <div id="textGradPreviewBar" style="height: 12px; border-radius: var(--md-shape-corner-small); border: 1px solid var(--md-outline-variant);"></div>
+                                <div id="textGradientStopsList" style="display: flex; flex-direction: column; gap: 6px;"></div>
+                                <button type="button" class="m3-btn m3-btn-outlined" id="textBtnAddGradColor" style="padding: 6px 12px; font-size: 11px; gap: 6px; width: 100%; border-radius: var(--md-shape-corner-full, 9999px); cursor: pointer; display: flex; align-items: center; justify-content: center; background: transparent; border: 1px dashed var(--md-outline-variant); color: var(--md-on-surface);">
+                                    <span class="material-symbols-rounded" style="font-size: 14px;">add</span>
+                                    Добавить цвет
+                                </button>
+
+                                <!-- Угол градиента -->
+                                <div class="control-group" style="margin-top: 4px;">
+                                    <div class="control-label-row" style="display: flex; justify-content: space-between; font-size: 11px; color: var(--md-on-surface-variant); margin-bottom: 2px;">
+                                        <span>Угол градиента:</span>
+                                        <span class="control-value-text" id="textGradAngleValText">90°</span>
+                                    </div>
+                                    <input type="range" class="m3-slider" id="textGradAngleInput" min="0" max="360" value="90" style="width: 100%;">
+                                    <div class="m3-chip-row" id="textGradAngleChipsRow" style="display: flex; gap: 4px; margin-top: 4px; overflow-x: auto;">
+                                        <button type="button" aria-pressed="false" class="m3-chip" data-angle="0">0°</button>
+                                        <button type="button" aria-pressed="false" class="m3-chip" data-angle="45">45°</button>
+                                        <button type="button" aria-pressed="true" class="m3-chip active" data-angle="90">90°</button>
+                                        <button type="button" aria-pressed="false" class="m3-chip" data-angle="135">135°</button>
+                                        <button type="button" aria-pressed="false" class="m3-chip" data-angle="180">180°</button>
+                                        <button type="button" aria-pressed="false" class="m3-chip" data-angle="270">270°</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Библиотека палитр -->
+                            <div class="control-group" style="margin-top: 8px;">
+                                <div class="control-label-row" style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--md-on-surface-variant); margin-bottom: 4px;">
+                                    <span>Библиотека палитр:</span>
+                                    <select class="m3-select" id="textPaletteSelect" style="padding: 2px 6px; font-size: 11px; border-radius: 6px; background: var(--md-surface-container-high); border: 1px solid var(--md-outline-variant); color: var(--md-on-surface);">
+                                        <option value="minecraft" selected>Minecraft Vanilla</option>
+                                        <option value="material">Google Material</option>
+                                        <option value="nord">Nord Theme</option>
+                                        <option value="dracula">Dracula</option>
+                                        <option value="pico8">PICO-8</option>
+                                        <option value="endesga32">Endesga 32</option>
+                                        <option value="resurrect64">Resurrect 64</option>
+                                        <option value="dawnbringer16">DawnBringer</option>
+                                        <option value="solarized">Solarized</option>
+                                        <option value="gameboy">Game Boy</option>
+                                        <option value="c64">Commodore 64</option>
+                                    </select>
+                                </div>
+                                <div class="color-palette-grid" id="textPaletteSwatchesGrid"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Context Group: Shape Parameters (shown when rectangle shape is active) -->
+                    <div class="prop-group-box" id="prop-group-shape" style="display: none;">
+                        <div class="prop-section-label">Параметры фигуры</div>
+                        <div class="prop-row" id="prop-shape-radius-row" style="align-items: center; gap: 8px;">
+                            <span class="prop-field-label">Скругление:</span>
+                            <input type="number" id="prop-shape-radius-num" class="md-number-input prop-num-input" min="0" max="64" value="0" style="width: 52px;">
+                            <span style="font-size: 11px; color: var(--md-on-surface-variant);">px</span>
+                        </div>
+                        <button id="btn-prop-shape-recolor" class="md-chip-btn m3-bubble-action prop-action-btn" type="button" style="width: 100%; margin-top: 4px;">
+                            <i class="material-symbols-rounded">palette</i> Перекрасить фигуру
+                        </button>
+                    </div>
+
+                    <!-- Context Group: Selection Operations (shown when selection active) -->
+                    <div class="prop-group-box" id="prop-group-selection" style="display: none;">
+                        <div class="prop-section-label">Операции с выделением</div>
+                        <div class="prop-btn-grid prop-grid-3">
+                            <button id="btn-prop-sel-copy" class="md-chip-btn m3-bubble-action prop-action-btn" title="Копировать" type="button">
+                                <i class="material-symbols-rounded">content_copy</i> Копия
+                            </button>
+                            <button id="btn-prop-sel-cut" class="md-chip-btn m3-bubble-action prop-action-btn" title="Вырезать" type="button">
+                                <i class="material-symbols-rounded">content_cut</i> Вырезать
+                            </button>
+                            <button id="btn-prop-sel-paste" class="md-chip-btn m3-bubble-action prop-action-btn" title="Вставить" type="button">
+                                <i class="material-symbols-rounded">content_paste</i> Вставить
+                            </button>
+                            <button id="btn-prop-sel-fill" class="md-chip-btn m3-bubble-action prop-action-btn" title="Залить цветом" type="button">
+                                <i class="material-symbols-rounded">format_color_fill</i> Залить
+                            </button>
+                            <button id="btn-prop-sel-stroke" class="md-chip-btn m3-bubble-action prop-action-btn" title="Контур выделения" type="button">
+                                <i class="material-symbols-rounded">crop_square</i> Контур
+                            </button>
+                            <button id="btn-prop-sel-delete" class="md-chip-btn m3-bubble-action prop-action-btn" title="Очистить пиксели" type="button">
+                                <i class="material-symbols-rounded">delete</i> Очистить
+                            </button>
+                            <button id="btn-prop-sel-fliph" class="md-chip-btn m3-bubble-action prop-action-btn" title="Отразить по горизонтали" type="button">
+                                <i class="material-symbols-rounded">swap_horiz</i> Отр. Г
+                            </button>
+                            <button id="btn-prop-sel-flipv" class="md-chip-btn m3-bubble-action prop-action-btn" title="Отразить по вертикали" type="button">
+                                <i class="material-symbols-rounded">swap_vert</i> Отр. В
+                            </button>
+                            <button id="btn-prop-sel-deselect" class="md-chip-btn m3-bubble-action prop-action-btn" title="Снять выделение" type="button">
+                                <i class="material-symbols-rounded">close</i> Снять
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Alignment -->
+                    <div class="prop-group-box" id="prop-group-align">
+                        <div class="prop-section-label">Выравнивание</div>
+                        <div class="prop-btn-grid prop-grid-2">
+                            <button id="btn-prop-align-center-h" class="md-chip-btn m3-bubble-action prop-action-btn" title="Центрировать по горизонтали" type="button">
+                                <i class="material-symbols-rounded">align_horizontal_center</i> Центр X
+                            </button>
+                            <button id="btn-prop-align-center-v" class="md-chip-btn m3-bubble-action prop-action-btn" title="Центрировать по вертикали" type="button">
+                                <i class="material-symbols-rounded">align_vertical_center</i> Центр Y
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Flip and Rotate -->
+                    <div class="prop-group-box" id="prop-group-transform">
+                        <div class="prop-section-label">Трансформация</div>
+                        <div class="prop-btn-grid prop-grid-2">
+                            <button id="btn-prop-fliph" class="md-chip-btn m3-bubble-action prop-action-btn" title="Отразить по горизонтали" type="button">
+                                <i class="material-symbols-rounded">swap_horiz</i> Отр. Г
+                            </button>
+                            <button id="btn-prop-flipv" class="md-chip-btn m3-bubble-action prop-action-btn" title="Отразить по вертикали" type="button">
+                                <i class="material-symbols-rounded">swap_vert</i> Отр. В
+                            </button>
+                            <button id="btn-prop-rotcw" class="md-chip-btn m3-bubble-action prop-action-btn" title="Повернуть на 90°" type="button">
+                                <i class="material-symbols-rounded">rotate_right</i> 90°
+                            </button>
+                            <button id="btn-prop-rotccw" class="md-chip-btn m3-bubble-action prop-action-btn" title="Повернуть на -90°" type="button">
+                                <i class="material-symbols-rounded">rotate_left</i> -90°
+                            </button>
+                            <button id="btn-prop-scale2x" class="md-chip-btn m3-bubble-action prop-action-btn" title="Масштабировать в 2 раза" type="button">
+                                <i class="material-symbols-rounded">zoom_in</i> 2x
+                            </button>
+                            <button id="btn-prop-scalehalf" class="md-chip-btn m3-bubble-action prop-action-btn" title="Уменьшить в 2 раза" type="button">
+                                <i class="material-symbols-rounded">zoom_out</i> ½x
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Color & Pixels -->
+                    <div class="prop-group-box" id="prop-group-color">
+                        <div class="prop-section-label">Цвет и пиксели</div>
+                        <div class="prop-btn-grid prop-grid-2">
+                            <button id="btn-prop-recolor" class="md-chip-btn m3-bubble-action prop-action-btn" title="Перекрасить в активный цвет" type="button">
+                                <i class="material-symbols-rounded">palette</i> Перекрасить
+                            </button>
+                            <button id="btn-prop-invert" class="md-chip-btn m3-bubble-action prop-action-btn" title="Инвертировать цвета" type="button">
+                                <i class="material-symbols-rounded">invert_colors</i> Инверт.
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Layers Section -->
+            <div class="md-panel expanded" id="layers-panel-section">
+                <div class="md-panel-header collapsable">
+                    <i class="material-symbols-rounded md-collapse-icon">keyboard_arrow_down</i>
+                    <span class="md-panel-title">Слои</span>
+                </div>
+                <div class="md-panel-body md-panel-layers">
+                    <div class="md-layer-actions-top">
+                        <button id="btn-add-layer" class="md-icon-btn-micro m3-bubble-action" title="Новый слой" type="button"><i class="material-symbols-rounded">add</i></button>
+                        <button id="btn-add-group" class="md-icon-btn-micro m3-bubble-action" title="Сгруппировать в папку" type="button"><i class="material-symbols-rounded">create_new_folder</i></button>
+                        <div style="flex: 1;"></div>
+                        <button id="btn-layer-up" class="md-icon-btn-micro m3-bubble-action" title="Поднять слой выше" type="button"><i class="material-symbols-rounded">arrow_upward</i></button>
+                        <button id="btn-layer-down" class="md-icon-btn-micro m3-bubble-action" title="Опустить слой ниже" type="button"><i class="material-symbols-rounded">arrow_downward</i></button>
+                        <div style="flex: 1;"></div>
+                        <button id="btn-import-texture" class="md-icon-btn-micro m3-bubble-action" title="Импорт изображения" type="button"><i class="material-symbols-rounded">image</i></button>
+                        <input type="file" id="input-import-texture" style="display: none;" accept="image/png, image/jpeg, image/svg+xml, image/webp">
+                    </div>
+                </div>
+
+                <div class="md-layers-body" id="layers-list-scroll-body">
+                    <ul id="layer-list" class="layer-list"></ul>
+                </div>
+            </div>
+
+            <!-- 3. Color Section -->
+            <div class="md-panel expanded" id="color-panel-section">
+                <div class="md-panel-header collapsable">
+                    <i class="material-symbols-rounded md-collapse-icon">keyboard_arrow_down</i>
+                    <span class="md-panel-title">Цвет</span>
+                </div>
+                <div class="md-panel-body">
+                    <div class="md-color-box">
+                        <div class="md-field-grad">
+                            <canvas id="picker-sb-canvas" width="220" height="110"></canvas>
+                            <div id="picker-cursor"></div>
+                        </div>
+                        <div class="md-hue-row">
+                            <div id="color-preview" class="md-swatch-preview" style="background-color:#3B82F6;"></div>
+                            <input type="range" id="picker-hue-slider" class="md-slider md-hue-slider" min="0" max="360" value="215" title="Цветовой тон">
+                        </div>
+                        <div class="md-hex-row">
+                            <span class="md-hex-label">HEX:</span>
+                            <input type="text" id="picker-hex-input" class="md-hex-input md-input" value="#3B82F6" maxlength="7">
+                            <select id="palette-select" class="md-select md-palette-select" title="Выбор палитры">
+                                <option value="material">Google Material 16</option>
+                                <option value="minecraft">Minecraft Vanilla 16</option>
+                                <option value="pico8">PICO-8 Fantasy 16</option>
+                                <option value="endesga32">Endesga 32</option>
+                                <option value="resurrect64">Resurrect 64</option>
+                                <option value="aap64">AAP-64</option>
+                                <option value="dawnbringer16">DawnBringer 16</option>
+                                <option value="nord">Nord Theme 16</option>
+                                <option value="dracula">Dracula Official 16</option>
+                                <option value="solarized">Solarized 16</option>
+                                <option value="gameboy">Game Boy DMG 8</option>
+                                <option value="c64">Commodore 64 16</option>
+                                <option value="custom">Моя палитра</option>
+                            </select>
+                        </div>
+
+                        <!-- Shading Ramp (Hue-shifted Highlights & Shadows) -->
+                        <div class="shading-ramp-wrapper">
+                            <div class="shading-ramp-header">
+                                <span class="shading-ramp-title" title="Гармоничные тени и блики с естественным сдвигом цветового тона">Свет / Тень</span>
+                                <div class="shading-ramp-actions">
+                                    <button id="btn-ramp-darker" class="btn-micro-text m3-bubble-action" title="Сделать оттенок темнее, клавиша [" type="button"><i class="material-symbols-rounded">chevron_left</i> Тень</button>
+                                    <button id="btn-ramp-lighter" class="btn-micro-text m3-bubble-action" title="Сделать оттенок светлее, клавиша ]" type="button">Свет <i class="material-symbols-rounded">chevron_right</i></button>
+                                    <button id="btn-add-ramp-palette" class="btn-micro-text m3-bubble-action" title="Добавить всю растяжку оттенков в кастомную палитру" type="button"><i class="material-symbols-rounded">playlist_add</i></button>
+                                </div>
+                            </div>
+                            <div class="shading-ramp-controls">
+                                <div class="shading-ramp-subrow">
+                                    <select id="ramp-steps-select" class="md-select ramp-mini-select" title="Количество оттенков в растяжке">
+                                        <option value="5">5 оттенков</option>
+                                        <option value="7">7 оттенков</option>
+                                        <option value="9">9 оттенков</option>
+                                    </select>
+                                    <select id="ramp-strength-select" class="md-select ramp-mini-select" title="Интенсивность сдвига цветового тона">
+                                        <option value="subtle">Сдвиг: Мягкий</option>
+                                        <option value="normal" selected>Сдвиг: Норма</option>
+                                        <option value="vibrant">Сдвиг: Сочный</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="shading-ramp-list" class="shading-ramp-container"></div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 4px; padding: 2px 0;">
+                            <span style="font-size: 11px; color: var(--md-on-surface-variant); font-weight: 500;">Палитра:</span>
+                            <div style="display: flex; gap: 4px;">
+                                <button id="btn-import-palette" class="btn-micro-text m3-bubble-action" title="Импорт палитры из .hex / .gpl / .txt" type="button"><i class="material-symbols-rounded">file_upload</i> Импорт</button>
+                                <button id="btn-add-palette-color" class="btn-micro-text m3-bubble-action" title="Добавить текущий цвет в кастомную палитру" type="button"><i class="material-symbols-rounded">add</i> Добавить</button>
+                            </div>
+                            <input type="file" id="input-palette-file" accept=".hex,.gpl,.txt" style="display: none;">
+                        </div>
+                        <div id="palette-color-list" class="md-swatch-grid" style="margin-bottom: 8px;"></div>
+                        <div style="font-size: 11px; color: var(--md-on-surface-variant); font-weight: 500; margin-top: 8px; margin-bottom: 4px;">История цветов:</div>
+                        <div id="color-history-list" class="md-swatch-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Minecraft Items Library Section -->
+            <div class="md-panel expanded" id="items-panel-section">
+                <div class="md-panel-header collapsable">
+                    <i class="material-symbols-rounded md-collapse-icon">keyboard_arrow_down</i>
+                    <span class="md-panel-title">Ресурсы Minecraft</span>
+                    <span id="items-count-badge" class="items-count-badge md-badge">683</span>
+                </div>
+                <div class="md-panel-body md-items-panel-body" id="items-panel-body-container">
+                    
+                    <!-- Search Row -->
+                    <div class="md-items-search-row">
+                        <i class="material-symbols-rounded search-icon">search</i>
+                        <input type="text" id="items-search-input" class="md-input md-items-search-input" placeholder="Поиск по ресурсам..." autocomplete="off">
+                        <button id="btn-clear-items-search" class="md-icon-btn-micro clear-search-btn m3-bubble-action" title="Очистить поиск" aria-label="Очистить" style="display: none;" type="button">
+                            <i class="material-symbols-rounded">close</i>
+                        </button>
+                    </div>
+
+                    <!-- Category Pills Bar with Working Navigation Arrows -->
+                    <div class="md-items-categories-wrapper">
+                        <button id="btn-cat-prev" class="md-icon-btn-micro cat-nav-btn m3-bubble-action" title="Прокрутить назад" aria-label="Назад" type="button"><i class="material-symbols-rounded">chevron_left</i></button>
+                        <div class="md-items-categories-scroll" id="items-categories-scroll">
+                            <div class="md-items-categories" id="items-categories-bar"></div>
+                        </div>
+                        <button id="btn-cat-next" class="md-icon-btn-micro cat-nav-btn m3-bubble-action" title="Прокрутить вперёд" aria-label="Вперёд" type="button"><i class="material-symbols-rounded">chevron_right</i></button>
+                    </div>
+
+                    <!-- Items Grid Container -->
+                    <div class="md-items-grid-container">
+                        <div id="items-grid" class="md-items-grid"></div>
+                        <div id="items-empty-state" class="md-items-empty" style="display: none;">
+                            <i class="material-symbols-rounded">search_off</i>
+                            <span>Ничего не найдено</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+    </div>
+
+    <!-- New Project Modal Dialog -->
+    <div id="new-project-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="editor-modal-new-title">
+        <div class="modal" style="max-width: 520px;">
+            <div class="modal-header">
+                <h2 id="editor-modal-new-title">Создать новый проект</h2>
+                <button class="md-icon-btn btn-close-modal m3-bubble-action" title="Закрыть" aria-label="Закрыть" type="button"><i class="material-symbols-rounded">close</i></button>
+            </div>
+            <div class="modal-body">
+                <!-- Project type selector -->
+        <div class="project-type-selector" id="new-proj-type-selector" role="tablist" aria-label="Тип проекта">
+                    <button type="button" id="new-proj-tab-gui" class="type-option active" data-type="gui" role="tab" aria-selected="true" aria-controls="new-proj-section-gui">
+                        <i class="material-symbols-rounded">grid_view</i>
+                        <div class="type-option-text">
+                            <span class="type-title">Minecraft GUI</span>
+                            <span class="type-desc">Меню сундука 256×256</span>
+                        </div>
+                    </button>
+                    <button type="button" id="new-proj-tab-canvas" class="type-option" data-type="canvas" role="tab" aria-selected="false" aria-controls="new-proj-section-canvas">
+                        <i class="material-symbols-rounded">palette</i>
+                        <div class="type-option-text">
+                            <span class="type-title">Обычный холст</span>
+                            <span class="type-desc">Пиксель-арт</span>
+                        </div>
+                    </button>
+                    <button type="button" id="new-proj-tab-deluxemenu" class="type-option" data-type="deluxemenu" role="tab" aria-selected="false" aria-controls="new-proj-section-deluxemenu">
+                        <i class="material-symbols-rounded">dashboard_customize</i>
+                        <div class="type-option-text"><span class="type-title">Конструктор меню</span><span class="type-desc">DeluxeMenus и zMenu</span></div>
+                    </button>
+                <button type="button" id="new-proj-tab-prefix" class="type-option" data-type="prefix" role="tab" aria-selected="false" aria-controls="new-proj-section-prefix"><i class="material-symbols-rounded">badge</i><div class="type-option-text"><span class="type-title">Префиксы</span><span class="type-desc">Пиксельные плашки</span></div></button>
+</div>
+
+                <div id="new-proj-section-deluxemenu" role="tabpanel" aria-labelledby="new-proj-tab-deluxemenu" tabindex="0" style="display: none;"><div class="form-group"><label for="new-deluxemenu-name">Название проекта</label><input type="text" id="new-deluxemenu-name" class="md-input" value="Меню 1" maxlength="120" autocomplete="off"></div><div class="form-group"><label for="new-menu-plugin">Плагин меню</label><select id="new-menu-plugin" class="md-select"><option value="deluxemenus">DeluxeMenus</option><option value="zmenu">zMenu</option></select></div><p class="field-hint">Соберите меню из предметов, настройте кнопки и действия. Проект сохраняется в .mlst, конфигурация выбранного плагина экспортируется в YAML.</p></div>
+                <div id="new-proj-section-prefix" role="tabpanel" aria-labelledby="new-proj-tab-prefix" tabindex="0" style="display: none;"><div class="form-group"><label for="new-prefix-name">Название проекта</label><input type="text" id="new-prefix-name" class="md-input" value="Префиксы 1" maxlength="120" autocomplete="off"></div><p class="field-hint">Текст, значки, градиенты, обводка и тени. До 8 блоков в одном префиксе. Размер подбирается автоматически.</p></div>
+<!-- Section: GUI Mode -->
+                <div id="new-proj-section-gui" role="tabpanel" aria-labelledby="new-proj-tab-gui" tabindex="0">
+                    <div class="form-group">
+                        <label for="new-proj-name">Название проекта</label>
+                        <input type="text" id="new-proj-name" class="md-input" value="GUI Меню" placeholder="Название..." autocomplete="off">
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label for="new-proj-template">Заготовка контейнера</label>
+                        <select id="new-proj-template" class="md-select">
+                            <optgroup label="Модульные сундуки">
+                                <option value="container_54" selected>Сундук 54 слота</option>
+                                <option value="container_45">Сундук 45 слотов</option>
+                                <option value="container_36">Сундук 36 слотов</option>
+                                <option value="container_27">Малый сундук 27 слотов</option>
+                                <option value="container_18">Сундук 18 слотов</option>
+                                <option value="container_9">Дроппер 9 слотов</option>
+                            </optgroup>
+                            <optgroup label="Оригинальные контейнеры Minecraft">
+                                <option value="gui_container/generic_54.png">Большой сундук 54 слота</option>
+                                <option value="gui_container/inventory.png">Инвентарь игрока</option>
+                                <option value="gui_container/crafting_table.png">Верстак</option>
+                                <option value="gui_container/anvil.png">Наковальня</option>
+                                <option value="gui_container/furnace.png">Печь</option>
+                                <option value="gui_container/blast_furnace.png">Плавильная печь</option>
+                                <option value="gui_container/smoker.png">Коптильня</option>
+                                <option value="gui_container/brewing_stand.png">Зельеварочная стойка</option>
+                                <option value="gui_container/enchanting_table.png">Стол зачарований</option>
+                                <option value="gui_container/beacon.png">Маяк</option>
+                                <option value="gui_container/dispenser.png">Раздатчик</option>
+                                <option value="gui_container/hopper.png">Воронка</option>
+                                <option value="gui_container/shulker_box.png">Шалкеровый ящик</option>
+                                <option value="gui_container/crafter.png">Авто-крафтер</option>
+                                <option value="gui_container/cartography_table.png">Стол картографа</option>
+                                <option value="gui_container/grindstone.png">Точило</option>
+                                <option value="gui_container/loom.png">Ткацкий станок</option>
+                                <option value="gui_container/smithing.png">Кузнечный стол</option>
+                                <option value="gui_container/stonecutter.png">Камнерез</option>
+                                <option value="gui_container/villager.png">Торговля с жителем</option>
+                                <option value="gui_container/horse.png">Лошадь</option>
+                                <option value="gui_container/gamemode_switcher.png">Выбор режима игры</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label for="new-proj-style">Стиль интерфейса</label>
+                        <select id="new-proj-style" class="md-select">
+                            <option value="default" selected>Vanilla</option>
+                            <option value="bedrock">Bedrock</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="new-proj-frame-group" style="margin-top: 14px;">
+                        <label for="new-proj-frame">Шапка контейнера</label>
+                        <select id="new-proj-frame" class="md-select">
+                            <option value="yes" selected>Включена</option>
+                            <option value="no">Выключена</option>
+                        </select>
+                        <div id="new-proj-frame-hint" class="field-hint" style="display: none;">
+                            <i class="material-symbols-rounded">info</i>
+                            <span id="new-proj-frame-hint-text">Шапка контейнера является частью выбранного интерфейса.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Canvas Mode -->
+                <div id="new-proj-section-canvas" role="tabpanel" aria-labelledby="new-proj-tab-canvas" tabindex="0" style="display: none;">
+                    <div class="form-group">
+                        <label for="new-canvas-name">Название холста</label>
+                        <input type="text" id="new-canvas-name" class="md-input" value="Холст 1" placeholder="Название..." autocomplete="off">
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label style="font-size: 11px; font-weight: 600; color: var(--md-on-surface-variant); margin-bottom: 6px; display: block;">Быстрые пресеты:</label>
+                        <div class="preset-chips-row" id="new-canvas-presets">
+                            <button type="button" class="preset-chip" data-w="16" data-h="16" aria-pressed="false">16×16</button>
+                            <button type="button" class="preset-chip active" data-w="32" data-h="32" aria-pressed="true">32×32</button>
+                            <button type="button" class="preset-chip" data-w="48" data-h="48" aria-pressed="false">48×48</button>
+                            <button type="button" class="preset-chip" data-w="64" data-h="64" aria-pressed="false">64×64</button>
+                            <button type="button" class="preset-chip" data-w="128" data-h="128" aria-pressed="false">128×128</button>
+                            <button type="button" class="preset-chip" data-w="256" data-h="256" aria-pressed="false">256×256</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label style="font-size: 12px; font-weight: 600; color: var(--md-on-surface-variant); margin-bottom: 6px; display: block;">Разрешение:</label>
+                        <div class="canvas-dims-row">
+                            <div class="canvas-dim-col">
+                                <span class="dim-label">Ширина</span>
+                                <input type="number" id="new-canvas-w" class="md-input" min="1" max="4096" value="32" required aria-label="Ширина холста">
+                            </div>
+                            <button type="button" id="btn-new-canvas-lock-aspect" class="btn-lock-aspect active" title="Сохранять соотношение сторон" aria-label="Сохранять соотношение сторон" aria-pressed="true">
+                                <i class="material-symbols-rounded">link</i>
+                            </button>
+                            <div class="canvas-dim-col">
+                                <span class="dim-label">Высота</span>
+                                <input type="number" id="new-canvas-h" class="md-input" min="1" max="4096" value="32" required aria-label="Высота холста">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label for="new-canvas-bg">Фон холста</label>
+                        <select id="new-canvas-bg" class="md-select">
+                            <option value="transparent" selected>Прозрачный</option>
+                            <option value="white">Белый</option>
+                            <option value="black">Чёрный</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="md-btn flat btn-cancel-modal m3-bubble-action" type="button">Отмена</button>
+                <button class="md-btn primary m3-bubble-action" id="btn-create-project" type="button">Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Canvas Size Modal Dialog -->
+    <div id="canvas-size-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-canvas-size-title">
+        <div class="modal" style="max-width: 460px;">
+            <div class="modal-header">
+                <h2 id="modal-canvas-size-title">Размер холста</h2>
+                <button class="md-icon-btn btn-close-modal m3-bubble-action" title="Закрыть" aria-label="Закрыть" type="button"><i class="material-symbols-rounded">close</i></button>
+            </div>
+            <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+                <div class="canvas-size-current-banner">
+                    <i class="material-symbols-rounded">aspect_ratio</i>
+                    <span>Текущий размер: <strong id="canvas-size-curr-label">256 × 256 px</strong></span>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--md-on-surface-variant); margin-bottom: 6px; display: block;">Новый размер в пикселях:</label>
+                    <div class="canvas-dims-row">
+                        <div class="canvas-dim-col">
+                            <span class="dim-label">Ширина</span>
+                            <input type="number" id="canvas-resize-w" class="md-input" min="1" max="4096" value="256">
+                        </div>
+                        <button type="button" id="btn-canvas-size-lock-aspect" class="btn-lock-aspect active" title="Сохранять соотношение сторон">
+                            <i class="material-symbols-rounded">link</i>
+                        </button>
+                        <div class="canvas-dim-col">
+                            <span class="dim-label">Высота</span>
+                            <input type="number" id="canvas-resize-h" class="md-input" min="1" max="4096" value="256">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-size: 11px; font-weight: 600; color: var(--md-on-surface-variant); margin-bottom: 6px; display: block;">Пресеты:</label>
+                    <div class="preset-chips-row" id="canvas-resize-presets">
+                        <button type="button" class="preset-chip" data-w="16" data-h="16">16×16</button>
+                        <button type="button" class="preset-chip" data-w="32" data-h="32">32×32</button>
+                        <button type="button" class="preset-chip" data-w="48" data-h="48">48×48</button>
+                        <button type="button" class="preset-chip" data-w="64" data-h="64">64×64</button>
+                        <button type="button" class="preset-chip" data-w="128" data-h="128">128×128</button>
+                        <button type="button" class="preset-chip" data-w="256" data-h="256">256×256</button>
+                        <button type="button" class="preset-chip" data-mult="2">200%</button>
+                        <button type="button" class="preset-chip" data-mult="0.5">50%</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--md-on-surface-variant); margin-bottom: 6px; display: block;">Метод изменения:</label>
+                    <div class="segmented-options">
+                        <label class="radio-label">
+                            <input type="radio" name="canvas-resize-mode" value="crop" checked>
+                            <span>Размер холста — Кадрирование или Расширение</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="canvas-resize-mode" value="scale">
+                            <span>Масштабирование пикселей Nearest Neighbor</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="canvas-anchor-group" class="form-group">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--md-on-surface-variant); margin-bottom: 6px; display: block;">Точка привязки Якорь:</label>
+                    <div class="anchor-grid-container">
+                        <div class="anchor-grid" id="canvas-anchor-grid">
+                            <button type="button" class="anchor-btn" data-x="left" data-y="top" title="Сверху-слева"><i class="material-symbols-rounded">north_west</i></button>
+                            <button type="button" class="anchor-btn" data-x="center" data-y="top" title="Сверху"><i class="material-symbols-rounded">north</i></button>
+                            <button type="button" class="anchor-btn" data-x="right" data-y="top" title="Сверху-справа"><i class="material-symbols-rounded">north_east</i></button>
+                            <button type="button" class="anchor-btn" data-x="left" data-y="center" title="Слева"><i class="material-symbols-rounded">west</i></button>
+                            <button type="button" class="anchor-btn active" data-x="center" data-y="center" title="По центру"><i class="material-symbols-rounded">filter_center_focus</i></button>
+                            <button type="button" class="anchor-btn" data-x="right" data-y="center" title="Справа"><i class="material-symbols-rounded">east</i></button>
+                            <button type="button" class="anchor-btn" data-x="left" data-y="bottom" title="Снизу-слева"><i class="material-symbols-rounded">south_west</i></button>
+                            <button type="button" class="anchor-btn" data-x="center" data-y="bottom" title="Снизу"><i class="material-symbols-rounded">south</i></button>
+                            <button type="button" class="anchor-btn" data-x="right" data-y="bottom" title="Снизу-справа"><i class="material-symbols-rounded">south_east</i></button>
+                        </div>
+                        <div class="anchor-desc">
+                            <span>Изображение будет спозиционировано относительно выбранного угла или центра</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="md-btn flat btn-cancel-modal m3-bubble-action" type="button">Отмена</button>
+                <button class="md-btn primary m3-bubble-action" id="btn-apply-canvas-size" type="button">Изменить размер</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Modal Dialog -->
+    <div id="template-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="editor-modal-tpl-title">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 id="editor-modal-tpl-title">Выбрать шаблон GUI</h2>
+                <button class="md-icon-btn btn-close-modal m3-bubble-action" title="Закрыть" aria-label="Закрыть" type="button"><i class="material-symbols-rounded">close</i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="proj-template">Шаблон GUI — Базовый слой</label>
+                    <select id="proj-template" class="md-select">
+                        <optgroup label="Модульные сундуки">
+                            <option value="container_54" selected>Сундук 54 слота, 6 рядов</option>
+                            <option value="container_45">Сундук 45 слотов, 5 рядов</option>
+                            <option value="container_36">Сундук 36 слотов, 4 ряда</option>
+                            <option value="container_27">Малый сундук 27 слотов, 3 ряда</option>
+                            <option value="container_18">Сундук 18 слотов, 2 ряда</option>
+                            <option value="container_9">9 слотов, Дроппер</option>
+                        </optgroup>
+                        <optgroup label="Оригинальные контейнеры Minecraft">
+                            <option value="gui_container/generic_54.png">Большой сундук 54 слота</option>
+                            <option value="gui_container/inventory.png">Инвентарь игрока</option>
+                            <option value="gui_container/crafting_table.png">Верстак</option>
+                            <option value="gui_container/anvil.png">Наковальня</option>
+                            <option value="gui_container/furnace.png">Печь</option>
+                            <option value="gui_container/blast_furnace.png">Плавильная печь</option>
+                            <option value="gui_container/smoker.png">Коптильня</option>
+                            <option value="gui_container/brewing_stand.png">Зельеварочная стойка</option>
+                            <option value="gui_container/enchanting_table.png">Стол зачарований</option>
+                            <option value="gui_container/beacon.png">Маяк</option>
+                            <option value="gui_container/dispenser.png">Раздатчик 3x3</option>
+                            <option value="gui_container/hopper.png">Воронка 5x1</option>
+                            <option value="gui_container/shulker_box.png">Шалкеровый ящик 9x3</option>
+                            <option value="gui_container/crafter.png">Авто-крафтер 1.21</option>
+                            <option value="gui_container/cartography_table.png">Стол картографа</option>
+                            <option value="gui_container/grindstone.png">Точило</option>
+                            <option value="gui_container/loom.png">Ткацкий станок</option>
+                            <option value="gui_container/smithing.png">Кузнечный стол</option>
+                            <option value="gui_container/stonecutter.png">Камнерез</option>
+                            <option value="gui_container/villager.png">Торговля с жителем 512x256</option>
+                            <option value="gui_container/horse.png">Лошадь</option>
+                            <option value="gui_container/gamemode_switcher.png">Выбор режима игры 128x128</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-top: 14px;">
+                    <label for="proj-style">Стиль интерфейса</label>
+                    <select id="proj-style" class="md-select">
+                        <option value="default" selected>Vanilla</option>
+                        <option value="bedrock">Bedrock</option>
+                    </select>
+                </div>
+                <div class="form-group" id="proj-frame-group" style="margin-top: 14px;">
+                    <label for="proj-frame">Рамка заголовка — Шапка</label>
+                    <select id="proj-frame" class="md-select">
+                        <option value="yes" selected>Включена</option>
+                        <option value="no">Выключена</option>
+                    </select>
+                    <div id="proj-frame-hint" class="field-hint" style="display: none;">
+                        <i class="material-symbols-rounded">info</i>
+                        <span id="proj-frame-hint-text">Шапка контейнера является частью выбранного интерфейса.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="md-btn flat btn-cancel-modal m3-bubble-action" type="button">Отмена</button>
+                <button class="md-btn primary m3-bubble-action" id="btn-apply-template" type="button">Применить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Color Replace Modal -->
+    <div id="recolor-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-recolor-title">
+        <div class="modal" style="max-width: 440px;">
+            <div class="modal-header">
+                <h2 id="modal-recolor-title">Замена цвета</h2>
+                <button class="md-icon-btn btn-close-modal m3-bubble-action" title="Закрыть" aria-label="Закрыть" type="button"><i class="material-symbols-rounded">close</i></button>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex; gap: 16px; align-items: center; justify-content: center; margin-bottom: 16px;">
+                    <div style="text-align: center;">
+                        <span style="display: block; font-size: 11px; margin-bottom: 6px; color: var(--md-on-surface-variant);">Исходный</span>
+                        <input type="color" id="recolor-from-color" value="#000000" style="width: 52px; height: 36px; border: none; border-radius: var(--md-shape-corner-input, 8px); cursor: pointer; background: transparent;">
+                        <input type="text" id="recolor-from-hex" class="md-input" value="#000000" style="width: 80px; font-size: 11px; text-align: center; margin-top: 4px;">
+                    </div>
+                    <i class="material-symbols-rounded" style="color: var(--md-on-surface-variant); font-size: 24px;">arrow_forward</i>
+                    <div style="text-align: center;">
+                        <span style="display: block; font-size: 11px; margin-bottom: 6px; color: var(--md-on-surface-variant);">Новый цвет</span>
+                        <input type="color" id="recolor-to-color" value="#3B82F6" style="width: 52px; height: 36px; border: none; border-radius: var(--md-shape-corner-input, 8px); cursor: pointer; background: transparent;">
+                        <input type="text" id="recolor-to-hex" class="md-input" value="#3B82F6" style="width: 80px; font-size: 11px; text-align: center; margin-top: 4px;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="recolor-tol">Допуск цвета Tolerance: <span id="recolor-tol-val">0</span></label>
+                    <input type="range" id="recolor-tol" class="md-slider" min="0" max="255" value="0">
+                </div>
+                <div class="form-group" style="margin-top: 14px;">
+                    <label class="md-switch">
+                        <input type="checkbox" id="recolor-all-layers">
+                        <span class="md-switch-track"><span class="md-switch-thumb"></span></span>
+                        <span class="md-switch-label">Заменить на всех видимых слоях</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="md-btn flat btn-cancel-modal m3-bubble-action" type="button">Отмена</button>
+                <button class="md-btn primary m3-bubble-action" id="btn-apply-recolor" type="button">Заменить</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Layer Right-Click Context Menu (ПКМ плашка) -->
+    <div id="layer-context-menu" class="m3-layer-context-menu" style="display: none;" role="menu"></div>
+
+    <!-- Brush Resize HUD (Canvas Gesture Alt+RMB+Drag) -->
+    <div id="brush-resize-hud" class="brush-resize-hud" style="display: none;">
+        <div class="brush-resize-badge">
+            <i class="material-symbols-rounded">brush</i>
+            <span id="brush-resize-hud-text">1 px</span>
+        </div>
+        <div id="brush-resize-ring" class="brush-resize-ring"></div>
+    </div>
+
+    <!-- Toast Container (z-50) -->
+    <div id="toast-container" class="toast-container"></div>
+
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

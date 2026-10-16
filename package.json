@@ -1,0 +1,85 @@
+{
+  "name": "mollystudio",
+  "version": "1.3.0",
+  "description": "MollyStudio",
+  "main": "src/main/main.js",
+  "author": "nagivka",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test",
+    "build": "electron-builder",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:portable": "electron-builder --win portable",
+    "dist:nsis": "electron-builder --win nsis",
+    "audit": "node scripts/audit-project.mjs",
+    "test:electron": "node scripts/run-electron-check.cjs scripts/electron-smoke.cjs",
+    "test:visual": "node scripts/run-electron-check.cjs scripts/visual-regression.cjs",
+    "test:visual:update": "node scripts/run-electron-check.cjs scripts/visual-regression.cjs --update",
+    "test:scenarios": "node scripts/run-electron-check.cjs scripts/user-scenarios.cjs",
+    "test:tools": "node scripts/run-electron-check.cjs scripts/tool-scenarios.cjs",
+    "test:prefixes": "node scripts/run-electron-check.cjs scripts/prefix-scenarios.cjs",
+    "test:audit": "node scripts/run-electron-check.cjs scripts/audit-scenarios.cjs",
+    "test:utilities": "node scripts/run-electron-check.cjs scripts/utility-scenarios.cjs",
+    "test:deluxemenu": "node scripts/run-electron-check.cjs scripts/deluxemenu-scenarios.cjs",
+    "test:menus": "node scripts/run-electron-check.cjs scripts/menu-scenarios.cjs",
+    "test:launcher": "node scripts/run-electron-check.cjs scripts/launcher-scenarios.cjs"
+  },
+  "keywords": [
+    "minecraft",
+    "gui-editor",
+    "pixel-art",
+    "electron"
+  ],
+  "devDependencies": {
+    "electron": "^34.2.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "buildVersion": "1.3.0.0",
+    "appId": "ua.nagivka.mollystudio",
+    "productName": "MollyStudio",
+    "copyright": "Copyright © 2026 nagivka",
+    "asar": true,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "www/**/*",
+      "package.json"
+    ],
+    "win": {
+      "icon": "www/assets/images/icon/app.ico",
+      "requestedExecutionLevel": "asInvoker",
+      "legalTrademarks": "MollyStudio",
+      "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "MollyStudio",
+      "publish": [
+        {
+          "provider": "github",
+          "owner": "Nagivka",
+          "repo": "MollyStudio-Updates"
+        }
+      ],
+      "artifactName": "MollyStudio-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "MollyStudio-Portable.exe",
+      "requestExecutionLevel": "user",
+      "unpackDirName": "mollystudio_runtime"
+    }
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
+  }
+}
