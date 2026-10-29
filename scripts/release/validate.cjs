@@ -9,7 +9,7 @@ function releaseInfo(root, ref = '') {
     const tag = `v${pkg.version}`;
     if (ref.startsWith('refs/tags/') && ref !== `refs/tags/${tag}`) throw Error(`Tag must be ${tag}.`);
     return {tag, version: pkg.version, buildVersion: config.buildVersion,
-        filename: `MollyStudio-${config.buildVersion}-x64-portable.exe`,
+        filename: `MollyStudio-${config.buildVersion}-x64-setup.exe`,
         notesPath: path.join(root, 'releases', `${pkg.version}.md`)};
 }
 

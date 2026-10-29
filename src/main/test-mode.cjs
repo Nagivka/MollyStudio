@@ -26,6 +26,7 @@ function createTestControls(runtime, profile) {
         case 'grant-file': await runtime.files.grant(await safeTestPath(data.path), true); return true;
         case 'open-project': runtime.enqueue([await safeTestPath(data.path)], profile); return true;
         case 'delayed-recovery': setTimeout(() => runtime.recovery.write(data.draft).catch(console.error), 200); return true;
+        case 'update-fixture': return require('../../tests/helpers/update-fixture.cjs').installFixture(require('electron'),runtime,profile);
         default: throw Error('Unknown fixture operation.');
         }
     }

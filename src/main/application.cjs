@@ -8,6 +8,7 @@ const {DiscordRPC} = require('./discord.cjs');
 const {registerIpc} = require('./ipc.cjs');
 const {registerFileAssociation} = require('./file-association.cjs');
 const {RendererRequests} = require('./renderer-requests.cjs');
+const {UpdateService} = require('./updates.cjs');
 
 async function createApplication(electron, options = {}) {
     const {app, protocol, net, session} = electron;
@@ -19,6 +20,8 @@ async function createApplication(electron, options = {}) {
     const windows = new Windows(electron, {testMode, showOnReady: !testMode || options.manual === true,
         beforeClose: () => Promise.all([files.idle(), recovery.idle()])});
     const runtime = {windows, files, requests, recovery, discord, transfers: new RendererRequests(), testMode, manual: Boolean(options.manual)};
+    runtime.updates = new UpdateService({app, windows, testMode});
+    void runtime.updates.start().catch(error => console.warn('Updates:', error.message));
     installProtocol(protocol, net, path.join(__dirname, '../renderer'));
     const clipboard = permission => ['clipboard-read', 'clipboard-sanitized-write'].includes(permission);
     session.defaultSession.setPermissionRequestHandler((contents, permission, callback, details) => {
@@ -38,6 +41,7 @@ async function createApplication(electron, options = {}) {
             .catch(error => console.warn('Recovery migration:', error.message));
         registerFileAssociation(app).catch(error => console.warn('File association:', error.message));
     }
+    app.once('quit', () => runtime.updates.dispose());
     app.on('will-quit', () => { discord.clearActivity(); discord.enabled = false; discord.cleanup(); });
     return runtime;
 }

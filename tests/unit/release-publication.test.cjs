@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const os = require('node:os');
 const path = require('node:path');
-const {createHash} = require('node:crypto');
+const {createHash, generateKeyPairSync} = require('node:crypto');
 const {releaseInfo} = require('../../scripts/release/validate.cjs');
 const {publish} = require('../../scripts/release/publish.cjs');
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -17,13 +17,18 @@ async function fixture(t) {
     await fs.writeFile(path.join(root, 'electron-builder.cjs'), "module.exports={buildVersion:'1.4.1.0'}");
     await fs.writeFile(path.join(root, 'releases/1.4.1.md'), 'Release notes');
     const bytes = Buffer.alloc(1_000_000); bytes.write('MZ');
-    const name = 'MollyStudio-1.4.1.0-x64-portable.exe';
+    const name = 'MollyStudio-1.4.1.0-x64-setup.exe';
     await fs.writeFile(path.join(root, 'dist', name), bytes);
     await fs.writeFile(path.join(root, 'dist', name + '.sha256'), `${hash(bytes)}  ${name}\n`);
+    await fs.writeFile(path.join(root, 'dist', name + '.blockmap'), 'blockmap');
+    await fs.writeFile(path.join(root, 'dist', 'latest.yml'), 'version: 1.4.1\n');
     await fs.writeFile(path.join(root, 'dist', 'private-source.zip'), 'must not upload');
+    const keys = generateKeyPairSync('ed25519');
+    const publicKey = keys.publicKey.export({type:'spki',format:'pem'});
     const env = {GITHUB_REPOSITORY: 'Nagivka/MollyStudio', GITHUB_REF: 'refs/tags/v1.4.1',
-        RELEASES_TOKEN: 'test-target-token', SOURCE_TOKEN: 'test-source-token'};
-    return {root, bytes, name, env};
+        RELEASES_TOKEN: 'test-target-token', SOURCE_TOKEN: 'test-source-token',
+        UPDATES_SIGNING_KEY: keys.privateKey.export({type:'pkcs8',format:'pem'})};
+    return {root, bytes, name, env, publicKey};
 }
 
 function mockApi({sourcePrivate = true, targetPrivate = false, existing = false, badDigest = false, uploadUrl} = {}) {
@@ -48,11 +53,11 @@ test('release version rejects a mismatched tag', async t => {
     assert.throws(() => releaseInfo(f.root, 'refs/tags/v1.3.1'), /Tag must be/);
 });
 
-test('publication uploads only EXE and SHA256, verifies digests, then publishes', async t => {
+test('publication uploads only installer, update metadata, checksum and signed manifest, then publishes', async t => {
     const f = await fixture(t), api = mockApi();
     await publish({...f, fetchImpl: api.fetchImpl});
     const uploads = api.calls.filter(c => c.url.startsWith('https://uploads.github.com/'));
-    assert.deepEqual(uploads.map(c => new URL(c.url).searchParams.get('name')), [f.name, f.name + '.sha256']);
+    assert.deepEqual(uploads.map(c => new URL(c.url).searchParams.get('name')), [f.name, f.name + '.blockmap','latest.yml', f.name + '.sha256', 'release-manifest.json']);
     assert.equal(api.calls[0].headers.Authorization, 'Bearer test-source-token');
     assert.ok(api.calls.slice(1).every(c => c.headers.Authorization === 'Bearer test-target-token'));
     assert.ok(api.calls.every(c => c.redirect === 'error'));

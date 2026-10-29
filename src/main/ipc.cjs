@@ -103,6 +103,12 @@ function registerIpc(electron, runtime) {
         case 'recovery-draft-list': return recovery.list();
         case 'recovery-draft-delete': return recovery.delete(text(data, 'draftId'));
         case 'get-app-version': return app.getVersion();
+        case 'update-status': await runtime.updates.ready; return runtime.updates.status();
+        case 'update-check': return runtime.updates.check();
+        case 'update-download': return runtime.updates.download();
+        case 'update-cancel': return runtime.updates.cancelDownload();
+        case 'update-install': return runtime.updates.install();
+        case 'update-configure': return runtime.updates.configure(data);
         case 'get-app-info': return {
             name: 'MollyStudio', version: app.getVersion(), buildVersion: app.getVersion() + '.0', author: 'nagivka', license: 'MIT',
             copyright: 'Copyright © 2026 nagivka', platform: process.platform, arch: process.arch, runtime: 'electron',

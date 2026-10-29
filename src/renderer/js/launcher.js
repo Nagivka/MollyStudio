@@ -14,12 +14,18 @@ import { buildEditorUrl, createProjectFromForm } from './core/ProjectFactory.mjs
 import { LEGACY_DRAFT_KEY, PROJECT_DRAFT_PREFIX } from './core/ProjectDraftStore.mjs';
 import { deleteRecoveryDraft, listRecoveryDrafts, readRecoveryDraft } from './core/RecoveryDraftStore.mjs';
 import { parseProjectJSON } from './core/ProjectValidation.mjs';
+import {mountUpdatePanel} from './ui/UpdatePanel.js';
 
 /**
  * MollyStudio - Material Design 3 Launcher Logic with Settings synchronization
  */
 
 function startLauncher() {
+    const updateContainer = document.getElementById('launcher-update');
+    if (updateContainer) {
+        const disposeUpdates = mountUpdatePanel(updateContainer,{banner:true});
+        window.addEventListener('pagehide',disposeUpdates,{once:true});
+    }
     installProjectOpenRequests({ launcher: true });
     const utilities = new UtilitiesPanel();
     document.querySelectorAll('[data-open-utility]').forEach(button => button.addEventListener('click', () => utilities.open(button.dataset.openUtility)));

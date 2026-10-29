@@ -1062,3 +1062,16 @@ input[type="color"]::-webkit-color-swatch {
         :root[data-liquid-glass] :is(.md-btn,.m3-btn,.md-icon-btn,.doc-tab,.settings-tab-btn,.md-panel,.settings-group,.m3-card) {background-image:none;box-shadow:none;}
     }
 }
+/* Shared update controls use the existing theme tokens and button styles. */
+.update-panel { min-width: 0; padding: 16px; margin-block: 16px; border: 1px solid var(--md-outline-variant); border-radius: var(--md-shape-corner-card); background: var(--md-surface-container-low); }
+.update-panel[hidden], .update-panel [hidden] { display: none !important; }
+.update-heading, .update-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.update-heading h3 { margin: 0; font-size: 15px; }
+.update-heading > i { color: var(--md-primary); }
+.update-panel p { margin-block: 8px; overflow-wrap: anywhere; }
+.update-detail { font-size: 12px; color: var(--md-on-surface-variant); }
+.update-panel progress { display: block; width: 100%; height: 8px; margin-block: 12px; accent-color: var(--md-primary); }
+.update-actions .md-btn { min-width: 0; max-width: 100%; white-space: normal; }
+.update-notes { max-height: 160px; overflow-y: auto; white-space: pre-wrap; font-size: 12px; line-height: 1.6; }
+.update-preferences { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; margin-top: 16px; }
+[data-theme="minecraft"] .update-panel, [data-theme="light-minecraft"] .update-panel { border-radius: 0; border-width: 2px; }

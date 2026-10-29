@@ -7,6 +7,7 @@ import { renderShortcutSettings } from './ShortcutSettings.js';
 import { NUMERIC_SETTING_RANGES } from '../core/SettingsManager.js';
 import {renderWeatherSettings} from './WeatherSettings.js';
 import {renderLiquidGlassSettings} from './LiquidGlassSettings.js';
+import {mountUpdatePanel} from './UpdatePanel.js';
 /**
  * SettingsModal - shared settings renderer with the 1.2.5 appearance.
  * Organizes application settings into dedicated tabs:
@@ -224,6 +225,7 @@ export default class SettingsModal {
     }
 
     disposeTab() {
+        this.disposeUpdates?.();this.disposeUpdates=null;
         this.disposeWeather?.();
         this.disposeWeather = null;
         this.disposeGlass?.();this.disposeGlass=null;
@@ -300,6 +302,8 @@ export default class SettingsModal {
             ${iconDisclosure({ label: 'Техническая информация', icon: 'memory', className: 'about-technical', content: "<p data-about-technical></p><button class=\"md-btn outlined\" type=\"button\" data-copy-app-info><i class=\"material-symbols-rounded\" aria-hidden=\"true\">content_copy</i><!--i18n-->Скопировать информацию</button>" })}
             ${actionButtonHTML({action:"diagnostics",label:"Отчёт диагностики",icon:"memory",attribute:"data-about-action"})}<p class="about-copyright" data-about-copyright></p></div>`;
         const section = container.firstElementChild;
+        this.disposeUpdates?.();
+        this.disposeUpdates = mountUpdatePanel(section);
         section.querySelector('[data-about-action=diagnostics]').addEventListener('click',()=>openDiagnostics());
         void getApplicationInfo().then(info => {
             if (!section.isConnected) return;

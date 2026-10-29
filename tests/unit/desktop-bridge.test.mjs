@@ -94,7 +94,7 @@ test('close cancellation permits a new request and confirmation destroys the win
     const {Windows}=createRequire(import.meta.url)('../../src/main/windows.cjs');
     let response=0,destroyed=0;
     const windows=new Windows({dialog:{showMessageBox:async()=>({response})}});
-    const window={id:1,isDestroyed:()=>false,destroy:()=>{destroyed++;},webContents:{send(){}}};
+    const window={id:1,isDestroyed:()=>false,destroy:()=>{destroyed++;},emit(){},webContents:{send(){}}};
     windows.closing.set(1,{token:'first',phase:'flushing'});
     assert.equal(await windows.completeClose(window,{token:'first',success:true,confirmClose:true}),false);
     assert.equal(windows.closing.has(1),false);assert.equal(destroyed,0);
@@ -109,7 +109,7 @@ test('native close confirmation uses the selected application language', async (
     const {Windows}=createRequire(import.meta.url)('../../src/main/windows.cjs');
     const prompts=[];
     const windows=new Windows({dialog:{showMessageBox:async(_window,options)=>{prompts.push(options);return {response:0};}}});
-    const window={id:1,isDestroyed:()=>false,webContents:{send(){}}};
+    const window={id:1,isDestroyed:()=>false,emit(){},webContents:{send(){}}};
     for(const language of ['en','ru']){
         windows.language=language;
         windows.closing.set(1,{token:language,phase:'flushing'});

@@ -20,4 +20,5 @@ jobs:
         env:
           RELEASES_TOKEN: ${{ secrets.UPDATES_REPO_TOKEN }}
           SOURCE_TOKEN: ${{ github.token }}
+          UPDATES_SIGNING_KEY: ${{ secrets.UPDATES_SIGNING_KEY }}
         run: node scripts/release/publish.cjs --check-access

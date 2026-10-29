@@ -1,9 +1,9 @@
 {
   "sourceSha256": "d11751c8ab4ab93c51c9357109e0a672b359eb63edf2b5b0aaf6cb2993f62047",
-  "fontSha256": "50799181d941314c51a5defb74f1e71340e2aa0db16b00a9a49b516807d91da7",
+  "fontSha256": "ca02d06607d754586ad0b61f767aa075273eaee441098e3f03cf23552ee15620",
   "sourceBytes": 1443964,
-  "bytes": 120368,
-  "glyphs": 607,
+  "bytes": 120900,
+  "glyphs": 608,
   "names": [
     "ac_unit",
     "accessible",
@@ -109,6 +109,7 @@
     "done",
     "done_all",
     "download",
+    "downloading",
     "draft",
     "drafts",
     "draw",

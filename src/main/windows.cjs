@@ -76,6 +76,7 @@ class Windows {
                 }).catch(error => {
                     if (this.closing.get(window.id) === request) this.closing.delete(window.id);
                     console.error('Pending native writes:', error);
+                    window.emit('molly-close-cancelled');
                 });
                 return;
             }
@@ -85,6 +86,7 @@ class Windows {
                 if (this.closing.get(window.id)?.token !== token) return;
                 this.closing.delete(window.id);
                 this.send(label, 'recovery-flush-failed');
+                window.emit('molly-close-cancelled');
             }, 30000);
             this.closing.set(window.id, {token, timeout, phase: 'flushing'});
             const request = () => { if (this.closing.get(window.id)?.token === token) this.send(label, 'flush-recovery-drafts', {token}); };
@@ -107,6 +109,7 @@ class Windows {
         if (data.success !== true) {
             this.closing.delete(window.id);
             window.webContents.send('recovery-flush-failed');
+            window.emit('molly-close-cancelled');
             return false;
         }
         request.phase = 'confirming';
@@ -120,10 +123,12 @@ class Windows {
                     buttons: english ? ['Go back', 'Close'] : ['Вернуться', 'Закрыть'], defaultId: 0, cancelId: 0, noLink: true});
             } catch (error) {
                 if (this.closing.get(window.id) === request) this.closing.delete(window.id);
+                window.emit('molly-close-cancelled');
                 throw error;
             }
             if (result.response !== 1) {
                 if (this.closing.get(window.id) === request) this.closing.delete(window.id);
+                window.emit('molly-close-cancelled');
                 return false;
             }
         }
@@ -133,12 +138,14 @@ class Windows {
             if (this.closing.get(window.id) !== request) return;
             this.closing.delete(window.id);
             this.send(this.label(window), 'recovery-flush-failed');
+            window.emit('molly-close-cancelled');
         }, 60000);
         try { await this.beforeClose(); }
         catch (error) {
             if (this.closing.get(window.id) === request) {
                 this.closing.delete(window.id);
                 if (!window.isDestroyed()) window.webContents.send('recovery-flush-failed');
+                window.emit('molly-close-cancelled');
             }
             throw error;
         }

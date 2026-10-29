@@ -14,6 +14,7 @@ suites.push('liquid-glass-audit');
 suites.push('liquid-glass-launcher');
 suites.push('seasonal-details-scenarios');
 suites.push('brand-logo-scenarios');
+suites.push('update-scenarios');
 suites.splice(suites.indexOf('tool-scenarios')+1,0,'move-picking-scenarios');
 suites.splice(suites.indexOf('property-scenarios')+1,0,'button-properties-scenarios');
 suites.splice(suites.indexOf('ui-motion-scenarios')+1,0,'minecraft-range-scenarios');

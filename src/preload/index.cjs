@@ -107,6 +107,13 @@ const api = {
         return () => closeStateHandlers.delete(callback);
     },
     getAppVersion: () => call('get-app-version'),
+    getUpdateStatus: () => call('update-status'),
+    checkForUpdates: () => call('update-check'),
+    downloadUpdate: () => call('update-download'),
+    cancelUpdateDownload: () => call('update-cancel'),
+    installUpdate: () => call('update-install'),
+    configureUpdates: data => call('update-configure', data),
+    onUpdateStatus: callback => listen('update-status', callback),
     getAppInfo: () => call('get-app-info'),
     showItemInFolder: filePath => call('shell-show-in-folder', {filePath}),
     openPath: filePath => call('shell-open-path', {filePath}),

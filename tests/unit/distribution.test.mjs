@@ -4,12 +4,13 @@ import {readFile} from 'node:fs/promises';
 import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);
 const read=file=>readFile(new URL('../../'+file,import.meta.url),'utf8');
-test('Electron packaging includes only production application files without automatic publishing',async()=>{
+test('Electron packaging includes production application and declares the public update feed',async()=>{
     const pkg=JSON.parse(await read('package.json')),config=require('../../electron-builder.cjs');
-    assert.equal(pkg.version,'1.4.0');assert.equal(pkg.main,'src/main/index.cjs');
+    assert.equal(pkg.version,'1.4.1');assert.equal(pkg.main,'src/main/index.cjs');
     assert.ok(pkg.devDependencies.electron);assert.ok(pkg.devDependencies['electron-builder']);
-    assert.equal(config.publish,null);assert.equal(config.asar,true);
-    assert.equal(config.buildVersion,'1.4.0.0');
+    assert.equal(config.publish.provider,'generic');assert.match(config.publish.url,/MollyStudio-Releases\/releases\/latest\/download\/$/);assert.equal(config.asar,true);
+    assert.ok(pkg.dependencies['electron-updater']);
+    assert.equal(config.buildVersion,pkg.version+'.0');
     assert.equal(config.portable.artifactName,'MollyStudio-${buildVersion}-${arch}-portable.${ext}');
     assert.equal(config.fileAssociations[0].ext,'mlst');
     assert.equal(config.nsis.perMachine,false);assert.equal(config.nsis.deleteAppDataOnUninstall,false);

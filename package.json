@@ -1,6 +1,6 @@
 {
   "name": "mollystudio",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Редактор Minecraft GUI, пиксельной графики и префиксов",
   "author": "nagivka",
   "license": "MIT",
@@ -11,8 +11,8 @@
     "check": "node scripts/check-all.cjs",
     "build": "electron-builder --dir",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder --win nsis --x64",
-    "dist:nsis": "electron-builder --win nsis --x64",
+    "dist": "node scripts/build-installer.cjs",
+    "dist:nsis": "node scripts/build-installer.cjs",
     "dist:portable": "node scripts/build-portable.cjs",
     "test:manual": "node scripts/manual-check.cjs",
     "test:desktop": "node scripts/run-electron-check.cjs scripts/electron-smoke.cjs",
@@ -75,7 +75,8 @@
     "test:sandbox:verify": "node scripts/verify-windows-sandbox.cjs",
     "test:workflows": "node scripts/run-electron-check.cjs scripts/complete-workflows.cjs",
     "test:large-session": "node scripts/run-electron-check.cjs scripts/large-session-scenarios.cjs",
-    "test:export-errors": "node scripts/run-electron-check.cjs scripts/export-write-error-scenarios.cjs"
+    "test:export-errors": "node scripts/run-electron-check.cjs scripts/export-write-error-scenarios.cjs",
+    "test:updates": "node scripts/run-electron-check.cjs scripts/update-scenarios.cjs"
   },
   "keywords": [
     "minecraft",
@@ -94,5 +95,9 @@
   "type": "commonjs",
   "engines": {
     "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "builder-util-runtime": "9.7.0",
+    "electron-updater": "6.8.11"
   }
 }
