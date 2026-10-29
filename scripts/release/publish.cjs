@@ -37,7 +37,7 @@ async function publish({root, env = process.env, fetchImpl = fetch, checkAccessO
             signal: AbortSignal.timeout(binary ? 300000 : 30000), redirect: 'error'
         });
         if (allow404 && response.status === 404) return null;
-        if (!response.ok) throw Error(`GitHub ${method} failed: HTTP ${response.status}.`);
+        if (!response.ok) throw Error(`GitHub ${method} ${endpoint.startsWith('https://') ? new URL(endpoint).pathname : endpoint} failed: HTTP ${response.status}.`);
         return response.json();
     }
     const source = await api(`/repos/${SOURCE}`, {token: env.SOURCE_TOKEN});
