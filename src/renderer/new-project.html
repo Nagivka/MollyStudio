@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-src 'none'; form-action 'none'">
+    <title data-i18n-text="Создать новый проект — MollyStudio">Создать новый проект — MollyStudio</title>
+    <link rel="icon" type="image/png" href="assets/images/icon/icon256.png">
+
+    <script src="js/theme-init.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: var(--md-surface);
+            color: var(--md-on-surface);
+            user-select: none;
+        }
+
+        .new-win-shell {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            background-color: var(--md-surface);
+        }
+
+        .new-win-titlebar {
+            height: var(--md-titlebar-height, 34px);
+            background-color: var(--md-surface-container);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            -webkit-app-region: drag;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .new-win-titlebar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--md-on-surface);
+        }
+
+        .new-win-titlebar-controls {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            -webkit-app-region: no-drag;
+        }
+
+        .new-win-body {
+            flex: 1;
+            padding: 20px 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .new-win-card {
+            background-color: var(--md-surface-container);
+            border-radius: var(--md-shape-corner-card, 28px);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .new-win-footer {
+            height: 56px;
+            background-color: var(--md-surface-container-high);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 20px;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+    </style>
+    <link rel="stylesheet" href="css/material-you.css">
+    <link rel="stylesheet" href="css/application-ui.css">
+    <link rel="stylesheet" href="css/motion.css">
+    <link rel="stylesheet" href="css/minecraft.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script type="module" src="js/ui/ApplicationUI.js"></script>
+</head>
+<body>
+    <div class="new-win-shell">
+        <header class="new-win-titlebar">
+            <div class="new-win-titlebar-left">
+                <span class="molly-logo" style="width: 16px; height: 16px;" role="img" aria-label="MollyStudio"></span>
+                <span><!--i18n-->Создать новый проект</span>
+            </div>
+            <div class="new-win-titlebar-controls">
+                <button class="titlebar-btn titlebar-btn-close m3-bubble-action" id="btn-win-close" title="Закрыть" data-i18n-title="%D0%97%D0%B0%D0%BA%D1%80%D1%8B%D1%82%D1%8C" aria-label="Закрыть" data-i18n-aria-label="%D0%97%D0%B0%D0%BA%D1%80%D1%8B%D1%82%D1%8C" type="button">
+                    <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1.8 1.8l6.4 6.4M8.2 1.8l-6.4 6.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <main class="new-win-body">
+            <div class="new-win-card">
+                <!-- Project type selector -->
+                <div class="project-type-selector" id="new-proj-type-selector" role="tablist" aria-label="Тип проекта" data-i18n-aria-label="%D0%A2%D0%B8%D0%BF%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B0">
+                    <button type="button" id="new-proj-tab-gui" class="type-option active" data-type="gui" role="tab" aria-selected="true" aria-controls="new-proj-section-gui">
+                        <i class="material-symbols-rounded">grid_view</i>
+                        <div class="type-option-text">
+                            <span class="type-title">Minecraft GUI</span>
+                            <span class="type-desc"><!--i18n-->Меню сундука 256×256</span>
+                        </div>
+                    </button>
+                    <button type="button" id="new-proj-tab-canvas" class="type-option" data-type="canvas" role="tab" aria-selected="false" aria-controls="new-proj-section-canvas">
+                        <i class="material-symbols-rounded">palette</i>
+                        <div class="type-option-text">
+                            <span class="type-title"><!--i18n-->Обычный холст</span>
+                            <span class="type-desc"><!--i18n-->Пиксель-арт</span>
+                        </div>
+                    </button>
+                <button type="button" id="new-proj-tab-prefix" class="type-option" data-type="prefix" role="tab" aria-selected="false" aria-controls="new-proj-section-prefix"><i class="material-symbols-rounded">badge</i><div class="type-option-text"><span class="type-title"><!--i18n-->Префиксы</span><span class="type-desc"><!--i18n-->Пиксельные плашки</span></div></button>
+</div>
+
+                <div id="new-proj-section-prefix" role="tabpanel" aria-labelledby="new-proj-tab-prefix" tabindex="0" style="display: none;"><div class="form-group"><label for="new-prefix-name"><!--i18n-->Название проекта</label><input type="text" id="new-prefix-name" class="md-input" value="Префиксы 1" maxlength="120" autocomplete="off"></div><p class="field-hint"><!--i18n-->Текст, градиенты, обводка и тени. Размер префикса подбирается автоматически.</p></div>
+<!-- Section: GUI Mode -->
+                <div id="new-proj-section-gui" role="tabpanel" aria-labelledby="new-proj-tab-gui" tabindex="0">
+                    <div class="form-group">
+                        <label for="new-proj-name" style="font-size: 12px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--md-on-surface-variant);"><!--i18n-->Название проекта:</label>
+                        <input type="text" id="new-proj-name" class="md-input" value="GUI Меню" placeholder="Введите название..." data-i18n-placeholder="%D0%92%D0%B2%D0%B5%D0%B4%D0%B8%D1%82%D0%B5%20%D0%BD%D0%B0%D0%B7%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5..." autocomplete="off" autofocus>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label for="new-proj-template" style="font-size: 12px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--md-on-surface-variant);"><!--i18n-->Заготовка контейнера:</label>
+                        <select id="new-proj-template" class="md-select">
+                            <optgroup label="Модульные сундуки">
+                                <option value="container_54" selected><!--i18n-->Сундук 54 слота</option>
+                                <option value="container_45"><!--i18n-->Сундук 45 слотов</option>
+                                <option value="container_36"><!--i18n-->Сундук 36 слотов</option>
+                                <option value="container_27"><!--i18n-->Малый сундук 27 слотов</option>
+                                <option value="container_18"><!--i18n-->Сундук 18 слотов</option>
+                                <option value="container_9"><!--i18n-->Дроппер 9 слотов</option>
+                            </optgroup>
+                            <optgroup label="Оригинальные контейнеры Minecraft">
+                                <option value="gui_container/generic_54.png"><!--i18n-->Большой сундук 54 слота</option>
+                                <option value="gui_container/inventory.png"><!--i18n-->Инвентарь игрока</option>
+                                <option value="gui_container/crafting_table.png"><!--i18n-->Верстак</option>
+                                <option value="gui_container/anvil.png"><!--i18n-->Наковальня</option>
+                                <option value="gui_container/furnace.png"><!--i18n-->Печь</option>
+                                <option value="gui_container/blast_furnace.png"><!--i18n-->Плавильная печь</option>
+                                <option value="gui_container/smoker.png"><!--i18n-->Коптильня</option>
+                                <option value="gui_container/brewing_stand.png"><!--i18n-->Зельеварочная стойка</option>
+                                <option value="gui_container/enchanting_table.png"><!--i18n-->Стол зачарований</option>
+                                <option value="gui_container/beacon.png"><!--i18n-->Маяк</option>
+                                <option value="gui_container/dispenser.png"><!--i18n-->Раздатчик</option>
+                                <option value="gui_container/hopper.png"><!--i18n-->Воронка</option>
+                                <option value="gui_container/shulker_box.png"><!--i18n-->Шалкеровый ящик</option>
+                                <option value="gui_container/crafter.png"><!--i18n-->Авто-крафтер</option>
+                                <option value="gui_container/cartography_table.png"><!--i18n-->Стол картографа</option>
+                                <option value="gui_container/grindstone.png"><!--i18n-->Точило</option>
+                                <option value="gui_container/loom.png"><!--i18n-->Ткацкий станок</option>
+                                <option value="gui_container/smithing.png"><!--i18n-->Кузнечный стол</option>
+                                <option value="gui_container/stonecutter.png"><!--i18n-->Камнерез</option>
+                                <option value="gui_container/villager.png"><!--i18n-->Торговля с жителем</option>
+                                <option value="gui_container/horse.png"><!--i18n-->Лошадь</option>
+                                <option value="gui_container/gamemode_switcher.png"><!--i18n-->Выбор режима игры</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label for="new-proj-style" style="font-size: 12px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--md-on-surface-variant);"><!--i18n-->Стиль интерфейса:</label>
+                        <select id="new-proj-style" class="md-select">
+                            <option value="default" selected>Vanilla</option>
+                            <option value="bedrock">Bedrock</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="new-proj-frame-group" style="margin-top: 14px;">
+                        <label for="new-proj-frame" style="font-size: 12px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--md-on-surface-variant);"><!--i18n-->Шапка контейнера:</label>
+                        <select id="new-proj-frame" class="md-select">
+                            <option value="yes" selected><!--i18n-->Включена</option>
+                            <option value="no"><!--i18n-->Выключена</option>
+                        </select>
+                        <div id="new-proj-frame-hint" class="field-hint" style="display: none;">
+                            <i class="material-symbols-rounded">info</i>
+                            <span id="new-proj-frame-hint-text"><!--i18n-->Шапка контейнера является частью выбранного интерфейса.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Canvas Mode -->
+                <div id="new-proj-section-canvas" role="tabpanel" aria-labelledby="new-proj-tab-canvas" tabindex="0" style="display: none;">
+                    <div class="form-group">
+                        <label for="new-canvas-name" style="font-size: 12px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--md-on-surface-variant);"><!--i18n-->Название холста:</label>
+                        <input type="text" id="new-canvas-name" class="md-input" value="Холст 1" placeholder="Название холста..." data-i18n-placeholder="%D0%9D%D0%B0%D0%B7%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%85%D0%BE%D0%BB%D1%81%D1%82%D0%B0..." autocomplete="off">
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label style="font-size: 11px; font-weight: 600; color: var(--md-on-surface-variant); margin-bottom: 6px; display: block;"><!--i18n-->Быстрые пресеты:</label>
+                        <div class="preset-chips-row" id="new-canvas-presets">
+                            <button type="button" class="preset-chip" data-w="16" data-h="16" aria-pressed="false">16×16</button>
+                            <button type="button" class="preset-chip active" data-w="32" data-h="32" aria-pressed="true">32×32</button>
+                            <button type="button" class="preset-chip" data-w="48" data-h="48" aria-pressed="false">48×48</button>
+                            <button type="button" class="preset-chip" data-w="64" data-h="64" aria-pressed="false">64×64</button>
+                            <button type="button" class="preset-chip" data-w="128" data-h="128" aria-pressed="false">128×128</button>
+                            <button type="button" class="preset-chip" data-w="256" data-h="256" aria-pressed="false">256×256</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label style="font-size: 12px; font-weight: 600; color: var(--md-on-surface-variant); margin-bottom: 6px; display: block;"><!--i18n-->Разрешение:</label>
+                        <div class="canvas-dims-row">
+                            <div class="canvas-dim-col">
+                                <span class="dim-label"><!--i18n-->Ширина</span>
+                                <input type="number" id="new-canvas-w" class="md-input" min="1" max="4096" value="32" required aria-label="Ширина холста" data-i18n-aria-label="%D0%A8%D0%B8%D1%80%D0%B8%D0%BD%D0%B0%20%D1%85%D0%BE%D0%BB%D1%81%D1%82%D0%B0">
+                            </div>
+                            <button type="button" id="btn-new-canvas-lock-aspect" class="btn-lock-aspect active" title="Сохранять соотношение сторон" data-i18n-title="%D0%A1%D0%BE%D1%85%D1%80%D0%B0%D0%BD%D1%8F%D1%82%D1%8C%20%D1%81%D0%BE%D0%BE%D1%82%D0%BD%D0%BE%D1%88%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%81%D1%82%D0%BE%D1%80%D0%BE%D0%BD" aria-label="Сохранять соотношение сторон" data-i18n-aria-label="%D0%A1%D0%BE%D1%85%D1%80%D0%B0%D0%BD%D1%8F%D1%82%D1%8C%20%D1%81%D0%BE%D0%BE%D1%82%D0%BD%D0%BE%D1%88%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%81%D1%82%D0%BE%D1%80%D0%BE%D0%BD" aria-pressed="true">
+                                <i class="material-symbols-rounded">link</i>
+                            </button>
+                            <div class="canvas-dim-col">
+                                <span class="dim-label"><!--i18n-->Высота</span>
+                                <input type="number" id="new-canvas-h" class="md-input" min="1" max="4096" value="32" required aria-label="Высота холста" data-i18n-aria-label="%D0%92%D1%8B%D1%81%D0%BE%D1%82%D0%B0%20%D1%85%D0%BE%D0%BB%D1%81%D1%82%D0%B0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label for="new-canvas-bg" style="font-size: 12px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--md-on-surface-variant);"><!--i18n-->Фон холста:</label>
+                        <select id="new-canvas-bg" class="md-select">
+                            <option value="transparent" selected><!--i18n-->Прозрачный</option>
+                            <option value="white"><!--i18n-->Белый</option>
+                            <option value="black"><!--i18n-->Чёрный</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="new-win-footer">
+            <button class="md-btn flat m3-bubble-action" id="btn-cancel" type="button"><!--i18n-->Отмена</button>
+            <button class="md-btn primary m3-bubble-action" id="btn-create" type="button">
+                <i class="material-symbols-rounded">add_circle</i>
+                <span><!--i18n-->Создать проект</span>
+            </button>
+        </footer>
+    </div>
+
+    <script type="module" src="js/windows/NewProjectWindowApp.js"></script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+/* Shared motion ends at the normal position; the drawing canvas is never animated. */
+.ui-click-response {position:fixed;z-index:2147483000;width:28px;height:28px;margin:-14px;pointer-events:none;border:2px solid var(--md-primary);border-radius:50%;contain:strict;}
+.ui-click-response.pixel {width:12px;height:12px;margin:-6px;border-radius:0;border-width:3px;}
+.m3-recent-card {transition:transform 180ms ease-out,border-color 200ms ease;transform-origin:center;}
+.m3-recent-card:hover,.m3-recent-card:focus-within {border-color:var(--md-primary);}
+[data-saved-feedback="true"] .doc-tab-icon {color:var(--md-primary);}
+@keyframes ui-accent-breathe {
+    0%,100% {outline-color:color-mix(in srgb,var(--md-primary) 65%,transparent);}
+    50% {outline-color:color-mix(in srgb,var(--md-primary) 80%,var(--md-secondary));}
+}
+:root:not(.no-animations):not(.no-animated-accents) :is(.md-btn.primary,.doc-tab.active,.settings-tab-btn.active) {
+    outline:1px solid var(--md-primary);outline-offset:-1px;
+    animation:ui-accent-breathe 6s ease-in-out infinite !important;
+}
+::view-transition-old(root),::view-transition-new(root) {animation:none;mix-blend-mode:normal;}
+::view-transition-new(root) {z-index:1;}
+:root.no-animations .ui-click-response {display:none;}
+:root.no-animations .m3-recent-card {transform:none !important;transition:none;}
+@media (prefers-reduced-motion:reduce) {
+    .ui-click-response {display:none;}
+    .m3-recent-card {transform:none !important;transition:none;}
+    :root:not(.no-animations):not(.no-animated-accents) :is(.md-btn.primary,.doc-tab.active,.settings-tab-btn.active) {animation:none !important;}
+}
+:root { --ui-enter-duration: 300ms; --ui-enter-easing: cubic-bezier(.2, 0, 0, 1); --ui-content-animation: ui-content-enter; --ui-dialog-animation: ui-dialog-enter; }
+@keyframes ui-content-enter { from { opacity: .25; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes ui-dialog-enter { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes ui-tab-select { from { scale: .94; } to { scale: 1; } }
+@keyframes ui-popover-enter { from { opacity: 0; } to { opacity: 1; } }
+
+:root:not(.no-animations) :is(.settings-section, #prefix-editor:not([hidden]) .prefix-scroll, .utility-controls > [role="tabpanel"]:not([hidden]), #new-project-modal [role="tabpanel"], .new-win-body [role="tabpanel"]) {
+    animation: var(--ui-content-animation) var(--ui-enter-duration) var(--ui-enter-easing) backwards;
+}
+:root:not(.no-animations) :is(.modal-overlay.show > .modal, .utility-dialog[open], .m3-confirm-dialog[open], .history-dialog[open], .diagnostics-dialog[open], .export-dialog[open], .gui-preview-dialog[open], .design-gallery-dialog[open], .surface-texture-dialog[open]) {
+    animation: var(--ui-dialog-animation) 320ms var(--ui-enter-easing) backwards;
+}
+:root:not(.no-animations) :is(.menu-dropdown.show, .md-panel.expanded > .md-panel-content) {
+    animation: var(--ui-content-animation) 240ms var(--ui-enter-easing) backwards;
+}
+:root:not(.no-animations) .tool-popover:popover-open {
+    animation: ui-popover-enter 180ms var(--ui-enter-easing) backwards;
+}
+:root:not(.no-animations) :is(.settings-tab-btn.active, .doc-tab.active, .utility-tabs [aria-selected="true"]) {
+    animation: ui-tab-select 240ms var(--ui-enter-easing);
+}
+:root:not(.no-animations) .launcher-home :is(.launcher-home-topline, .launcher-welcome, .launcher-utilities, .launcher-recent-panel) {
+    animation: var(--ui-content-animation) 360ms var(--ui-enter-easing) backwards;
+}
+:root:not(.no-animations) .launcher-home .launcher-welcome { animation-delay: 50ms; }
+:root:not(.no-animations) .launcher-home .launcher-utilities { animation-delay: 90ms; }
+:root:not(.no-animations) .launcher-home .launcher-recent-panel { animation-delay: 130ms; }
+:root:not(.no-animations) :is(.md-btn, .md-icon-btn, .m3-segment-item, .m3-chip, .settings-tab-btn, .ui-disclosure-trigger) {
+    transition: background-color 180ms var(--ui-enter-easing), color 180ms var(--ui-enter-easing), border-color 180ms var(--ui-enter-easing), box-shadow 180ms var(--ui-enter-easing), scale 160ms var(--ui-enter-easing);
+}
+:root:not(.no-animations) :is(.md-btn, .md-icon-btn, .m3-segment-item, .m3-chip, .ui-disclosure-trigger):active:not(:disabled) { scale: .97; }
+:is(.settings-win-sidebar, .settings-win-content-wrap, .md-panel, #prefix-editor, .utility-dialog) {
+    transition: border-color 240ms ease;
+}
+
+.ui-disclosure { min-width: 0; }
+.ui-disclosure[hidden], .ui-disclosure-body[hidden] { display: none !important; }
+.ui-disclosure-trigger { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--md-outline-variant); border-radius: var(--md-shape-corner-medium); background: var(--md-surface-container); color: var(--md-on-surface); font-size: 13px; font-weight: 500; text-align: left; }
+.ui-disclosure-trigger > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.ui-disclosure-icon { flex-shrink: 0; font-size: 20px; color: var(--md-primary); }
+.ui-disclosure-indicator { flex-shrink: 0; font-size: 20px; color: var(--md-on-surface-variant); transition: rotate 260ms var(--ui-enter-easing); }
+.ui-disclosure-trigger[aria-expanded="true"] { background: var(--md-secondary-container); color: var(--md-on-secondary-container); border-color: transparent; }
+.ui-disclosure-trigger[aria-expanded="true"] :is(.ui-disclosure-icon, .ui-disclosure-indicator) { color: var(--md-on-secondary-container); }
+.ui-disclosure-trigger[aria-expanded="true"] .ui-disclosure-indicator { rotate: 180deg; }
+.ui-disclosure-trigger:hover { box-shadow: inset 0 0 0 100px var(--md-state-hover); }
+.ui-disclosure-body { display: flow-root; min-width: 0; }
+.ui-disclosure-body > :first-child { margin-top: 12px; }
+.ui-disclosure-body > :last-child { margin-bottom: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+.no-card-motion .m3-recent-card {transform:none !important;transition:none !important;}
+.no-animated-accents :is(.md-btn.primary,.doc-tab.active,.settings-tab-btn.active) {animation:none !important;}
+.no-click-effects :is(.ui-click-response,.md-ripple-wave) {display:none !important;}

@@ -1,0 +1,21 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {createRequire} from 'node:module';
+const require=createRequire(import.meta.url);
+const read=file=>readFile(new URL('../../'+file,import.meta.url),'utf8');
+test('Electron packaging includes only production application files without automatic publishing',async()=>{
+    const pkg=JSON.parse(await read('package.json')),config=require('../../electron-builder.cjs');
+    assert.equal(pkg.version,'1.4.0');assert.equal(pkg.main,'src/main/index.cjs');
+    assert.ok(pkg.devDependencies.electron);assert.ok(pkg.devDependencies['electron-builder']);
+    assert.equal(config.publish,null);assert.equal(config.asar,true);
+    assert.equal(config.buildVersion,'1.4.0.0');
+    assert.equal(config.portable.artifactName,'MollyStudio-${buildVersion}-${arch}-portable.${ext}');
+    assert.equal(config.fileAssociations[0].ext,'mlst');
+    assert.equal(config.nsis.perMachine,false);assert.equal(config.nsis.deleteAppDataOnUninstall,false);
+    assert.ok(config.files.includes('!src/main/test-mode.cjs'));
+    assert.ok(config.files.every(file=>file==='package.json'||file.startsWith('src/')||file.startsWith('!src/')));
+    const windows=await read('src/main/windows.cjs');
+    assert.match(windows,/contextIsolation:\s*true/);assert.match(windows,/sandbox:\s*true/);
+    assert.doesNotMatch(await read('src/preload/index.cjs'),/exposeInMainWorld\(['"](?:ipcRenderer|require|process)/);
+});

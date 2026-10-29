@@ -10,6 +10,10 @@ build/
 out/
 coverage/
 
+# Python cache files from asset maintenance scripts
+__pycache__/
+*.py[cod]
+
 # Local credentials and signing material
 .secrets/
 .env
@@ -37,6 +41,10 @@ Thumbs.db
 
 # Local rollback backups
 .rollback/
+.legacy/
 
-# Electron profiles and temporary project files produced by local tests
+# Temporary project files produced by local tests
 tests/.molly-*/
+
+# Local quarantine for files reviewed as obsolete
+TO_DELETE-2026-10-29/

@@ -1,0 +1,875 @@
+/* Bedrock controls, measured against design/references/minecraft-26.60.
+   Raised actions, joined segments, flat navigation and recessed fields have
+   separate geometry. The light variant shares geometry with the dark one. */
+@font-face {
+    font-family: 'Minecraft UI';
+    src: url('../assets/fonts/Minecraft1.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    /* The supplied file reports 125% ascent although its capitals are 87.5%.
+       Balance the visible ink instead of shifting individual labels by pixels. */
+    ascent-override: 100%;
+    descent-override: 12.5%;
+    line-gap-override: 0%;
+}
+@font-face {
+    font-family: 'Minecraft Ten UI';
+    src: url('../assets/fonts/minecraft-ten1.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    ascent-override: 100%;
+    descent-override: 25%;
+    line-gap-override: 0%;
+}
+:root[data-theme="minecraft"],
+.settings-theme-card[data-theme="minecraft"] {
+    color-scheme: dark;
+    --md-surface: #262728;
+    --md-surface-dim: #1d2023;
+    --md-surface-bright: #5b5c5e;
+    --md-surface-container-lowest: #313233;
+    --md-surface-container-low: #313233;
+    --md-surface-container: #48494a;
+    --md-surface-container-high: #525354;
+    --md-surface-container-highest: #666769;
+    --md-on-surface: #f5f5f5;
+    --md-on-surface-variant: #e8e8e8;
+    --md-outline: #969696;
+    --md-outline-variant: #656668;
+    --md-primary: #a8db81;
+    --md-primary-rgb: 168, 219, 129;
+    --md-on-primary: #17270e;
+    --md-primary-container: #3c8527;
+    --md-on-primary-container: #ffffff;
+    --md-secondary: #d0d0d0;
+    --md-on-secondary: #242424;
+    --md-secondary-container: #454545;
+    --md-on-secondary-container: #ffffff;
+    --md-tertiary: #e3ca8c;
+    --md-on-tertiary: #302509;
+    --md-tertiary-container: #514120;
+    --md-on-tertiary-container: #fff0c7;
+    --md-error: #ffb4ab;
+    --md-on-error: #690005;
+    --md-error-container: #702621;
+    --md-on-error-container: #ffe1dc;
+    --mc-edge: #222324;
+    --mc-rim: #626365;
+    --mc-button: #d0d1d4;
+    --mc-button-ink: #202020;
+    --mc-header: #e6e7e9;
+    --ui-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' shape-rendering='crispEdges'%3E%3Cpath fill='%23f5f5f5' d='M0 3h2v2h2v2h4V5h2V3h2v3h-2v2H8v2H4V8H2V6H0z'/%3E%3C/svg%3E");
+}
+
+:root[data-theme="light-minecraft"],
+.settings-theme-card[data-theme="light-minecraft"] {
+    color-scheme: light;
+    --md-surface: #d5d6d8;
+    --md-surface-dim: #bcbcbc;
+    --md-surface-bright: #f0f0f0;
+    --md-surface-container-lowest: #ececee;
+    --md-surface-container-low: #d9dadc;
+    --md-surface-container: #d0d1d4;
+    --md-surface-container-high: #e2e3e5;
+    --md-surface-container-highest: #bdbdbd;
+    --md-on-surface: #202020;
+    --md-on-surface-variant: #454545;
+    --md-outline: #686868;
+    --md-outline-variant: #8b8b8b;
+    --md-primary: #345f20;
+    --md-primary-rgb: 52, 95, 32;
+    --md-on-primary: #ffffff;
+    --md-primary-container: #3c8527;
+    --md-on-primary-container: #ffffff;
+    --md-secondary: #484848;
+    --md-on-secondary: #ffffff;
+    --md-secondary-container: #bfbfbf;
+    --md-on-secondary-container: #202020;
+    --md-tertiary: #6b5117;
+    --md-on-tertiary: #ffffff;
+    --md-tertiary-container: #eeddb0;
+    --md-on-tertiary-container: #382a09;
+    --md-error: #a72922;
+    --md-on-error: #ffffff;
+    --md-error-container: #ffd6d0;
+    --md-on-error-container: #62150f;
+    --mc-edge: #303030;
+    --mc-rim: #f5f5f5;
+    --mc-button: #d0d1d4;
+    --mc-button-ink: #202020;
+    --mc-header: #e6e7e9;
+    --ui-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' shape-rendering='crispEdges'%3E%3Cpath fill='%23202020' d='M0 3h2v2h2v2h4V5h2V3h2v3h-2v2H8v2H4V8H2V6H0z'/%3E%3C/svg%3E");
+}
+
+/* The scope is restricted to the root: card data-theme attributes must never
+   restyle their descendants as a whole application. Existing themes are intact. */
+:root:is([data-theme="minecraft"], [data-theme="light-minecraft"]) {
+    --md-sys-font-family: 'Minecraft UI', 'Minecraft', sans-serif !important;
+    --md-sys-font-accent: 'Minecraft Ten UI', 'Minecraft Ten', sans-serif !important;
+    --prop-color-action-min: 176px;
+    font-synthesis: none;
+    -webkit-font-smoothing: none;
+    /* Material's 0.1px tracking moves each next bitmap glyph off the grid. */
+    & *, & *::before, & *::after {
+        -webkit-font-smoothing: none;
+        text-rendering: optimizeSpeed;
+        font-kerning: none;
+        font-variant-ligatures: none;
+        letter-spacing: 0;
+    }
+    --ui-content-animation: ui-popover-enter;
+    --ui-dialog-animation: ui-popover-enter;
+    --md-shape-corner-xs: 0px;
+    --md-shape-corner-small: 0px;
+    --md-shape-corner-medium: 0px;
+    --md-shape-corner-large: 0px;
+    --md-shape-corner-xl: 0px;
+    --md-shape-corner-extra-large: 0px;
+    --md-shape-corner-full: 0px;
+    --md-shape-corner-btn: 0px;
+    --md-shape-corner-icon-btn: 0px;
+    --md-shape-corner-input: 0px;
+    --md-shape-corner-chip: 0px;
+    --md-shape-corner-card: 0px;
+    --md-shape-corner-panel: 0px;
+    --md-shape-corner-dialog: 0px;
+    --md-shape-corner-menu: 0px;
+    --md-shape-corner-toast: 0px;
+    --md-shape-corner-tab: 0px;
+    --md-shape-corner-thumb: 0px;
+    --md-elevation-level1: none;
+    --md-elevation-level2: none;
+    --mc-unit: 2px;
+    --ui-switch-width: 60px;
+    --ui-switch-height: 32px;
+    --mc-switch-thumb-size: 32px;
+    --mc-switch-track-height: 28px;
+    --mc-range-thumb-size: 24px;
+    --mc-range-track-size: 10px;
+    --mc-segment-height: 40px;
+    --ui-control-height: 40px;
+    --ui-compact-height: 32px;
+    --ui-theme-card-min-width: 128px;
+    /* First layer: full-width chin then closing bevel. It covers the side
+       highlights, so the corners of row 03333330 remain SHADE, not BEVEL.
+       With a one-pixel unit on an 8x8 face this gives exactly:
+       00000000 / 01111110 / 01222210 (x3) / 01111110 / 03333330 / 00000000. */
+
+    /* FLAT containers: outer outline + the same highlight on every inner edge. */
+    & :is(.md-panel, .m3-card, .settings-group, .settings-win-sidebar,
+        .settings-win-content-wrap, .new-win-card, .card-explorer-panel,
+        .launcher-recent-panel, .launcher-drop-zone, .md-modal, .m3-modal,
+        .settings-modal, .m3-dialog, .md-menu-dropdown, .m3-menu-dropdown,
+        .m3-layer-context-menu, .btn-gen-modal, .prefix-editor-section, .modal,
+        .m3-confirm-dialog, .utility-dialog, .history-dialog, .diagnostics-dialog,
+        .export-dialog, .gui-preview-dialog, .asset-picker-dialog, .design-gallery-dialog, .menu-dropdown, .tool-popover) {
+        border: 2px solid var(--mc-edge);
+        border-radius: 0 !important;
+        box-shadow: inset 0 0 0 2px var(--mc-rim);
+        background-color: var(--md-surface-container);
+    }
+
+    & :is(.custom-titlebar, .top-bar, .options-bar, .bottom-status-bar,
+        .toolbar, .right-panel, .settings-win-footer, .md-panel-header) {
+        border-color: var(--mc-edge);
+        border-radius: 0 !important;
+        background-color: var(--md-surface-container);
+    }
+    /* The pixel font is wider: let menu items wrap before reaching actions. */
+    & .top-bar { height: auto; min-height: var(--md-topbar-height); padding-block: 4px; }
+    & .top-menu { flex: 1 0 auto; flex-wrap: wrap; }
+    & .top-menu .menu-item { flex: 0 0 auto; }
+    & .md-panel-props .inspector-tab { flex-direction: row; gap: 6px; }
+    & .menu-dropdown { max-width: calc(100vw - 24px); }
+    & .menu-dropdown .menu-action-icon { flex-basis: 24px; width: 24px; }
+    & :is(.dropdown-item, .dropdown-item .shortcut, .m3-ctx-item) {
+        font-size: 16px;
+        line-height: 20px;
+    }
+    & .layer-item.active > :is(.layer-name, .layer-folder-icon, .layer-badge-count) {
+        color: var(--md-on-primary-container);
+    }
+    & .layer-item:active { transform: none; }
+
+    /* The game's modal scrim darkens the scene without smearing its pixels. */
+    & .modal-overlay, & dialog::backdrop {
+        background: rgb(0 0 0 / 65%);
+        backdrop-filter: none;
+    }
+
+    /* TEN actions. Palette swatches and theme previews keep their actual colors. */
+    & :is(button, [role="button"], [role="tab"]):not(
+        [role="tab"], .doc-tab, .inspector-tab, .menu-btn, .titlebar-btn,
+        .settings-theme-card, .settings-accent-swatch, .color-square-slot,
+        .palette-swatch, .color-swatch, .swatch-btn, .shading-ramp-slot, .md-swatch,
+        .md-color-chip, .ui-disclosure-trigger, .md-panel-header, [data-color], [data-hex]) {
+        --mc-base: var(--mc-button);
+        --mc-face: var(--mc-base);
+        --mc-ink: var(--mc-button-ink);
+        --mc-button-border: color-mix(in srgb, var(--mc-base) 30%, black);
+        --mc-button-bevel: color-mix(in srgb, var(--mc-base) 72%, white);
+        --mc-button-shadow: color-mix(in srgb, var(--mc-base) 62%, black);
+        border: var(--mc-unit) solid var(--mc-button-border);
+        border-radius: 0 !important;
+        background-color: var(--mc-face);
+        background-image:
+            linear-gradient(to top, var(--mc-button-shadow) 0 var(--mc-unit),
+                var(--mc-button-bevel) var(--mc-unit) calc(2 * var(--mc-unit)), transparent calc(2 * var(--mc-unit))),
+            linear-gradient(to right, var(--mc-button-bevel) 0 var(--mc-unit),
+                transparent var(--mc-unit) calc(100% - var(--mc-unit)), var(--mc-button-bevel) calc(100% - var(--mc-unit))),
+            linear-gradient(to bottom, var(--mc-button-bevel) 0 var(--mc-unit), transparent var(--mc-unit));
+        background-origin: padding-box;
+        background-clip: padding-box;
+        color: var(--mc-ink);
+        box-shadow: none;
+        text-shadow: none;
+        scale: 1;
+        filter: none;
+        transition: background-color 100ms linear, color 100ms linear;
+        & .material-symbols-rounded { color: inherit !important; }
+
+        &:hover:not(:disabled):not([aria-disabled="true"]) {
+            /* Shade only the face; keep the border/chin based on the rest color. */
+            --mc-face: color-mix(in srgb, var(--mc-base) 78%, black);
+            --mc-button-bevel: color-mix(in srgb, var(--mc-base) 65%, white);
+            filter: none;
+            transform: none;
+        }
+
+        &:is(.active, .selected, .primary, .md-btn-primary, .m3-btn-primary, [aria-pressed="true"], [aria-selected="true"]) {
+            --mc-base: var(--md-primary-container);
+            --mc-ink: var(--md-on-primary-container);
+        }
+
+        &:is(.danger, .m3-btn-danger, .titlebar-btn-close:hover) {
+            --mc-base: #c63535;
+            --mc-ink: #ffffff;
+        }
+
+        &:active:not(:disabled):not([aria-disabled="true"]) {
+            --mc-button-bevel: color-mix(in srgb, var(--mc-base) 82%, black);
+            --mc-button-shadow: var(--mc-face);
+            box-shadow: none;
+            transform: none;
+        }
+
+        &:is(:disabled, [aria-disabled="true"]) {
+            --mc-base: #b1b2b5;
+            --mc-face: var(--mc-base);
+            --mc-ink: #57585c;
+            --mc-button-bevel: #c7c8cb;
+            --mc-button-shadow: #8d8e91;
+            opacity: 1;
+            transform: none;
+            cursor: not-allowed;
+        }
+    }
+    & :is(.md-btn.outlined, .m3-btn-outlined) { border: var(--mc-unit) solid var(--mc-button-border) !important; }
+
+    /* Fields stay recessed and distinct from raised TEN actions. */
+    & :is(input:where(:not([type="range"], [type="checkbox"], [type="radio"], [type="color"])),
+        textarea, .prop-input-field), & select[multiple] {
+        border: 2px solid var(--mc-edge);
+        border-radius: 0 !important;
+        background-color: var(--md-surface-container-lowest);
+        color: var(--md-on-surface);
+        box-shadow: inset 0 2px 0 color-mix(in srgb, var(--md-surface-container-lowest) 80%, black);
+    }
+
+    & :is(.m3-segmented-control, .md-switch-track, .md-switch-thumb,
+        .m3-switch-track, .m3-switch-thumb, .md-tab, .theme-badge,
+        .settings-theme-card, .theme-card-preview, .md-color-chip,
+        .settings-accent-swatch, .color-preview-circle, .color-square-slot,
+        .swatch-btn, .shading-ramp-slot, input[type="checkbox"], .md-checkbox, .m3-checkbox) {
+        border-radius: 0 !important;
+    }
+
+    & input[type="color"]::-webkit-color-swatch { border-radius: 0; }
+
+    & :is(input, select, textarea)[aria-invalid="true"] {
+        border-color: var(--md-error);
+    }
+
+    /* A select is a raised chooser, not an editable, recessed text field. */
+    & select:not([multiple]) {
+        --ui-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' shape-rendering='crispEdges'%3E%3Cpath fill='%23202020' d='M0 0h2v2H0zM2 2h2v2H2zM4 4h4v2H4zM8 2h2v2H8zM10 0h2v2h-2z'/%3E%3C/svg%3E");
+        background-color: var(--mc-button);
+        color: var(--mc-button-ink);
+        border: 2px solid var(--mc-edge);
+        border-radius: 0;
+        box-shadow: inset 0 0 0 2px #ececee, inset 0 -4px 0 #939496;
+        padding-inline-end: 36px !important;
+        background-size: 12px 8px !important;
+        background-position: right 12px center !important;
+        &:hover:not(:disabled) { background-color: #b1b2b5; box-shadow: inset 0 0 0 2px #f3f4f5, inset 0 -4px 0 #939496; }
+        &:disabled { opacity: 1; color: #57585c; background-color: #b1b2b5; box-shadow: inset 0 0 0 2px #c7c8cb; }
+        &[aria-invalid="true"] { border-color: var(--md-error); }
+        & option { color: var(--md-on-surface); background: var(--md-surface-container); }
+    }
+
+    & input[type="range"]:not(.md-hue-slider) {
+        height: var(--mc-range-track-size);
+        border: 2px solid var(--mc-edge);
+        border-radius: 0;
+        background: linear-gradient(to right, var(--md-primary-container) 0 calc(var(--mc-range-fill, 0%) + var(--mc-range-fill-offset, 0px)),
+            #898a8c calc(var(--mc-range-fill, 0%) + var(--mc-range-fill-offset, 0px)) 100%);
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mc-rim) 65%, transparent);
+    }
+    & input[type="range"]::-webkit-slider-runnable-track { border-radius: 0; }
+    & input[type="range"]:not(.md-hue-slider)[data-mc-stepped="true"] {
+        background-image:
+            var(--mc-range-ticks),
+            linear-gradient(to right, var(--md-primary-container) 0 calc(var(--mc-range-fill, 0%) + var(--mc-range-fill-offset, 0px)),
+                #898a8c calc(var(--mc-range-fill, 0%) + var(--mc-range-fill-offset, 0px)) 100%);
+        background-size: calc(100% - var(--mc-range-thumb-size)) 100%, 100% 100%;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    & input[type="range"]::-webkit-slider-thumb {
+        border-radius: 0;
+        width: var(--mc-range-thumb-size);
+        height: var(--mc-range-thumb-size);
+        box-sizing: border-box;
+        border: 2px solid #303132;
+        background: #d0d1d4;
+        box-shadow: inset 0 0 0 2px #ececee, inset 0 -4px 0 #939496;
+        transform: none;
+    }
+
+    /* Bedrock uses a flat list for navigation, not a column of raised buttons. */
+    & .settings-win-sidebar {
+        width: 240px;
+        flex-basis: 240px;
+        padding: 8px 0;
+        gap: 0;
+        background: var(--md-surface-container-low);
+        box-shadow: none;
+    }
+    & .settings-tabs-sidebar {
+        padding: 8px 0;
+        gap: 0;
+        background: var(--md-surface-container-low);
+        box-shadow: none;
+    }
+    @media (min-width: 761px) {
+        & .settings-tabs-sidebar { width: 240px; flex-basis: 240px; }
+    }
+    & :is(.settings-win-sidebar, .settings-tabs-sidebar) .settings-tab-btn[role="tab"] {
+        height: auto;
+        min-height: 48px;
+        margin: 0;
+        padding: 12px 18px;
+        border: 0;
+        border-block: 2px solid transparent;
+        background: transparent;
+        color: var(--md-on-surface);
+        box-shadow: none;
+        transform: none;
+        & > span { min-width: 0; overflow-wrap: anywhere; }
+
+        &:hover { background: var(--md-surface-container-high); }
+        &[aria-selected="true"] {
+            background: var(--md-surface-container);
+            border-block-color: var(--md-outline-variant);
+        }
+    }
+    & .settings-win-content-wrap { box-shadow: none; }
+    & :is(.gui-preview-stage, .export-image-box) { border-radius: 0; }
+    & .settings-win-content-scroll { padding: 0; gap: 0; }
+    & .settings-section { gap: 0; }
+    & .settings-section:not(:has(> .settings-group)) { padding: 20px 24px; gap: 12px; }
+    & .settings-section > .settings-group {
+        margin: 0;
+        padding: 20px 24px;
+        gap: 12px;
+        border: 0;
+        border-bottom: 2px solid var(--md-outline-variant);
+        box-shadow: none;
+        background: var(--md-surface-container);
+    }
+    & .settings-divider { display: none; }
+    & .settings-group-title { font-size: 16px; font-weight: 400; }
+    & .settings-group-desc { font-size: 12px; }
+    & .settings-row:has(.settings-slider-wrap) {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        min-width: 0;
+
+        & .settings-row-label { grid-column: 1; grid-row: 1; }
+        & .settings-slider-wrap { display: contents; }
+        & .settings-val-badge { grid-column: 2; grid-row: 1; color: var(--md-on-surface); }
+        & input[type="range"] { grid-column: 1 / -1; grid-row: 2; width: 100%; margin-block: 8px; }
+    }
+    & .settings-win-footer { border-top: 2px solid var(--mc-edge); }
+    & :is(.settings-win-titlebar, .custom-titlebar, .buttons-win-titlebar, .new-win-titlebar) {
+        position: relative;
+        min-height: 44px;
+        background: var(--mc-header);
+        color: #202020;
+        border-bottom: 2px solid var(--md-outline-variant);
+
+        & :is(.titlebar-title, .titlebar-center, .settings-win-titlebar-left,
+            .buttons-win-titlebar-left, .new-win-titlebar-left) { color: #202020; }
+    }
+    & :is(.settings-win-titlebar-left, .buttons-win-titlebar-left, .new-win-titlebar-left) {
+        position: absolute;
+        left: 50%;
+        max-width: calc(100% - 150px);
+        transform: translateX(-50%);
+        font-size: 14px;
+        font-weight: 800;
+        text-transform: uppercase;
+        white-space: nowrap;
+        pointer-events: none;
+    }
+    & :is(.settings-win-titlebar-controls, .buttons-win-titlebar-controls, .new-win-titlebar-controls) { margin-left: auto; }
+    & .buttons-win-titlebar-icon { color: inherit; }
+    & .settings-win-titlebar-icon { display: none; }
+    & :is(.buttons-win-titlebar-icon, .new-win-titlebar-left > img, .new-win-titlebar-left > .molly-logo) { display: none; }
+
+    /* The supplied files match the bundled Cyrillic font assets byte for byte.
+       Use the ordinary face for controls and the TEN face for headings only. */
+    & body { font-size: 16px; line-height: 24px; }
+    & :is(button, input, select, textarea, .settings-tab-btn, .md-panel-title) { font-size: 16px; font-weight: 400; line-height: 1.25; }
+    & :is(.md-btn, .m3-btn, .prop-action-btn, .m3-segment-item, .type-option) {
+        min-height: var(--ui-control-height);
+        height: auto;
+        padding: 6px 10px 8px;
+        align-items: center;
+        line-height: 20px;
+    }
+    & :is(.menu-btn, .m3-chip, .md-chip-btn, .md-item-category-chip, .preset-chip, .btn-micro-text, .inspector-tab) {
+        min-height: 40px;
+        height: auto;
+        padding: 4px 8px 6px;
+        line-height: 20px;
+    }
+    & .doc-tab { min-height: 32px; height: 32px; line-height: 20px; padding-block: 0; }
+    & :is(.md-icon-btn, .md-icon-btn-micro, .btn-icon-sm, .layer-btn, .cat-nav-btn, .titlebar-btn, .prefix-icon-action) {
+        width: 32px;
+        min-width: 32px;
+        height: 32px;
+        min-height: 32px;
+        padding: 2px;
+        flex-shrink: 0;
+    }
+    & .tool-btn { width: 36px; min-width: 36px; height: 36px; min-height: 36px; padding: 4px; }
+    & :is(.top-bar, .options-bar) { border-bottom-width: 2px; }
+    & .options-bar { min-height: 48px; }
+    & .options-bar :is(.md-chip-btn, .md-select, .md-number-input) { min-height: 36px; height: 36px; line-height: 20px; }
+    & .options-bar .selection-action > button { width: 36px; min-width: 36px; padding: 2px; }
+    @media (min-width: 1600px) {
+        & .options-bar .selection-action[data-caption] > button { width: auto; padding-inline: 8px; }
+    }
+    & .tool-popover :is(.tool-btn, .md-chip-btn) { width: 100%; height: auto; min-height: 40px; }
+    & #prop-group-selection .prop-grid-2 { grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); }
+    & #prop-group-selection .prop-grid-3 { grid-template-columns: repeat(auto-fit, minmax(min(130px, 100%), 1fr)); }
+    & #prop-group-selection .prop-grid-3 .prop-action-btn { padding-inline: 4px; gap: 4px; }
+    & :is(.md-switch, .m3-switch) { min-height: var(--ui-switch-height); align-items: center; }
+    & :is(.settings-row-label, .settings-col-label, .md-switch-label, .settings-group-desc,
+        .ui-disclosure-trigger, .md-panel-header.collapsable) { font-size: 16px; }
+    & :is(.settings-group-title, .settings-win-titlebar-left, .settings-win-titlebar-left > span,
+        .buttons-win-titlebar-left > span:not(.material-symbols-rounded), .new-win-titlebar-left > span,
+        .titlebar-title, .titlebar-center, .launcher-hero-title, .launcher-welcome h2,
+        .settings-modal-title, .new-win-title) {
+        font-family: var(--md-sys-font-accent) !important;
+        font-size: 24px;
+        font-weight: 400;
+        letter-spacing: 0;
+        line-height: 32px;
+    }
+    & .settings-theme-card .theme-card-title { font-size: 16px; }
+    & .theme-card-title > span { min-width: 0; overflow-wrap: anywhere; }
+    & .settings-theme-card { --md-sys-font-family: 'Minecraft UI', 'Minecraft', sans-serif; }
+    & .theme-badge { font-size: 16px; }
+    & :is(.doc-tab-title, .opt-label, .settings-val-badge, .settings-group-desc) { font-size: 16px; line-height: 20px; }
+    & :is(.md-badge, .doc-tab-zoom, .ruler-corner, .settings-win-status) { font-size: 8px; line-height: 12px; }
+    & :is(h1, h2) { font-size: 24px; line-height: 32px; }
+    & [data-default-font-description] { display: none; }
+    & [data-minecraft-font-description] { display: inline; }
+    @media (max-width: 540px) {
+        & .settings-win-titlebar-left { font-size: 16px; }
+    }
+    /* Square lever over a recessed switch track, as in the supplied settings. */
+    & :is(.md-switch-track, .m3-switch-track) {
+        position: relative;
+        inset: auto;
+        width: var(--ui-switch-width);
+        flex: 0 0 var(--ui-switch-width);
+        height: var(--mc-switch-track-height);
+        box-sizing: border-box;
+        overflow: visible;
+        --mc-track-rim: #afb0b2;
+        border: 2px solid var(--mc-edge);
+        background: #898a8c;
+        box-shadow: inset 0 0 0 2px var(--mc-track-rim);
+        transition: background-color 100ms linear;
+
+        /* I and O are decorative pixel shapes, not extra checkbox labels. */
+        &::before {
+            content: "";
+            position: absolute;
+            top: 6px;
+            left: 11px;
+            width: 2px;
+            height: 12px;
+            background: var(--md-on-primary-container);
+            opacity: 0;
+            pointer-events: none;
+        }
+        &::after {
+            content: "";
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 12px;
+            height: 12px;
+            background: #424345;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' shape-rendering='crispEdges'%3E%3Cpath fill-rule='evenodd' d='M2 0h8v2h2v8h-2v2H2v-2H0V2h2zM2 2v8h8V2z'/%3E%3C/svg%3E") center / 12px 12px no-repeat;
+            pointer-events: none;
+        }
+    }
+    & .md-switch input:checked + .md-switch-track,
+    & .m3-switch input:checked + .m3-switch-track {
+        border-color: var(--mc-edge);
+        --mc-track-rim: color-mix(in srgb, var(--md-primary-container) 72%, white);
+        background: var(--md-primary-container);
+        box-shadow: inset 0 0 0 2px var(--mc-track-rim);
+        &::before { opacity: 1; }
+        &::after { opacity: 0; }
+    }
+    & .md-switch .md-switch-track .md-switch-thumb,
+    & .m3-switch .m3-switch-track .m3-switch-thumb {
+        /* Bedrock lever sits one pixel above the track's vertical centre. */
+        top: calc((var(--mc-switch-track-height) - var(--mc-switch-thumb-size)) / 2 - 3px);
+        left: -2px;
+        bottom: auto;
+        width: var(--mc-switch-thumb-size);
+        height: var(--mc-switch-thumb-size);
+        box-sizing: border-box;
+        border: 2px solid #303132;
+        background: #d0d1d4;
+        box-shadow: inset 0 0 0 2px #ececee, inset 0 -4px 0 #939496;
+        transform: none;
+        z-index: 1;
+        transition: transform 100ms steps(5, end), background-color 100ms linear;
+    }
+    & .md-switch input:checked + .md-switch-track .md-switch-thumb,
+    & .m3-switch input:checked + .m3-switch-track .m3-switch-thumb {
+        transform: translateX(calc(var(--ui-switch-width) - var(--mc-switch-thumb-size)));
+    }
+    & :is(.md-switch, .m3-switch):hover input:not(:disabled) + span :is(.md-switch-thumb, .m3-switch-thumb) {
+        background: #b9babe;
+        box-shadow: inset 0 0 0 2px #f3f4f5, inset 0 -4px 0 #939496;
+    }
+    & :is(.md-switch, .m3-switch):has(> input:disabled) { cursor: not-allowed; }
+    & :is(.md-switch, .m3-switch) input:disabled + span {
+        opacity: 1;
+        background: #898a8c;
+        --mc-track-rim: #a0a1a4;
+        &::before, &::after { background-color: #57585c; }
+        & :is(.md-switch-thumb, .m3-switch-thumb) { background: #b1b2b5; box-shadow: inset 0 0 0 2px #c7c8cb, inset 0 -4px 0 #8d8e91; }
+    }
+    & :is(.md-switch, .m3-switch) input:focus-visible + span {
+        outline: 2px solid var(--md-primary);
+        outline-offset: 2px;
+        box-shadow: inset 0 0 0 2px var(--mc-track-rim), 0 0 0 4px #202122;
+    }
+    & input[type="checkbox"]:not(.md-switch input, .m3-switch input) {
+        width: 20px;
+        height: 20px;
+        flex: 0 0 20px;
+        border: 2px solid var(--mc-edge);
+        border-radius: 0;
+        background: var(--md-surface-container-lowest);
+        color: var(--md-on-primary-container);
+        box-shadow: inset 0 0 0 1px var(--mc-rim);
+    }
+    & input[type="checkbox"]:not(.md-switch input, .m3-switch input):checked {
+        background: var(--md-primary-container);
+    }
+    & input[type="checkbox"]:not(.md-switch input, .m3-switch input)::before {
+        width: 12px;
+        height: 12px;
+        border: 0;
+        border-radius: 0;
+        background: currentColor;
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' shape-rendering='crispEdges'%3E%3Cpath d='M10 1h2v2h-2v2H8v2H6v2H4v2H2V9H0V6h2v2h1V6h2V4h2V2h3z'/%3E%3C/svg%3E") center / 12px 12px no-repeat;
+        transform: none;
+        opacity: 0;
+    }
+    & input[type="checkbox"]:not(.md-switch input, .m3-switch input):checked::before { opacity: 1; transform: none; }
+    & input[type="checkbox"]:not(.md-switch input, .m3-switch input):indeterminate::before {
+        opacity: 1;
+        width: 10px;
+        height: 2px;
+        mask: none;
+        background: var(--md-on-surface);
+    }
+    & input[type="radio"] {
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--mc-edge);
+        border-radius: 0;
+        background: var(--md-surface-container-lowest);
+        box-shadow: inset 0 0 0 1px var(--mc-rim);
+        &:checked {
+            background-image: linear-gradient(var(--md-primary), var(--md-primary));
+            background-size: 8px 8px;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+    }
+
+    /* Project cards have a framed image and a flat caption like Bedrock worlds. */
+    & .launcher-home .m3-recent-card {
+        border: 2px solid var(--mc-edge);
+        border-radius: 0;
+        background: var(--md-surface-container);
+        transform: none;
+    }
+    & .launcher-home .m3-recent-open {
+        border: 0;
+        background: var(--md-surface-container);
+        background-image: none;
+        color: var(--md-on-surface);
+    }
+    & .launcher-home .launcher-project-preview { margin: 0; border: 0; }
+    & .launcher-home .m3-recent-info { border-top: 2px solid var(--md-outline-variant); }
+    & .launcher-home .launcher-recent-panel { border: 0; box-shadow: none; background: transparent; }
+    & .launcher-home .m3-empty-recent {
+        border: 2px solid var(--mc-edge);
+        background: var(--md-surface-container);
+        box-shadow: inset 0 0 0 2px var(--mc-rim);
+    }
+
+    & :is(button, input, select, textarea, [role="button"], [role="tab"]):focus-visible {
+        outline: 2px solid var(--md-primary) !important;
+        outline-offset: 2px;
+        box-shadow: 0 0 0 4px #202122;
+    }
+    & .md-ripple-wave { display: none; }
+    & :is(button, [role="button"], [role="tab"]):active { scale: 1 !important; }
+    & .bottom-status-bar :is(.md-zoom-text-btn, .md-zoom-btn, .md-icon-btn-micro) { height: 32px !important; min-height: 32px !important; padding-block: 0; }
+    & .bottom-status-bar :is(.md-zoom-btn, .md-icon-btn-micro) { width: 32px !important; min-width: 32px !important; padding: 0; }
+    /* Joined raised segments; the selected face and caption sit 4px lower.
+       Keep the outer hit area fixed while changing the internal padding. */
+    & .m3-segmented-button {
+        border: 0;
+        border-radius: 0;
+        padding: 0;
+        gap: 0;
+        background: transparent;
+        align-items: stretch;
+        isolation: isolate;
+        & > .m3-segment-item {
+            position: relative;
+            min-width: 0;
+            min-height: var(--mc-segment-height);
+            padding: 6px 8px 8px;
+            line-height: 20px;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            border-color: var(--mc-edge);
+            transition: background-color 100ms linear, color 100ms linear;
+            &:not(:first-child) { border-left-width: 0; }
+            &:is(.active, .selected, [aria-pressed="true"], [aria-selected="true"]) {
+                background-image:
+                    linear-gradient(white, white),
+                    linear-gradient(var(--md-surface-container), var(--md-surface-container)),
+                    linear-gradient(var(--mc-edge), var(--mc-edge)),
+                    linear-gradient(to top, var(--mc-button-shadow) 0 2px, var(--mc-button-bevel) 2px 4px, transparent 4px),
+                    linear-gradient(to right, var(--mc-button-bevel) 0 2px, transparent 2px calc(100% - 2px), var(--mc-button-bevel) calc(100% - 2px)),
+                    linear-gradient(to bottom, transparent 0 4px, var(--mc-button-bevel) 4px 6px, transparent 6px);
+                background-size: min(48px, 50%) 2px, 100% 2px, 100% 2px, 100% 100%, 100% calc(100% - 4px), 100% 100%;
+                background-position: center bottom, left top, left top 2px, left top, left bottom, left top;
+                background-repeat: no-repeat;
+                border-top-color: var(--md-surface-container);
+                padding-top: 10px;
+                padding-bottom: 4px;
+                box-shadow: none;
+            }
+            &:focus-visible { z-index: 1; }
+        }
+    }
+    /* These groups may wrap. Every new row needs a complete outer edge;
+       a single-row border-sharing rule cannot identify a flex line's start. */
+    & .m3-segmented-button:is(.button-style-selector, .prefix-shadow-modes),
+    & #text-shadow-options .m3-segmented-button {
+        gap: 4px;
+        & > .m3-segment-item { border-left-width: var(--mc-unit); }
+    }
+    /* Flat navigation must never inherit action-button bevels or green fill. */
+    & :is(.doc-tab, .inspector-tab, .utility-tabs [role="tab"], .menu-btn, .titlebar-btn) {
+        background-image: none;
+        background-color: transparent;
+        border-radius: 0;
+        color: var(--md-on-surface);
+        box-shadow: none;
+        transform: none;
+        &:hover { background-color: var(--md-surface-container-high); }
+        &:is(.active, [aria-selected="true"]) { background-color: var(--md-surface-container-lowest); color: var(--md-on-surface); }
+    }
+    & :is(.inspector-tabs, .utility-tabs) { gap: 0; padding: 0; }
+    & :is(.inspector-tab, .utility-tabs [role="tab"]) {
+        border: 2px solid var(--mc-edge);
+        &:is(.active, [aria-selected="true"]) {
+            background-image: linear-gradient(currentColor, currentColor);
+            background-size: min(48px, 50%) 2px;
+            background-position: center bottom;
+            background-repeat: no-repeat;
+        }
+    }
+    & :is(.settings-win-titlebar, .custom-titlebar, .buttons-win-titlebar, .new-win-titlebar) .titlebar-btn { color: #202020; }
+    & :is(.settings-win-shell, .settings-modal) {
+        --ui-control-height: 48px;
+        --mc-segment-height: 56px;
+        --mc-range-thumb-size: 32px;
+        --mc-range-track-size: 12px;
+    }
+    & .settings-win-footer { height: auto; min-height: 64px; padding-block: 8px; }
+    & .bitmap-font-choices { grid-template-columns: repeat(auto-fit, minmax(min(144px, 100%), 1fr)); }
+    & .prefix-grid > .prefix-field:has(.bitmap-font-choices) { grid-column: 1 / -1; }
+    & :is(.swatch-btn, .color-square-slot, .shading-ramp-slot):hover { transform: none; scale: 1; }
+    & .titlebar-btn-close:hover { background-color: #c63535 !important; color: #ffffff !important; }
+    & :is(.tool-btn.active, .settings-tab-btn.active, .doc-tab.active, .utility-tabs [aria-selected="true"]) { animation: none; }
+    & .material-symbols-rounded[data-mc-icon] {
+        display: inline-block;
+        width: var(--mc-icon-size, 24px);
+        height: var(--mc-icon-size, 24px);
+        min-width: var(--mc-icon-size, 24px);
+        font-size: 0 !important;
+        line-height: 0;
+        flex-shrink: 0;
+        vertical-align: middle;
+        background-color: currentColor;
+        mask-image: var(--mc-icon-image);
+        mask-size: 100% 100%;
+        mask-position: center;
+        mask-repeat: no-repeat;
+        mask-mode: alpha;
+        image-rendering: pixelated;
+    }
+    & :is(.buttons-win-titlebar-icon, .settings-win-titlebar-icon)[data-mc-icon] { display: none; }
+    & .titlebar-btn svg { shape-rendering: crispEdges; }
+    & .m3-segmented-button > .m3-segment-item { gap: 4px; }
+    & .titlebar-btn svg :is(path, rect) { stroke-linecap: square; stroke-linejoin: miter; }
+    /* Flat accordion headers and framed rows, matching the supplied pack list. */
+    & .md-panel:has(> .md-panel-header.collapsable) { border: 0; box-shadow: none; }
+    & .md-panel:has(> .md-panel-header.collapsable) > .md-panel-body {
+        border: 2px solid var(--mc-edge);
+        border-top: 0;
+        background: var(--md-surface-container);
+    }
+    & :is(.ui-disclosure-trigger, .md-panel-header.collapsable) {
+        min-height: 44px;
+        height: auto;
+        padding: 12px 14px;
+        border: 2px solid var(--mc-edge);
+        border-radius: 0;
+        background: var(--md-surface-container-low);
+        color: var(--md-on-surface);
+        box-shadow: inset 0 0 0 2px var(--mc-rim);
+        text-align: left;
+        transform: none;
+        scale: 1;
+        line-height: 20px;
+        filter: none;
+
+        &:hover { background: var(--md-surface-container); }
+    }
+    & .ui-disclosure-trigger[aria-expanded="true"],
+    & .md-panel.expanded > .md-panel-header.collapsable {
+        background: var(--md-surface-container);
+        border-color: var(--mc-edge);
+    }
+    & .ui-disclosure-trigger[aria-expanded="true"] :is(.ui-disclosure-icon, .ui-disclosure-indicator) {
+        color: var(--md-on-surface);
+    }
+    & .ui-disclosure-body {
+        padding: 12px;
+        border: 2px solid var(--mc-edge);
+        border-top: 0;
+        background: var(--md-surface-container);
+    }
+    & .ui-disclosure-body > :first-child { margin-top: 0; }
+    & .md-panel-header .md-collapse-icon { order: 3; margin-left: auto; }
+    & .md-panel:not(.expanded) .md-collapse-icon { transform: none; }
+    & .md-panel.expanded .md-collapse-icon { transform: rotate(180deg); }
+    & :is(.ui-disclosure-indicator, .md-collapse-icon) {
+        width: 14px;
+        height: 8px;
+        flex: 0 0 14px;
+        margin-left: auto;
+        justify-self: end;
+        font-size: 0;
+        background: currentColor;
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='8' shape-rendering='crispEdges'%3E%3Cpath d='M0 0h2v2H0zM2 2h2v2H2zM4 4h2v2H4zM6 6h2v2H6zM8 4h2v2H8zM10 2h2v2H10zM12 0h2v2H12z'/%3E%3C/svg%3E") center / 14px 8px no-repeat;
+    }
+
+    /* Keep native scrolling. Auto width enables these WebKit parts in Chromium. */
+    & :is(.right-panel, .settings-win-sidebar, .settings-win-content-scroll,
+        .layers-list-scroll-body, .md-items-grid-container, .md-panel-body, .ui-disclosure-body,
+        .buttons-sidebar-scroll-area, .utility-tabs, .utility-body, .prefix-scroll,
+        .prefix-block-list, .doc-tabs-container, #prefix-editor) {
+        scrollbar-width: auto;
+        scrollbar-color: auto;
+    }
+    & ::-webkit-scrollbar { width: 12px !important; height: 12px !important; }
+    & .settings-win-sidebar::-webkit-scrollbar { display: block; }
+    & ::-webkit-scrollbar-track {
+        border: 0;
+        background: color-mix(in srgb, var(--mc-edge) 70%, transparent) !important;
+    }
+    & ::-webkit-scrollbar-thumb {
+        min-height: 28px;
+        min-width: 28px;
+        border: 2px solid #202122;
+        border-radius: 0 !important;
+        background: #e3e5e8 !important;
+        box-shadow: inset 0 0 0 2px #f7f8fa;
+    }
+    & ::-webkit-scrollbar-thumb:hover { background: #ffffff !important; }
+    & ::-webkit-scrollbar-corner { background: var(--md-surface-container-low); }
+}
+
+[data-minecraft-font-description] { display: none; }
+
+/* Previews use the same TEN construction even while another theme is selected. */
+:is(.theme-minecraft-prev, .theme-light-minecraft-prev) {
+    display: grid;
+    place-items: center;
+    border-radius: 0;
+    border-color: var(--mc-edge);
+    background: var(--md-surface-container);
+    box-shadow: inset 0 0 0 1px var(--mc-rim);
+}
+:is(.theme-minecraft-prev, .theme-light-minecraft-prev)::after {
+    --mc-unit: 1px;
+    --mc-face: var(--mc-button);
+    --mc-button-border: color-mix(in srgb, var(--mc-face) 30%, black);
+    --mc-button-bevel: color-mix(in srgb, var(--mc-face) 72%, white);
+    --mc-button-shadow: color-mix(in srgb, var(--mc-face) 62%, black);
+    content: "Aa";
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 22px;
+    border: var(--mc-unit) solid var(--mc-button-border);
+    background-color: var(--mc-face);
+    background-image:
+        linear-gradient(to top, var(--mc-button-shadow) 0 var(--mc-unit),
+            var(--mc-button-bevel) var(--mc-unit) calc(2 * var(--mc-unit)), transparent calc(2 * var(--mc-unit))),
+        linear-gradient(to right, var(--mc-button-bevel) 0 var(--mc-unit),
+            transparent var(--mc-unit) calc(100% - var(--mc-unit)), var(--mc-button-bevel) calc(100% - var(--mc-unit))),
+        linear-gradient(to bottom, var(--mc-button-bevel) 0 var(--mc-unit), transparent var(--mc-unit));
+    background-origin: padding-box;
+    background-clip: padding-box;
+    color: var(--mc-button-ink);
+    box-shadow: none;
+    font-size: 11px;
+    font-weight: 700;
+}

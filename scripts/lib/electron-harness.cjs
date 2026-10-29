@@ -1,69 +1,118 @@
-const { app, BrowserWindow, ipcMain, session } = require('electron');
+const {_electron} = require('playwright-core');
+const {spawn} = require('node:child_process');
+const {EventEmitter} = require('node:events');
 const fs = require('node:fs/promises');
+const {realpathSync} = require('node:fs');
 const path = require('node:path');
-const { atomicWriteFile } = require('../../src/main/fileStore.js');
-const { createRecoveryStore } = require('../../src/main/recoveryStore.js');
-const root = path.resolve(__dirname, '../..');
-const profile = process.env.MOLLY_TEST_PROFILE;
-if (!profile || !path.basename(profile).startsWith('molly-electron-check-')) throw new Error('Run through scripts/run-electron-check.cjs');
-app.setPath('userData', profile);
-app.commandLine.appendSwitch('force-device-scale-factor', '1');
-app.commandLine.appendSwitch('lang', 'ru');
-app.on('window-all-closed', () => {});
-
-function setupIPC({ durable = false, beforeRecoveryWrite } = {}) {
-    const store = durable ? createRecoveryStore(path.join(profile, 'recovery-drafts')) : null;
-    for (const channel of ['discord-set-activity', 'discord-clear-activity', 'discord-set-enabled', 'discord-set-client-id', 'recovery-drafts-flushed']) ipcMain.handle(channel, () => true);
-    ipcMain.handle('discord-get-status', () => ({ connected: false, isReady: false }));
-    ipcMain.handle('get-app-version', () => require('../../package.json').version);
-    ipcMain.handle('window-is-maximized', () => false);
-    ipcMain.handle('settings-broadcast', () => true);
-    ipcMain.handle('recovery-draft-write', async (_event, draft) => {
-        await beforeRecoveryWrite?.(draft);
-        return store?.write(draft) ?? true;
-    });
-    ipcMain.handle('recovery-draft-read', (_event, id) => store?.read(id) ?? null);
-    ipcMain.handle('recovery-draft-list', () => store?.list() ?? []);
-    ipcMain.handle('recovery-draft-delete', (_event, id) => store?.delete(id) ?? true);
-    const safePath = file => {
-        const target = path.resolve(file), relative = path.relative(profile, target);
-        if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('Test IO escaped its fixture directory');
-        return target;
-    };
-    ipcMain.handle('dialog-save', (_event, options) => ({ canceled: false, filePath: path.join(profile, path.basename(options?.defaultPath || 'roundtrip.mlst')) }));
-    ipcMain.handle('file-write', (_event, file, data, encoding = 'utf8') => atomicWriteFile(safePath(file), encoding === 'base64' ? Buffer.from(data, 'base64') : data));
-    ipcMain.handle('file-read', (_event, file) => fs.readFile(safePath(file), 'utf8'));
-    return store;
+const pngImage = require('./png-image.cjs');
+const root = path.resolve(__dirname, '../..'), profile = process.env.MOLLY_TEST_PROFILE ? realpathSync.native(process.env.MOLLY_TEST_PROFILE) : null;
+if (!profile || !path.basename(profile).startsWith('molly-electron-check-')) throw Error('Use scripts/run-electron-check.cjs.');
+const windows = [];
+let application, context, options = {}, exiting = false, log = '';
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+function environment() {
+    const env = {...process.env, MOLLY_TEST_PROFILE: profile};
+    delete env.ELECTRON_RUN_AS_NODE;
+    delete env.NODE_OPTIONS;
+    return env;
 }
-
-async function ready(options) {
-    setupIPC(options);
-    await app.whenReady();
-    session.defaultSession.webRequest.onBeforeRequest({ urls: ['http://*/*', 'https://*/*'] }, (_details, done) => done({ cancel: true }));
+async function ready(settings = {}) {
+    options = settings;
+    application = await _electron.launch({executablePath: require('electron'),
+        args: [root, '--force-device-scale-factor=1', '--lang=ru', ...(settings.args || [])], env: environment(), timeout: 30000});
+    application.process().stdout?.on('data', bytes => { log += bytes; });
+    application.process().stderr?.on('data', bytes => { log += bytes; });
+    context = application.context();
+    await context.route(/^https?:\/\//, route => route.abort());
+    await application.firstWindow();
+    await application.evaluate(() => { if (!globalThis.__mollyTestRuntime) throw Error('Private test runtime is unavailable.'); });
 }
-
-function makeWindow(width = 1280, height = 800, { offscreen = true } = {}) {
-    const window = new BrowserWindow({ show: false, frame: false, useContentSize: true, width, height,
-        webPreferences: { preload: path.join(root, 'src/preload/preload.js'), contextIsolation: true, sandbox: true, nodeIntegration: false, backgroundThrottling: false, offscreen } });
-    window.__testErrors = [];
-    window.webContents.on('console-message', ({ level, message }) => {
-        if (level === 'error' && !/ERR_BLOCKED_BY_CLIENT/.test(message)) window.__testErrors.push(message);
-    });
-    return window;
+async function command(action, data) {
+    return application.evaluate(async (_electron, {action, data}) => {
+        const runtime = globalThis.__mollyTestRuntime;
+        return runtime.dispatch(runtime.windows.get('main'), 'main', action, data);
+    }, {action, data});
 }
-
+class NativeWindow extends EventEmitter {
+    constructor(width, height, {label} = {}) {
+        super();
+        const labels = ['main', 'settings', 'buttons', 'new-project'];
+        this.label = label || labels.find(label => !windows.some(window => !window.disposed && window.label === label));
+        if (!labels.includes(this.label) || windows.some(window => !window.disposed && window.label === this.label)) throw Error('Invalid or duplicate fixture window.');
+        this.width = width; this.height = height; this.zoom = 1; this.__testErrors = []; this.queue = Promise.resolve();
+        this.webContents = {
+            executeJavaScript: source => this.run(() => this.page.evaluate(source)),
+            capturePage: () => this.run(async () => {
+                // Playwright waits for a compositor frame, which a hidden native
+                // window need not produce even when its DOM is fully ready.
+                await application.evaluate((_electron, label) => globalThis.__mollyTestRuntime.windows.get(label)?.showInactive(), this.label);
+                return pngImage.createFromBuffer(await this.page.screenshot());
+            }),
+            setZoomFactor: zoom => { this.zoom = zoom; this.resize(); },
+            insertCSS: css => this.run(() => this.page.addStyleTag({content: css})),
+            insertText: text => this.run(() => this.page.keyboard.insertText(text)),
+            sendInputEvent: event => this.run(() => event.type === 'keyDown' ? this.page.keyboard.down(event.keyCode) : this.page.keyboard.up(event.keyCode)),
+            send: (name, payload) => this.run(() => command('test-control', {operation: 'emit', name, payload})),
+            on: (name, handler) => { if (name === 'console-message') this.consoleHandler = handler; },
+            forcefullyCrashRenderer: () => this.run(async () => { await this.cdp.send('Page.crash').catch(() => {}); this.emit('render-process-gone'); }),
+            debugger: {attach() {}, sendCommand: (name, data) => this.run(() => this.cdp.send(name, data))}
+        };
+    }
+    run(operation) { this.queue = this.queue.catch(() => {}).then(async () => { await this.ensure(); return operation(); }); return this.queue; }
+    async ensure() {
+        if (this.page) return;
+        if (this.label === 'main') this.page = await application.firstWindow();
+        else {
+            const next = application.waitForEvent('window');
+            await command('test-control', {operation: 'create', label: this.label});
+            this.page = await next;
+        }
+        await this.page.waitForFunction(() => !!window.desktopAPI);
+        this.page.on('crash', () => { this.crashed = true; });
+        this.page.on('pageerror', error => this.__testErrors.push(error.message));
+        this.page.on('console', message => {
+            if (message.text().startsWith('[Scenario]')) console.log(message.text());
+            if (message.type() === 'error' && !/ERR_BLOCKED_BY_CLIENT|Failed to load resource/.test(message.text())) this.__testErrors.push(message.text());
+            this.consoleHandler?.({level: message.type(), message: message.text()});
+        });
+        this.cdp = await context.newCDPSession(this.page);
+    }
+    resize() { return this.run(() => this.cdp.send('Emulation.setDeviceMetricsOverride', {width: Math.round(this.width / this.zoom), height: Math.round(this.height / this.zoom), deviceScaleFactor: this.zoom, mobile: false})); }
+    async loadFile(file, {query = {}} = {}) {
+        await this.run(async () => {
+            const url = new URL(path.basename(file), 'molly://app/');
+            Object.entries(query).forEach(([key, value]) => url.searchParams.set(key, value));
+            await this.page.goto(url.href, {waitUntil: 'domcontentloaded'});
+            await this.page.waitForFunction(() => !!window.desktopAPI);
+        });
+        await this.resize();
+        if (path.basename(file) === 'editor.html') await this.page.waitForFunction(() => !!window.mollyEditor?.projectManager);
+    }
+    setContentSize(width, height) { this.width = width; this.height = height; this.resize(); }
+    showInactive() {
+        return this.run(() => application.evaluate((_electron, label) => globalThis.__mollyTestRuntime.windows.get(label)?.showInactive(), this.label));
+    }
+    destroy() { this.disposed = true; if (this.label !== 'main') command('test-control', {operation: 'destroy', label: this.label}).catch(() => {}); }
+}
+function makeWindow(width = 1280, height = 800, settings) { const window = new NativeWindow(width, height, settings); windows.push(window); return window; }
 async function settle(window) {
-    await window.webContents.executeJavaScript(`Promise.race([(async () => {
-        await document.fonts.ready;
-        await Promise.all([...document.images].filter(image => {
-            const box = image.getBoundingClientRect();
-            return box.width && box.height && box.bottom > 0 && box.top < innerHeight;
-        }).map(image => image.complete ? null : image.decode().catch(() => {})));
-        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    })(), new Promise((_, reject) => setTimeout(() => reject(new Error('Page frames/fonts did not settle')), 4000))])`);
-    // Offscreen Chromium swaps a painted frame after the DOM resize and zoom callbacks.
-    if (window.webContents.isOffscreen()) window.webContents.invalidate();
-    await new Promise(resolve => setTimeout(resolve, 120));
+    await window.run(() => window.page.evaluate(async () => { await document.fonts.ready; await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))); }));
+    await delay(120);
 }
-
-module.exports = { app, root, profile, ready, makeWindow, settle };
+async function stop() {
+    if (!application) return;
+    await application.evaluate(({app}) => app.exit(0)).catch(() => {});
+    await application.close().catch(() => {});
+}
+async function restart() { await stop(); for (const window of windows) window.disposed = true; await ready(options); }
+async function launchFiles(args) {
+    const child = spawn(require('electron'), [root, ...args], {stdio: 'ignore', env: environment()});
+    return new Promise((resolve, reject) => { child.once('error', reject); child.once('exit', resolve); });
+}
+const app = {exit: async (code = 0) => {
+    if (exiting) return; exiting = true;
+    await fs.mkdir(path.join(root, '.test-output'), {recursive: true});
+    await fs.writeFile(path.join(root, '.test-output/last-electron.log'), log);
+    await stop(); process.exit(code);
+}};
+module.exports = {app, root, profile, ready, makeWindow, settle, command, restart, launchFiles, evaluateMain: (fn, arg) => application.evaluate(fn, arg)};

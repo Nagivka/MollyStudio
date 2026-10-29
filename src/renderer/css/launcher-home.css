@@ -1,0 +1,72 @@
+/* Live implementation of main-menu-preview.html, using shared application tokens. */
+.launcher-home .launcher-grid-layout { display: block; max-width: 1160px; min-height: 0; margin-inline: auto; padding: 28px 36px 42px; }
+.launcher-home-topline { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: 32px; }
+.launcher-home .launcher-hero-brand { flex-direction: row; align-items: center; justify-content: flex-start; gap: 14px; margin: 0; animation: none; text-align: left; }
+.launcher-home .launcher-hero-logo { flex: 0 0 auto; width: 50px; height: 50px; margin: 0; padding: 0; border-radius: var(--md-shape-corner-large); }
+.launcher-home .molly-logo.launcher-hero-logo::before { mask-size: 96% 96%; }
+.launcher-home .launcher-hero-title { margin: 0 0 3px; font-size: 20px; }
+.launcher-home .launcher-hero-desc { margin: 0; font-size: 12px; }
+.launcher-home-settings { display: flex; flex: 0 0 auto; gap: var(--space-2); }
+.launcher-home-settings .md-icon-btn, .launcher-project-tools > .md-icon-btn { width: 40px; height: 40px; border: 1px solid var(--md-outline-variant); border-radius: var(--md-shape-corner-full); background: var(--md-surface-container-low); }
+.launcher-welcome { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-6); margin-bottom: 16px; }
+.launcher-welcome h2 { margin: 0 0 var(--space-2); font-size: clamp(27px, 3.4vw, 36px); font-weight: 700; line-height: 1.15; letter-spacing: -.6px; }
+.launcher-welcome p { margin: 0; color: var(--md-on-surface-variant); font-size: 14px; }
+.launcher-main-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 10px; }
+.launcher-main-actions .md-btn { min-height: 44px; padding-inline: 18px; white-space: nowrap; }
+.launcher-home .launcher-utilities { gap: var(--space-1); margin-bottom: 26px; }
+.launcher-home .launcher-utilities .md-btn { min-height: 36px; padding-inline: var(--space-3); }
+.launcher-home .launcher-utilities > span { margin-right: var(--space-2); }
+.launcher-home .launcher-recent-panel { width: 100%; max-width: none; margin: 0; border: 0; border-radius: 0; overflow: visible; background: transparent; animation: none; }
+.launcher-project-header { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.launcher-project-header h3 { margin: 0; font-size: 17px; font-weight: 600; }
+.launcher-project-header .recent-count { padding: var(--space-1) 9px; font-size: 11px; }
+.launcher-project-tools { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); margin-left: auto; }
+.launcher-search { display: flex; align-items: center; gap: var(--space-2); width: min(230px, 25vw); min-width: 150px; min-height: 40px; padding-inline: 10px; border: 1px solid var(--md-outline); border-radius: var(--md-shape-corner-input); background: var(--md-surface-container-lowest); color: var(--md-on-surface-variant); }
+.launcher-search input[type="search"] { width: 100%; min-width: 0; height: 36px; padding: 0; border: 0 !important; background: transparent; font-size: 12px; }
+.launcher-search:focus-within { outline: 2px solid var(--md-primary); outline-offset: 2px; }
+.launcher-search input:focus-visible { outline: none !important; }
+.launcher-project-tools .md-select { height: 40px; min-width: 0; width: auto; max-width: 100%; font-size: 12px; }
+.launcher-home .recent-list-container { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; gap: var(--space-4); }
+.launcher-home .m3-recent-card { position: relative; display: block; min-width: 0; padding: 0; overflow: hidden; border-radius: var(--md-shape-corner-card); background: var(--md-surface-container-low); transition: transform var(--ui-transition), border-color var(--ui-transition), background-color var(--ui-transition); }
+.launcher-home .m3-recent-card:hover { transform: translateY(-3px); border-color: var(--md-primary); }
+.launcher-home .m3-recent-open { display: flex; flex-direction: column; align-items: stretch; gap: 0; width: 100%; border-radius: inherit; }
+.launcher-home .m3-recent-open:focus-visible { outline-offset: -3px; }
+.launcher-project-preview { position: relative; display: grid; place-items: center; height: 168px; min-width: 0; margin: 10px 10px 0; overflow: hidden; border: 1px solid var(--md-outline-variant); border-radius: var(--md-shape-corner-medium); background-color: var(--md-surface-container-high); background-image: conic-gradient(var(--md-surface-container) 25%, transparent 0 50%, var(--md-surface-container) 0 75%, transparent 0); background-size: 16px 16px; }
+.launcher-project-image { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.launcher-preview-placeholder { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: 10px; color: var(--md-on-surface-variant); font-size: 11px; text-align: center; }
+.launcher-preview-placeholder[hidden] { display: none; }
+.launcher-preview-placeholder .material-symbols-rounded { font-size: 30px; }
+.launcher-preview-type { position: absolute; bottom: 8px; right: 8px; max-width: calc(100% - 16px); padding: var(--space-1) var(--space-2); border-radius: var(--md-shape-corner-full); background: var(--md-surface-container); color: var(--md-on-surface); font-size: 10px; line-height: 1.3; }
+.launcher-home .m3-recent-info { width: 100%; padding: 13px 14px 14px; gap: 5px; }
+.launcher-home .m3-recent-title-row { padding-right: var(--space-1); flex-wrap: wrap; gap: 6px; }
+.launcher-home .m3-recent-name { max-width: 100%; font-size: 14px; }
+.launcher-project-date { color: var(--md-on-surface-variant); font-size: 12px; }
+.launcher-home .m3-recent-path { max-width: 100%; padding-right: 64px; color: var(--md-on-surface-variant); font-size: 10px; }
+.launcher-home .m3-recent-actions { position: absolute; bottom: 8px; right: 7px; gap: 2px; opacity: 1; }
+.launcher-home .m3-recent-actions .m3-icon-action-btn { width: 30px; height: 30px; }
+.launcher-home .m3-empty-recent { grid-column: 1 / -1; min-height: 230px; border: 1px dashed var(--md-outline-variant); border-radius: var(--md-shape-corner-card); background: var(--md-surface-container-low); }
+.launcher-home .m3-type-badge.unsaved { border-color: var(--md-outline-variant); background: var(--md-tertiary-container); color: var(--md-on-tertiary-container); }
+.launcher-home .unsaved-draft-card { border: 1px solid var(--md-outline-variant) !important; background: var(--md-surface-container-low) !important; }
+.launcher-home .unsaved-draft-card:hover { border-color: var(--md-tertiary) !important; }
+.launcher-drop-strip { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: var(--space-2) var(--space-3); margin-top: 24px; padding: 10px var(--space-3); border: 1px dashed var(--md-outline-variant); border-radius: var(--md-shape-corner-medium); color: var(--md-on-surface-variant); font-size: 12px; cursor: pointer; transition: background-color var(--ui-transition), border-color var(--ui-transition); }
+.launcher-drop-strip .md-btn { min-height: 34px; }
+.launcher-drop-strip.drag-over { border-color: var(--md-primary); background: var(--md-primary-container); color: var(--md-on-primary-container); }
+
+@media (max-width: 1000px) {
+    .launcher-home .launcher-grid-layout { padding-inline: var(--space-6); }
+    .launcher-welcome { align-items: flex-start; flex-direction: column; gap: var(--space-4); }
+    .launcher-home .recent-list-container { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .launcher-project-tools { flex: 1 1 100%; margin-left: 0; }
+    .launcher-search { flex: 1; width: auto; }
+}
+@media (max-width: 580px) {
+    .launcher-home .launcher-grid-layout { padding: var(--space-5) 14px 30px; }
+    .launcher-home .launcher-hero-desc { max-width: 210px; font-size: 11px; }
+    .launcher-home .launcher-hero-logo { width: 40px; height: 40px; }
+    .launcher-home-settings { gap: var(--space-1); }
+    .launcher-home .recent-list-container { grid-template-columns: minmax(0, 1fr); }
+    .launcher-main-actions { flex-wrap: wrap; }
+    .launcher-main-actions .md-btn { min-height: 40px; padding-inline: 14px; }
+    .launcher-project-tools .md-select { width: 148px; }
+}
+@media (prefers-reduced-motion: reduce) { .launcher-home .m3-recent-card:hover { transform: none; } }

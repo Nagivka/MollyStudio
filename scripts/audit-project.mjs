@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const inventory = [], issues = [], counts = {};
-const excluded = new Set(['node_modules', 'dist', '.git', '.codex', '.agents', '.playwright-mcp', '.test-output', '.rollback', '.secrets']);
+const excluded = new Set(['node_modules', 'dist', 'build', 'out', '.git', '.codex', '.agents', '.playwright-mcp', '.test-output', '.rollback', '.legacy', '.secrets']);
 
 function crc32(data) {
     let crc = 0xffffffff;
@@ -20,12 +20,11 @@ function crc32(data) {
 async function visit(directory) {
     const entries = await fs.readdir(directory, { withFileTypes: true });
     for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
-        if (excluded.has(entry.name) || entry.name.startsWith('.molly-audit-') || /^\.env(?:\.|$)/.test(entry.name) || /\.(pem|pfx|p12|key|private-key)$/i.test(entry.name)) continue;
+        if (excluded.has(entry.name) || entry.name === 'TO_DELETE-2026-10-29' || entry.name.startsWith('.molly-audit-') || /^\.env(?:\.|$)/.test(entry.name) || /\.(pem|pfx|p12|key|private-key)$/i.test(entry.name)) continue;
         const file = path.join(directory, entry.name);
         if (entry.isDirectory()) { await visit(file); continue; }
         if (!entry.isFile()) continue;
         const relative = path.relative(root, file).replaceAll('\\', '/');
-        if (relative === 'docs/audit-inventory.json') continue;
         const data = await fs.readFile(file), extension = path.extname(file).toLowerCase();
         const record = { file: relative, bytes: data.length, sha256: createHash('sha256').update(data).digest('hex'), checks: [] };
         const fail = message => issues.push({ file: relative, message });
@@ -33,7 +32,7 @@ async function visit(directory) {
         const checkReference = async reference => {
             try { reference = decodeURIComponent(reference); } catch (_) { fail('Invalid URL encoding'); return; }
             if (!reference || /^(?:[a-z]+:|#|\/\/)/i.test(reference) || reference.includes('${')) return;
-            const target = path.resolve(path.dirname(file), decodeURIComponent(reference.split(/[?#]/)[0]));
+            const target = path.resolve(path.dirname(file), reference.split(/[?#]/)[0]);
             if (!await fs.stat(target).catch(() => null)) fail(`Missing reference: ${reference}`);
         };
         if (['.js', '.mjs', '.cjs'].includes(extension)) {
@@ -60,6 +59,10 @@ async function visit(directory) {
         } else if (extension === '.css') {
             for (const match of source().matchAll(/url\(\s*['"]?([^'"\s)]+)['"]?\s*\)/g)) await checkReference(match[1]);
             record.checks.push('css-local-references');
+        } else if (extension === '.md') {
+            const markdown=source().replace(/```[\s\S]*?```/g,'');
+            for(const match of markdown.matchAll(/!?\[[^\]]*\]\((?:<([^>]+)>|([^\s)]+))(?:\s+["'][^"']*["'])?\)/g))await checkReference(match[1]||match[2]);
+            record.checks.push('markdown-local-references');
         } else if (extension === '.png') {
             try {
                 if (!data.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) throw new Error('Invalid PNG signature');
@@ -86,7 +89,7 @@ async function visit(directory) {
 }
 
 await visit(root);
-await fs.mkdir(path.join(root, 'docs'), { recursive: true });
-await fs.writeFile(path.join(root, 'docs/audit-inventory.json'), JSON.stringify({ generatedAt: new Date().toISOString(), counts, issues, inventory }, null, 2) + '\n');
+await fs.mkdir(path.join(root, '.test-output'), { recursive: true });
+await fs.writeFile(path.join(root, '.test-output/static-audit.json'), JSON.stringify({ generatedAt: new Date().toISOString(), counts, issues, inventory }, null, 2) + '\n');
 console.log(JSON.stringify({ files: inventory.length, counts, issues }, null, 2));
 process.exitCode = issues.length ? 1 : 0;

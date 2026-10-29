@@ -1,36 +1,81 @@
 {
   "name": "mollystudio",
-  "version": "1.3.1",
-  "description": "MollyStudio",
-  "main": "src/main/main.js",
+  "version": "1.4.0",
+  "description": "Редактор Minecraft GUI, пиксельной графики и префиксов",
   "author": "nagivka",
   "license": "MIT",
   "scripts": {
-    "start": "electron .",
-    "test": "node --test",
-    "build": "electron-builder",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder",
-    "dist:portable": "electron-builder --win portable --x64",
-    "dist:nsis": "electron-builder --win nsis --x64",
-    "dist:signed": "electron-builder --win nsis --x64 --config electron-builder.signed.cjs",
-    "release:keys": "node scripts/update-keys.cjs",
-    "release:verify": "node scripts/verify-build.cjs",
-    "release:sign": "node scripts/sign-release.cjs",
-    "release:publish": "node scripts/publish-release.cjs",
+    "start": "node scripts/start-electron.cjs",
+    "test": "node scripts/run-unit.cjs",
     "audit": "node scripts/audit-project.mjs",
-    "test:electron": "node scripts/run-electron-check.cjs scripts/electron-smoke.cjs",
-    "test:updates": "node scripts/run-electron-check.cjs scripts/update-scenarios.cjs",
-    "test:visual": "node scripts/run-electron-check.cjs scripts/visual-regression.cjs",
-    "test:visual:update": "node scripts/run-electron-check.cjs scripts/visual-regression.cjs --update",
+    "check": "node scripts/check-all.cjs",
+    "build": "electron-builder --dir",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win nsis --x64",
+    "dist:nsis": "electron-builder --win nsis --x64",
+    "dist:portable": "node scripts/build-portable.cjs",
+    "test:manual": "node scripts/manual-check.cjs",
+    "test:desktop": "node scripts/run-electron-check.cjs scripts/electron-smoke.cjs",
+    "test:startup": "node scripts/run-electron-check.cjs scripts/startup-scenarios.cjs",
+    "test:files": "node scripts/run-electron-check.cjs scripts/file-open-scenarios.cjs",
+    "test:lifecycle": "node scripts/run-electron-check.cjs scripts/lifecycle-scenarios.cjs",
     "test:scenarios": "node scripts/run-electron-check.cjs scripts/user-scenarios.cjs",
     "test:tools": "node scripts/run-electron-check.cjs scripts/tool-scenarios.cjs",
+    "test:picking": "node scripts/run-electron-check.cjs scripts/move-picking-scenarios.cjs",
+    "test:text": "node scripts/run-electron-check.cjs scripts/text-scenarios.cjs",
+    "test:canvas-text": "node scripts/run-electron-check.cjs scripts/canvas-text-scenarios.cjs",
+    "test:properties": "node scripts/run-electron-check.cjs scripts/property-scenarios.cjs",
+    "test:export": "node scripts/run-electron-check.cjs scripts/export-scenarios.cjs",
     "test:prefixes": "node scripts/run-electron-check.cjs scripts/prefix-scenarios.cjs",
     "test:audit": "node scripts/run-electron-check.cjs scripts/audit-scenarios.cjs",
     "test:utilities": "node scripts/run-electron-check.cjs scripts/utility-scenarios.cjs",
-    "test:deluxemenu": "node scripts/run-electron-check.cjs scripts/deluxemenu-scenarios.cjs",
-    "test:menus": "node scripts/run-electron-check.cjs scripts/menu-scenarios.cjs",
-    "test:launcher": "node scripts/run-electron-check.cjs scripts/launcher-scenarios.cjs"
+    "test:resources": "node scripts/run-electron-check.cjs scripts/resource-assets-scenarios.cjs",
+    "test:buttons": "node scripts/run-electron-check.cjs scripts/button-properties-scenarios.cjs",
+    "test:minecraft-ranges": "node scripts/run-electron-check.cjs scripts/minecraft-range-scenarios.cjs",
+    "test:minecraft-controls": "node scripts/run-electron-check.cjs scripts/minecraft-controls-scenarios.cjs",
+    "test:minecraft-theme": "node scripts/run-electron-check.cjs scripts/minecraft-theme-audit.cjs",
+    "test:responsive": "node scripts/run-electron-check.cjs scripts/responsive-scenarios.cjs",
+    "test:launcher": "node scripts/run-electron-check.cjs scripts/launcher-scenarios.cjs",
+    "test:branding": "node scripts/run-electron-check.cjs scripts/brand-logo-scenarios.cjs",
+    "test:ui": "node scripts/run-electron-check.cjs scripts/ui-motion-scenarios.cjs",
+    "test:visual-effects": "node scripts/run-electron-check.cjs scripts/visual-effects-scenarios.cjs",
+    "test:ui-sounds": "node scripts/run-electron-check.cjs scripts/ui-sound-scenarios.cjs",
+    "test:interface-improvements": "node scripts/run-electron-check.cjs scripts/interface-improvements.cjs",
+    "test:pipette-history": "node scripts/run-electron-check.cjs scripts/pipette-history-scenarios.cjs",
+    "test:weather": "node scripts/run-electron-check.cjs scripts/weather-scenarios.cjs",
+    "test:weather-artwork": "node scripts/run-electron-check.cjs scripts/weather-artwork-scenarios.cjs",
+    "test:weather-occlusion": "node scripts/run-electron-check.cjs scripts/weather-occlusion-scenarios.cjs",
+    "test:usability": "node scripts/run-electron-check.cjs scripts/usability-scenarios.cjs",
+    "test:languages": "node scripts/run-electron-check.cjs scripts/localization-scenarios.cjs",
+    "test:session": "node scripts/run-electron-check.cjs scripts/session-scenarios.cjs",
+    "test:visual": "node scripts/run-electron-check.cjs scripts/visual-regression.cjs",
+    "test:visual:audit": "node scripts/run-electron-check.cjs scripts/visual-regression.cjs --capture",
+    "test:visual:update": "node scripts/run-electron-check.cjs scripts/visual-regression.cjs --update",
+    "test:gui-styles": "node scripts/run-electron-check.cjs scripts/gui-style-scenarios.cjs",
+    "core:compile": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "core:verify": "node scripts/verify-core.cjs",
+    "prestart": "npm run core:compile",
+    "prebuild": "npm run core:compile",
+    "prepack": "npm run core:compile",
+    "predist:portable": "npm run core:compile",
+    "predist:nsis": "npm run core:compile",
+    "predist": "npm run core:compile",
+    "test:architecture": "node scripts/run-electron-check.cjs scripts/architecture-scenarios.cjs",
+    "test:performance": "node scripts/run-electron-check.cjs scripts/performance-scenarios.cjs",
+    "test:visual:components": "node scripts/run-electron-check.cjs scripts/visual-components.cjs",
+    "test:visual:interactions": "node scripts/run-electron-check.cjs scripts/visual-interactions.cjs",
+    "test:fonts": "node scripts/run-electron-check.cjs scripts/font-subset-scenarios.cjs",
+    "test:glass": "node scripts/run-electron-check.cjs scripts/liquid-glass-scenarios.cjs",
+    "test:glass:audit": "node scripts/run-electron-check.cjs scripts/liquid-glass-audit.cjs",
+    "test:glass:launcher": "node scripts/run-electron-check.cjs scripts/liquid-glass-launcher.cjs",
+    "test:seasonal": "node scripts/run-electron-check.cjs scripts/seasonal-details-scenarios.cjs",
+    "check:distribution": "node scripts/check-distribution.cjs",
+    "test:sandbox:prepare": "node scripts/prepare-windows-sandbox.cjs",
+    "test:sandbox:verify": "node scripts/verify-windows-sandbox.cjs",
+    "test:workflows": "node scripts/run-electron-check.cjs scripts/complete-workflows.cjs",
+    "test:large-session": "node scripts/run-electron-check.cjs scripts/large-session-scenarios.cjs",
+    "test:export-errors": "node scripts/run-electron-check.cjs scripts/export-write-error-scenarios.cjs"
   },
   "keywords": [
     "minecraft",
@@ -39,58 +84,15 @@
     "electron"
   ],
   "devDependencies": {
-    "electron": "44.8.0",
-    "electron-builder": "^26.15.3",
-    "js-yaml": "4.3.2"
+    "electron": "45.0.0",
+    "electron-builder": "26.18.0",
+    "playwright-core": "^1.64.1",
+    "pngjs": "^7.0.0",
+    "typescript": "5.9.3"
   },
-  "build": {
-    "buildVersion": "1.3.1.0",
-    "appId": "ua.nagivka.mollystudio",
-    "productName": "MollyStudio",
-    "copyright": "Copyright © 2026 nagivka",
-    "asar": true,
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "Nagivka",
-        "repo": "MollyStudio-Updates"
-      }
-    ],
-    "directories": {
-      "output": "dist"
-    },
-    "files": [
-      "src/**/*",
-      "www/**/*",
-      "package.json"
-    ],
-    "win": {
-      "icon": "www/assets/images/icon/app.ico",
-      "requestedExecutionLevel": "asInvoker",
-      "legalTrademarks": "MollyStudio",
-      "verifyUpdateCodeSignature": false
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowElevation": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "MollyStudio",
-      "artifactName": "MollyStudio-Setup-${version}.${ext}"
-    },
-    "portable": {
-      "artifactName": "MollyStudio-Portable.exe",
-      "requestExecutionLevel": "user",
-      "unpackDirName": "mollystudio_runtime"
-    }
-  },
-  "dependencies": {
-    "electron-updater": "^6.8.9"
-  },
-  "allowScripts": {
-    "electron@44.8.0": true,
-    "electron-winstaller@5.4.0": true
+  "main": "src/main/index.cjs",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

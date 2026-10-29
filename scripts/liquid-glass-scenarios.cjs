@@ -1,0 +1,64 @@
+const fs=require('node:fs/promises'),path=require('node:path');
+const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
+(async()=>{let editor,settings;const checks=[];const expect=(ok,message)=>{if(!ok)throw Error(message);checks.push(message);};
+try{
+ await ready();editor=makeWindow(1280,900);
+ await editor.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:'canvas',width:'32',height:'32'}});
+ await editor.cdp.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-transparency',value:'no-preference'},{name:'prefers-contrast',value:'no-preference'}]});
+ expect(await editor.page.evaluate(()=>mollyEditor.settingsManager.get('liquidGlassEnabled')===false&&!document.documentElement.hasAttribute('data-liquid-glass')),'Glass defaults off');
+ await editor.page.evaluate(()=>{
+  const layer=mollyEditor.layerManager.addLayer('Glass pixel test');
+  const ctx=layer.canvas.getContext('2d');ctx.fillStyle='#fe4b83';ctx.fillRect(2,3,8,9);
+ });
+ const pixels=()=>editor.page.evaluate(()=>mollyEditor.layerManager.layers.map(layer=>layer.canvas?.toDataURL()||null));
+ const original=await pixels();
+ const dimensions=await editor.page.locator('.top-bar').boundingBox();
+ const baseline=await editor.page.locator('.top-bar').evaluate(node=>({background:getComputedStyle(node).backgroundImage,filter:getComputedStyle(node).backdropFilter}));
+ const menuPosition=async()=>{
+  await editor.page.evaluate(()=>document.querySelector('.menu-btn').click());await settle(editor);
+  const box=await editor.page.locator('.menu-dropdown.show').boundingBox();
+  await editor.page.evaluate(()=>mollyEditor.menuBar.closeAll());return box;
+ };
+ const menuBefore=await menuPosition();
+ settings=makeWindow(960,760,{label:'settings'});await settings.loadFile(path.join(root,'src/renderer/settings.html'));
+ await settings.page.click('#settings-tab-effects');
+ await settings.page.locator('.liquid-glass-setting .md-switch-track').click();
+ await editor.page.waitForFunction(()=>document.documentElement.hasAttribute('data-liquid-glass'));
+ expect(true,'Switch synchronizes to editor');
+ await settings.page.reload();await settings.page.click('#settings-tab-effects');
+ expect(await settings.page.locator('#setting-liquid-glass').isChecked(),'Preference survives reloading the settings window');
+ const menuAfter=await menuPosition();
+ expect(Math.abs(menuBefore.x-menuAfter.x)<1&&Math.abs(menuBefore.y-menuAfter.y)<1,'Glass preserves fixed dropdown origin '+JSON.stringify({menuBefore,menuAfter}));
+ const themes=['dark','oled','midnight','forest','amethyst','light','light-nord','light-warm','light-rose','light-mint','minecraft','light-minecraft'];
+ for(const theme of themes){
+  await editor.page.evaluate(theme=>mollyEditor.settingsManager.set('theme',theme),theme);
+  await settings.page.waitForFunction(theme=>document.documentElement.dataset.theme===theme,theme);
+  const pixel=theme.includes('minecraft');
+  expect(await editor.page.evaluate(()=>document.documentElement.hasAttribute('data-liquid-glass'))===!pixel,theme+': glass eligibility');
+  expect(await settings.page.locator('#setting-liquid-glass').isDisabled()===pixel,theme+': switch availability');
+  const filter=await editor.page.locator('.menu-dropdown').first().evaluate(node=>getComputedStyle(node).backdropFilter);
+  expect(pixel?filter==='none':filter.includes('blur'),theme+': actual CSS filter '+filter);
+ }
+ await editor.page.evaluate(()=>mollyEditor.settingsManager.set('theme','dark'));
+ await settings.page.waitForFunction(()=>document.documentElement.hasAttribute('data-liquid-glass'));
+ expect(await settings.page.locator('#setting-liquid-glass').isChecked(),'Preference restored after Minecraft theme');
+ await settings.page.locator('.liquid-glass-setting .md-switch-track').click();
+ await editor.page.waitForFunction(()=>!document.documentElement.hasAttribute('data-liquid-glass'));
+ expect(JSON.stringify(await editor.page.locator('.top-bar').evaluate(node=>({background:getComputedStyle(node).backgroundImage,filter:getComputedStyle(node).backdropFilter})))===JSON.stringify(baseline),'Disabling restores original styles');
+ const after=await editor.page.locator('.top-bar').boundingBox();
+ expect(after.width===dimensions.width&&after.height===dimensions.height,'Glass preserves toolbar dimensions');
+ await editor.page.evaluate(()=>mollyEditor.settingsManager.set('liquidGlassEnabled',true));
+ expect(JSON.stringify(await pixels())===JSON.stringify(original),'Glass does not change document pixels');
+ await editor.cdp.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-transparency',value:'reduce'}]});
+ expect(await editor.page.locator('.menu-dropdown').first().evaluate(node=>getComputedStyle(node).backdropFilter)==='none','Reduced transparency keeps panels opaque');
+ expect(await editor.page.locator('.md-panel').first().evaluate(node=>!getComputedStyle(node).backgroundColor.startsWith('rgba')),'Reduced transparency also covers inspector panels');
+ await editor.cdp.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-contrast',value:'more'},{name:'prefers-reduced-transparency',value:'no-preference'}]});
+ expect(await editor.page.locator('.menu-dropdown').first().evaluate(node=>getComputedStyle(node).backdropFilter)==='none','Higher contrast suppresses glass blur');
+ await editor.cdp.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-transparency',value:'no-preference'},{name:'prefers-contrast',value:'no-preference'}]});
+ await editor.showInactive();
+ await settle(editor);await fs.mkdir(path.join(root,'.test-output/liquid-glass'),{recursive:true});
+ await fs.writeFile(path.join(root,'.test-output/liquid-glass/editor-dark.png'),(await editor.webContents.capturePage()).toPNG());
+ expect(await editor.page.locator('canvas').count()>0,'Editor canvas stays present');
+ await fs.writeFile(path.join(root,'.test-output/liquid-glass/report.json'),JSON.stringify({passed:true,checks},null,2));
+ console.log(JSON.stringify({passed:true,checks:checks.length}));
+}catch(error){console.error(error);process.exitCode=1;}finally{editor?.destroy();settings?.destroy();app.exit(process.exitCode||0);}})();

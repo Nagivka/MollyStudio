@@ -11,13 +11,36 @@ async function exerciseLauncher() {
     const dialog = document.getElementById('utilities-dialog');
     expect(dialog.open && !get('panel-smallcaps').hidden, 'Small Caps opens from the launcher without creating a project');
     fill('small-text', 'Hello Привет 🚀');
-    expect(get('output').value === 'ʜᴇʟʟᴏ приʙᴇᴛ 🚀', 'Small Caps converts Russian and English while preserving emoji');
+    expect(get('output').value === 'ʜᴇʟʟᴏ пᴘиʙᴇт 🚀', 'Small Caps converts Russian and English while preserving emoji');
+    await document.fonts.load('24px "Molly SmallCaps UI"','ᴀʙᴄ Привет');
+    expect(!getComputedStyle(get('small-text')).fontFamily.includes('Molly'),'Input keeps the normal interface font');
+    expect(getComputedStyle(dialog.querySelector('.utility-smallcaps-run')).fontFamily.includes('Molly SmallCaps UI'),'Small Caps letters use the bitmap-derived font');
+    expect(!get('reverse'),'Reverse conversion has been removed');
+    for(const language of ['ru','en','all']){
+        fill('language',language);fill('small-text','Abc Привет 123 !');
+        const selected=[...dialog.querySelectorAll('.utility-smallcaps-run')].map(n=>n.textContent).join('');
+        const regular=[...dialog.querySelectorAll('.utility-regular-run')].map(n=>n.textContent).join('');
+        expect(regular.includes('123 !')&&!/[\d!]/.test(selected),'Digits and signs stay regular for '+language);
+        expect(language==='ru'?regular.includes('Abc'):language==='en'?regular.includes('Привет'):!/[A-Za-zА-Яа-я]/.test(regular),'Only the chosen alphabet uses Small Caps: '+language);
+        expect(get('output-view').textContent===get('output').value,'Visual result equals copied result: '+language);
+    }
+    fill('language','all');
+    expect(dialog.querySelector('.utility-footer [data-utility-action="copy"]'),'Small Caps copy button stays in the footer');
+    const write=navigator.clipboard.writeText;
+    try{
+        let copied='';navigator.clipboard.writeText=async text=>{copied=text;};dialog.querySelector('[data-utility-action="copy"]').click();await Promise.resolve();
+        expect(copied===get('output').value,'Result copy uses the exact Unicode text');
+        navigator.clipboard.writeText=async()=>{throw Error('test');};dialog.querySelector('[data-utility-action="copy"]').click();await new Promise(resolve=>setTimeout(resolve,0));
+        expect(window.getSelection().toString()===get('output').value,'Clipboard failure selects the visible result');
+    }finally{navigator.clipboard.writeText=write;}
     fill('small-text','АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ');
-    expect(get('output').value==='ᴀбʙгдᴇёжзийᴋлмнопрᴄᴛуɸхцчшщъыьэюя','All 33 Russian letters follow the requested mapping in the utility');
+    expect(get('output').value==='ᴀбʙгдᴇᴇжзийᴋлᴍʜᴏпᴘᴄтуȹxцчшщъыьэюя','All 33 Russian letters follow the reference mapping in the utility');
     fill('small-text','Привет');
     get('transliterate').click(); expect(get('output').value.includes('ᴘʀɪᴠᴇᴛ'), 'Explicit transliteration updates the result');
     get('tab-gradient').click(); fill('gradient-text', '<bold>"🚀'); fill('format','json');
     const json = JSON.parse(get('output').value);
+    expect(getComputedStyle(get('preview')).fontFamily.includes('Minecraft'),'Gradient preview uses Minecraft font');
+    expect(getComputedStyle(get('preview').firstElementChild).fontFamily.includes('Molly Minecraft Bitmap'),'Gradient characters themselves use the bitmap font');
     expect(json.extra.map(item=>item.text).join('')==='<bold>"🚀','JSON preserves markup-looking text literally');
     expect(!dialog.querySelector('bold'), 'Utility results never insert user text as HTML');
     const hex=dialog.querySelector('input.md-input[data-color-index="0"]');
@@ -34,6 +57,11 @@ async function exerciseLauncher() {
     get('tab-gradient').dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));
     expect(!get('panel-smallcaps').hidden,'Arrow keys switch utility tabs');
     fill('small-text','Добро пожаловать!');
+    get('remember').click();dialog.close();await new Promise(resolve=>setTimeout(resolve,0));
+    expect(JSON.parse(localStorage.getItem('molly-utilities-v1')).fields.some(([id,value])=>id==='utility-small-text'&&value==='Добро пожаловать!'),'Remembering utilities explicitly stores their draft across application sessions');
+    document.querySelector('[data-open-utility="smallcaps"]').click();get('remember').click();dialog.close();await new Promise(resolve=>setTimeout(resolve,0));
+    expect(localStorage.getItem('molly-utilities-v1')===null,'Turning remembering off removes the persistent utility draft');
+    document.querySelector('[data-open-utility="smallcaps"]').click();
     return checks;
 }
 
@@ -64,13 +92,21 @@ async function exerciseEditor() {
     expect(editor.history.redo()&&editor.layerManager.layers.length===before+1,'Redo restores the inserted block');
     const saved=editor.projectManager.serializeProject();
     expect(saved.layers.some(item=>item.name===stone.name),'Block insertion participates in normal project serialization');
+    panel.toggleFavorite(stone.id);panel.activeCategory='favorites';panel.searchQuery='';panel.renderItems();
+    expect(panel.getFilteredItems().some(item=>item.id===stone.id),'Favorite resources can be found without changing the resource catalog');
+    expect(panel.recent[0]===stone.id,'Inserted resources appear in the recent list');
+    panel.activeCategory='all';panel.renderItems();await new Promise(resolve=>requestAnimationFrame(resolve));
+    expect(panel.gridElement.children.length<panel.items.length,'Resource cards are loaded on demand rather than building the whole catalog at startup');
+    panel.panelElement.classList.add('expanded');await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    const first=panel.gridElement.firstElementChild;first.focus();first.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));
+    expect(document.activeElement===panel.gridElement.children[1]&&panel.gridElement.querySelectorAll('[tabindex="0"]').length===1,'Resource arrow navigation keeps one keyboard entry point');
     return checks;
 }
 
 (async()=>{
     const windows=[], checks=[];const watchdog=setTimeout(()=>app.exit(1),90000);
     try {
-        await ready();const launcher=makeWindow();windows.push(launcher);await launcher.loadFile(path.join(root,'www/index.html'));
+        await ready();const launcher=makeWindow();windows.push(launcher);await launcher.loadFile(path.join(root,'src/renderer/index.html'));
         checks.push(...await launcher.webContents.executeJavaScript(`(${exerciseLauncher.toString()})().catch(error=>{throw new Error(error.stack)})`));
         await fs.mkdir(path.join(root,'.test-output'),{recursive:true});
         for(const theme of ['dark','light']){
@@ -83,7 +119,7 @@ async function exerciseEditor() {
         const layout=await launcher.webContents.executeJavaScript(`(()=>{const d=document.getElementById('utilities-dialog'),b=d.getBoundingClientRect();return {fits:b.width<=innerWidth&&b.height<=innerHeight,overflow:d.scrollWidth>d.clientWidth+1};})()`);
         if(!layout.fits||layout.overflow)throw new Error('Utility modal overflows a small window');checks.push('Utility modal fits an eight-hundred by six-hundred window');
         await fs.writeFile(path.join(root,'.test-output/utilities-small.png'),(await launcher.webContents.capturePage()).toPNG());
-        const editor=makeWindow();windows.push(editor);await editor.loadFile(path.join(root,'www/editor.html'),{query:{new:'true',type:'canvas',width:'256',height:'256',name:'Utilities QA'}});
+        const editor=makeWindow();windows.push(editor);await editor.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:'canvas',width:'256',height:'256',name:'Utilities QA'}});
         checks.push(...await editor.webContents.executeJavaScript(`(${exerciseEditor.toString()})()`));
         for(const win of windows)if(win.__testErrors.length)throw new Error(win.__testErrors.join('\n'));
         await settle(editor);await fs.writeFile(path.join(root,'.test-output/block-library.png'),(await editor.webContents.capturePage()).toPNG());

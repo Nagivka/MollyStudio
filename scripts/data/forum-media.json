@@ -1,0 +1,122 @@
+[
+  {
+    "id": "launcher",
+    "file": "01-launcher.png",
+    "title": "Главное меню",
+    "caption": "Недавние проекты с превью и быстрый доступ к утилитам. Стандартная тёмная тема."
+  },
+  {
+    "id": "create",
+    "file": "02-new-project.png",
+    "title": "Создание проекта",
+    "caption": "Три типа проектов: Minecraft GUI, обычный холст и префиксы."
+  },
+  {
+    "id": "editor",
+    "file": "03-editor.png",
+    "title": "Редактор GUI",
+    "caption": "Пример меню: кнопки, текст, предметы Minecraft и отдельные слои."
+  },
+  {
+    "id": "buttons",
+    "file": "04-buttons.png",
+    "title": "Генератор кнопок",
+    "caption": "Bedrock-кнопка с градиентом; слева — параметры оформления."
+  },
+  {
+    "id": "prefix",
+    "file": "05-prefix.png",
+    "title": "Редактор префиксов",
+    "caption": "Префикс PREMIUM: градиентный фон, фаски и тень текста."
+  },
+  {
+    "id": "designs",
+    "file": "06-designs.png",
+    "title": "Готовые оформления",
+    "caption": "Визуальная библиотека оформлений GUI."
+  },
+  {
+    "id": "preview",
+    "file": "07-minecraft-preview.png",
+    "title": "Предпросмотр GUI",
+    "caption": "То же меню на фоне Minecraft. Это предпросмотр внутри редактора."
+  },
+  {
+    "id": "utilities",
+    "file": "08-utilities.png",
+    "title": "Текстовые утилиты",
+    "caption": "Генератор градиента: Minecraft-шрифт в предпросмотре, MiniMessage и копирование результата."
+  },
+  {
+    "id": "text-variants",
+    "file": "09-text-variants.png",
+    "title": "Шрифты и варианты текста",
+    "caption": "Реальные шрифты, градиент и перенос строк, отрисованные движком MollyStudio."
+  },
+  {
+    "id": "button-styles",
+    "file": "10-button-styles.png",
+    "title": "Все стили кнопок",
+    "caption": "JAVA, Bedrock, FLAT, OUTLINE и DOUBLE: сплошная и градиентная заливка."
+  },
+  {
+    "id": "gui-styles",
+    "file": "11-gui-styles.png",
+    "title": "Варианты GUI",
+    "caption": "Заготовки Vanilla и Bedrock, с плашкой заголовка и без неё."
+  },
+  {
+    "id": "settings",
+    "file": "12-settings.png",
+    "title": "Настройки интерфейса",
+    "caption": "Анимации, эффекты и дополнительные звуки настраиваются отдельно."
+  },
+  {
+    "id": "prefix-background",
+    "file": "13-prefix-background.png",
+    "title": "Фон префикса",
+    "caption": "Настройки заливки, фактуры, отступов, углов и краёв префикса."
+  },
+  {
+    "id": "textures",
+    "file": "14-textures.png",
+    "title": "Фактуры",
+    "caption": "Девять поверхностей на одной заливке: от гладкого фона до зерна, полос и плетения."
+  },
+  {
+    "id": "gradients",
+    "file": "15-gradients.png",
+    "title": "Варианты градиентов",
+    "caption": "Сплошной фон, два и три цвета, разные направления и градиент текста."
+  },
+  {
+    "id": "prefix-examples",
+    "file": "16-prefix-examples.png",
+    "title": "Примеры префиксов",
+    "caption": "Примеры, собранные в редакторе: разные шрифты, углы, заливки и фактуры."
+  },
+  {
+    "id": "smallcaps",
+    "file": "17-smallcaps.png",
+    "title": "Генератор капители",
+    "caption": "Выбор алфавита, результат преобразования и копирование."
+  },
+  {
+    "id": "export",
+    "file": "18-export.png",
+    "title": "Массовый экспорт",
+    "caption": "Несколько рангов одним списком — отдельные PNG с общим оформлением."
+  },
+  {
+    "id": "weather",
+    "file": "19-weather.png",
+    "title": "Атмосферные эффекты",
+    "caption": "Снег в главном меню. Эффект включается отдельно и не попадает в изображения проекта."
+  },
+  {
+    "id": "transforms",
+    "file": "20-transforms.png",
+    "title": "Преобразование графики",
+    "caption": "Один объект: исходник, отражение и повороты на 90° и 180°."
+  }
+]

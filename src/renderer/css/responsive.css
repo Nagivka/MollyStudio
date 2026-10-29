@@ -1,0 +1,126 @@
+/* Intrinsic layout rules shared by every window. Theme controls keep their own skin. */
+:root {
+    --layout-gap: var(--space-4);
+    --layout-splitter-width: 6px;
+    --layout-canvas-min: min(200px, 25vw);
+    --layout-prefix-width: clamp(340px, 32vw, 440px);
+    --layout-generator-width: 420px;
+    --layout-dialog-gutter: var(--space-4);
+    --settings-nav-width: clamp(152px, 22vw, 210px);
+}
+/* Grid owns window tracks; descendants retain their existing Flexbox controls.
+   Canvas overlays/rulers and viewport-positioned menus intentionally stay positioned. */
+#app:has(>.options-bar){grid-template-rows:auto auto auto minmax(0,1fr);}
+#app>.custom-titlebar{grid-row:1;}
+#app:has(>.options-bar)>.top-bar{grid-row:2;}
+#app:has(>.options-bar)>.options-bar{grid-row:3;}
+#app:has(>.options-bar)>.workspace-layout{grid-row:4;}
+.workspace-layout.launcher-home{display:block;overflow-y:auto;}
+.workspace-layout:has(>.canvas-area){grid-template-columns:var(--md-toolbar-width) minmax(var(--layout-canvas-min),1fr) var(--layout-splitter-width) minmax(0,var(--md-panel-width));}
+.workspace-layout>.toolbar{grid-column:1;grid-row:1;inline-size:100%;}
+.workspace-layout>.canvas-area{grid-column:2;grid-row:1;min-inline-size:0;}
+.workspace-layout>.panel-resizer-v{grid-column:3;grid-row:1;inline-size:var(--layout-splitter-width);margin:0;}
+.workspace-layout>.right-panel{grid-column:4;grid-row:1;inline-size:100%;min-inline-size:0;max-inline-size:none;}
+.workspace-layout:has(>#prefix-editor:not([hidden])){grid-template-columns:minmax(var(--layout-canvas-min),1fr) minmax(0,min(var(--layout-prefix-width),55%));}
+.workspace-layout:has(>#prefix-editor:not([hidden]))>.canvas-area{grid-column:1;}
+.workspace-layout>#prefix-editor{grid-column:2;grid-row:1;inline-size:100%;min-inline-size:0;}
+.settings-win-shell,.buttons-win-shell{display:grid;grid-template-rows:auto minmax(0,1fr);}
+.new-win-shell{display:grid;grid-template-rows:auto minmax(0,1fr) auto;}
+.settings-win-body{display:grid;grid-template-columns:var(--settings-nav-width) minmax(0,1fr);gap:var(--space-2);}
+.settings-win-content-wrap{display:grid;grid-template-rows:minmax(0,1fr) auto;}
+.settings-win-content-scroll{overflow:auto;overflow-x:hidden;}
+:is(.buttons-win-shell,.btn-gen-modal) .buttons-win-body{display:grid;grid-template-columns:minmax(0,min(var(--layout-generator-width),48%)) minmax(0,1fr);}
+:is(.buttons-win-shell,.btn-gen-modal) .buttons-sidebar{inline-size:auto;min-inline-size:0;max-inline-size:none;display:grid;grid-template-rows:minmax(0,1fr) auto;}
+:is(.buttons-win-shell,.btn-gen-modal) .buttons-sidebar-scroll-area{overflow-y:auto;}
+.new-win-body{gap:var(--space-4);}
+.new-win-card{gap:var(--space-4);}
+.new-win-footer{gap:var(--space-3);}
+.prefix-grid{gap:var(--layout-gap);}
+:is(.md-panel,.settings-group,.m3-card,.utility-controls,.utility-output-panel){min-inline-size:0;}
+:is(.modal-footer,.utility-footer,.settings-win-footer,.buttons-sidebar-footer){min-inline-size:0;}
+dialog{max-inline-size:calc(100vw - 2 * var(--layout-dialog-gutter));max-block-size:calc(100dvh - 2 * var(--layout-dialog-gutter));}
+@media(max-width:700px){
+    :root{--layout-gap:var(--space-2);--layout-dialog-gutter:var(--space-2);}
+}
+@media(max-width:600px){
+    .workspace-layout:has(>#prefix-editor:not([hidden])){grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(120px,40%) minmax(0,1fr);}
+    .workspace-layout:has(>#prefix-editor:not([hidden]))>.canvas-area{grid-column:1;grid-row:1;}
+    .workspace-layout>#prefix-editor{grid-column:1;grid-row:2;}
+}
+:root:is([data-theme="minecraft"],[data-theme="light-minecraft"]) {
+    --settings-nav-width: clamp(176px, 24vw, 240px);
+}
+:is(.settings-win-shell,.new-win-shell,.buttons-win-shell) {
+    inline-size: 100%; block-size: 100dvh; min-inline-size: 0; min-block-size: 0;
+}
+:is(.settings-win-body,.new-win-body,.buttons-win-body,.canvas-area,.buttons-sidebar,.buttons-viewport,
+    .settings-win-content-wrap,.settings-win-content-scroll,.inspector-tab-panel,.prefix-scroll) {
+    min-inline-size: 0; min-block-size: 0;
+}
+:is(.titlebar-left,.settings-win-titlebar-left,.new-win-titlebar-left,.buttons-win-titlebar-left) { min-inline-size: 0; }
+:is(.titlebar-left,.settings-win-titlebar-left,.new-win-titlebar-left,.buttons-win-titlebar-left)>span:not(.material-symbols-rounded) {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+:is(.titlebar-controls,.settings-win-titlebar-controls,.new-win-titlebar-controls,.buttons-win-titlebar-controls) { flex: 0 0 auto; }
+
+/* The navigation stays on the left. Only its labels become visually compact. */
+.settings-win-shell .settings-win-body .settings-win-sidebar { width: var(--settings-nav-width); flex: 0 0 var(--settings-nav-width); }
+:is(.settings-win-content-scroll,.settings-content-body) { container: settings-content / inline-size; }
+.settings-row-wrap { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,180px),1fr)); gap: var(--layout-gap); }
+.settings-row-wrap>.settings-col { min-inline-size: 0; }
+@container settings-content (max-width: 420px) {
+    .settings-row { flex-direction: column; align-items: stretch; gap: var(--space-3); }
+    .settings-row>:is(select,input:not([type="checkbox"]),.settings-slider-wrap) { inline-size: 100%; max-inline-size: 100%; }
+    .settings-custom-accent-row { flex-wrap: wrap; }
+    .weather-parameters { grid-template-columns: minmax(0,1fr); }
+}
+@media(max-width:680px) {
+    :root { --settings-nav-width: 64px; }
+    :root:is([data-theme="minecraft"],[data-theme="light-minecraft"]) { --settings-nav-width: 68px; }
+    .settings-win-shell .settings-win-sidebar { padding-inline: var(--space-1); }
+    :root .settings-win-shell .settings-win-sidebar .settings-tab-btn[role="tab"] { position: relative; justify-content: center; padding-inline: var(--space-1); min-height: 44px; }
+    .settings-win-sidebar .settings-tab-btn>span {
+        position: absolute; inline-size: 1px; block-size: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+    }
+    .settings-win-status { font-size: 10px; line-height: 1.35; }
+}
+
+/* Controls respond to the panel's width, including a manual panel resize. */
+.md-panel-props { container: inspector / inline-size; }
+.prop-coord-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+:is(.prop-coord-grid,.prefix-grid)>* { min-inline-size: 0; }
+.inspector-tab { flex-wrap: wrap; row-gap: var(--space-1); }
+.inspector-tab>span { min-inline-size: 0; max-inline-size: 100%; overflow-wrap: anywhere; }
+@container inspector (max-width:260px) {
+    :root:is([data-theme="minecraft"],[data-theme="light-minecraft"]) .inspector-tabs { display: grid; grid-template-columns: minmax(0,1fr); }
+    :root:is([data-theme="minecraft"],[data-theme="light-minecraft"]) .inspector-tab { flex-wrap: nowrap; justify-content: flex-start; padding-inline: 10px; }
+}
+.prefix-grid { align-items: stretch; }
+.prefix-grid .prefix-field>:is(input,select) { margin-block-start: auto; }
+@container (max-width:360px) {
+    .bottom-status-bar { padding-inline: var(--space-1); }
+    .zoom-controls { flex: 0 1 auto; max-inline-size: 100%; min-inline-size: 0; flex-wrap: wrap; justify-content: center; gap: var(--space-1); }
+    .status-left { max-inline-size: 100%; flex-wrap: wrap; justify-content: center; }
+}
+
+/* Creation forms have no fixed field widths; the footer stays outside scrolling. */
+.new-win-card { container: project-form / inline-size; }
+.new-win-card :is(.prop-coord-grid,.project-type-selector,.type-selector) { min-inline-size: 0; }
+.new-win-card :is(input:not([type="checkbox"]),select) { max-inline-size: 100%; box-sizing: border-box; }
+.new-win-footer { height: auto; min-height: 56px; padding-block: var(--space-2); flex-wrap: wrap; }
+@container project-form (max-width:420px) {
+    .project-type-selector { grid-template-columns: minmax(0,1fr); }
+    .project-type-selector .type-option { min-height: 52px; }
+}
+
+/* On narrow screens the button preview and controls share one bounded viewport. */
+:is(.buttons-win-shell,.btn-gen-modal) .buttons-win-body { container: generator / inline-size; }
+:is(.buttons-win-shell,.btn-gen-modal) .viewport-toolbar { height: auto; min-height: 48px; flex-wrap: wrap; padding-block: var(--space-2); }
+:is(.buttons-win-shell,.btn-gen-modal) .toolbar-group { min-inline-size: 0; max-inline-size: 100%; flex-wrap: wrap; }
+@media(max-width:700px) {
+    :is(.buttons-win-shell,.btn-gen-modal) .buttons-win-body { display: grid; grid-template-columns: minmax(0,1fr); grid-template-rows: minmax(140px,35%) minmax(0,1fr); overflow: hidden; }
+    :is(.buttons-win-shell,.btn-gen-modal) .buttons-viewport { grid-row: 1; min-height: 0; }
+    :is(.buttons-win-shell,.btn-gen-modal) .buttons-sidebar { grid-row: 2; width: 100%; min-width: 0; max-width: none; height: auto; max-height: none; border-inline-end: 0; border-block-start: 1px solid var(--md-outline-variant); }
+    :is(.buttons-win-shell,.btn-gen-modal) .buttons-sidebar-scroll-area { overflow-y: auto; }
+    :is(.buttons-win-shell,.btn-gen-modal) .buttons-sidebar-footer { flex: 0 0 auto; }
+}

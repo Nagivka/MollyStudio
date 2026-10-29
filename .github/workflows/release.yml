@@ -1,65 +1,73 @@
-name: Build and publish MollyStudio update
+name: Build Windows portable
 
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish binaries to MollyStudio-Releases
+        required: true
+        default: false
+        type: boolean
   push:
-    tags:
-      - 'v*.*.*'
+    tags: ['v*.*.*']
 
 permissions:
   contents: read
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  release:
+  portable:
+    if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
     runs-on: windows-latest
-    env:
-      CAN_PUBLISH: ${{ secrets.UPDATES_REPO_TOKEN != '' && secrets.UPDATES_SIGNING_KEY != '' }}
+    timeout-minutes: 45
     steps:
-      - name: Check out private source
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
         with:
-          node-version: 24
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
           cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: npm test
-
-      - name: Check Electron integration
-        run: npm run test:electron
-
-      - name: Verify real updater download and cache behavior
-        run: npm run test:updates
-
-      - name: Build NSIS installer
-        run: npm run dist:nsis -- --publish never
-
-      - name: Verify packaged update channel and privacy
-        run: npm run release:verify
-
-      - name: Sign update files and publish only allowed artifacts
-        if: env.CAN_PUBLISH == 'true'
-        env:
-          UPDATES_REPO_TOKEN: ${{ secrets.UPDATES_REPO_TOKEN }}
-          UPDATES_SIGNING_KEY: ${{ secrets.UPDATES_SIGNING_KEY }}
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          npm run release:sign
-          npm run release:publish
-
-      - name: Save build privately when automatic publication is not configured
-        if: env.CAN_PUBLISH != 'true'
+      - run: npm ci
+      - name: Validate release version
+        run: node scripts/release/validate.cjs
+      - run: npm run typecheck
+      - run: npm run core:verify
+      - run: npm test
+      - run: npm run audit
+      - run: npm run test:desktop
+      - run: npm run dist:portable
+      - name: Keep binaries in private Actions artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: MollyStudio-installer
-          retention-days: 7
+          name: MollyStudio-${{ github.sha }}-portable
           path: |
-            dist/MollyStudio-Setup-*.exe
-            dist/MollyStudio-Setup-*.exe.blockmap
-            dist/latest.yml
+            dist/MollyStudio-*-x64-portable.exe
+            dist/MollyStudio-*-x64-portable.exe.sha256
           if-no-files-found: error
+          retention-days: 7
+  publish:
+    needs: portable
+    if: startsWith(github.ref, 'refs/tags/') || inputs.publish == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: UPDATES_REPO_TOKEN
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/download-artifact@v4
+        with:
+          name: MollyStudio-${{ github.sha }}-portable
+          path: dist
+      - name: Publish public release
+        env:
+          RELEASES_TOKEN: ${{ secrets.UPDATES_REPO_TOKEN }}
+          SOURCE_TOKEN: ${{ github.token }}
+        run: node scripts/release/publish.cjs

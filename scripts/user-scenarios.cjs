@@ -1,12 +1,13 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
-const { once } = require('node:events');
-const { createRecoveryStore } = require('../src/main/recoveryStore.js');
-const { app, root, profile, ready, makeWindow, settle } = require('./lib/electron-harness.cjs');
+const assert = require('node:assert/strict');
+
+
+const { app, root, profile, ready, makeWindow, settle, command, restart } = require('./lib/electron-harness.cjs');
 
 async function toolScenarios() {
     const editor = window.mollyEditor, manager = editor.projectManager, checks = [];
-    const expect = (value, message) => { if (!value) throw new Error(message); checks.push(message); };
+    const expect = (value, message) => { if (!value) throw new Error(message); checks.push(message); console.log('[Scenario] '+message); };
     const snapshot = layer => [...layer.ctx.getImageData(0, 0, layer.width, layer.height).data];
     editor.settingsManager.set('animationsEnabled', false);
     const layer = editor.layerManager.addLayer('Selection fixture');
@@ -41,7 +42,7 @@ async function toolScenarios() {
     expect(await manager.saveProjectAs(), 'gradient text saves through native file IO');
     const original = manager.serializeProject();
     const filePath = editor.projects.find(item => item.id === editor.activeProjectId).filePath;
-    const saved = JSON.parse(await window.electronAPI.readFile(filePath));
+    const saved = JSON.parse(await window.desktopAPI.readFile(filePath));
     expect(JSON.stringify(saved.layers) === JSON.stringify(original.layers), 'saved file contains the expected pixels and editable text');
     const reopened = await manager.deserializeProject(saved, filePath);
     const restoredText = editor.layerManager.layers.find(item => item.type === 'text');
@@ -105,9 +106,18 @@ async function profileLargeProject() {
     editor.layerManager.setActive(target.id); editor.tools.setTool('pencil');
     measure('strokeWithUndoSnapshotMs', () => { editor.tools.onPointerDown(300, 300, {}); editor.tools.onPointerUp(300, 300, {}); });
     measure('undoMs', () => editor.history.undo());
+    editor.history.clear();const beforeSparse=target.ctx.getImageData(0,0,1024,1024).data.slice();
+    for(let index=0;index<30;index++){editor.tools.onPointerDown(400+index,400,{});editor.tools.onPointerUp(400+index,400,{});}
+    const sparseHistoryBytes=editor.history.getUndoMemoryBytes(),sparseHistoryEntries=editor.history.undoStack.length;
+    if(sparseHistoryEntries!==30||sparseHistoryBytes>1024*1024||editor.history.undoStack.some(command=>!command.beforeData?.pixelPatch))throw Error('Sparse strokes retain full-canvas snapshots');
+    const afterSparse=target.ctx.getImageData(0,0,1024,1024).data.slice();
+    for(let index=0;index<30;index++)if(!editor.history.undo())throw Error('Sparse undo failed');
+    if(!target.ctx.getImageData(0,0,1024,1024).data.every((value,index)=>value===beforeSparse[index]))throw Error('Sparse history undo changed unrelated pixels');
+    for(let index=0;index<30;index++)if(!editor.history.redo())throw Error('Sparse redo failed');
+    if(!target.ctx.getImageData(0,0,1024,1024).data.every((value,index)=>value===afterSparse[index]))throw Error('Sparse history redo is not exact');
     const png = measure('exportPngMs', () => editor.renderer.exportToPNG());
     if (!png.startsWith('data:image/png;') || editor.history.getUndoMemoryBytes() > editor.history.memoryBudgetBytes) throw new Error('Large project violated export or history budget');
-    return { dimensions: [1024, 1024], layers: 24, pixels: 24 * 1024 * 1024, coldLayerEncodes: firstEncodes, repeatedLayerEncodes: encodes - firstEncodes, historyBudgetBytes: editor.history.memoryBudgetBytes, metrics };
+    return { dimensions: [1024, 1024], layers: 24, pixels: 24 * 1024 * 1024, coldLayerEncodes: firstEncodes, repeatedLayerEncodes: encodes - firstEncodes, historyBudgetBytes: editor.history.memoryBudgetBytes, sparseHistoryBytes,sparseHistoryEntries, metrics };
 }
 
 (async () => {
@@ -116,28 +126,27 @@ async function profileLargeProject() {
     const writeGate = new Promise(resolve => { releaseWrite = resolve; });
     const watchdog = setTimeout(() => { console.error('User scenarios timed out'); app.exit(1); }, 120000);
     try {
-        await ready({ durable: true, beforeRecoveryWrite: async draft => {
-            if (draft.project.name === 'In-flight recovery') { enteredWrite(); await writeGate; }
-        } });
+        await ready({ durable: true });
         window = makeWindow();
-        await window.loadFile(path.join(root, 'www/editor.html'), { query: { new: 'true', type: 'canvas', width: '32', height: '32', name: 'Scenario fixture' } });
+        await window.loadFile(path.join(root, 'src/renderer/editor.html'), { query: { new: 'true', type: 'canvas', width: '32', height: '32', name: 'Scenario fixture' } });
         const result = await window.webContents.executeJavaScript(`(${toolScenarios.toString()})()`);
+        console.log('Native user scenarios: tools and two-tab recovery fixtures ready');
         const inFlight = { draftId: 'in-flight-test', timestamp: Date.now(), project: { name: 'In-flight recovery', type: 'canvas', config: { width: 32, height: 32 }, layers: [] } };
-        await window.webContents.executeJavaScript(`void window.electronAPI.writeRecoveryDraft(${JSON.stringify(inFlight)}).catch(() => {})`);
-        await writeEntered;
-        const crashed = once(window.webContents, 'render-process-gone');
-        window.webContents.forcefullyCrashRenderer();
+        await command('test-control',{operation:'delayed-recovery',draft:inFlight});
+        const crashed=window.page.waitForEvent('crash',{timeout:10000});
+        void window.cdp.send('Page.crash').catch(()=>{});
         await crashed;
-        releaseWrite();
-        const store = createRecoveryStore(path.join(profile, 'recovery-drafts'));
-        for (let attempt = 0; ; attempt++) {
-            try { await store.read(inFlight.draftId); break; }
-            catch (error) { if (attempt >= 50) throw error; await new Promise(resolve => setTimeout(resolve, 50)); }
+        console.log('Native user scenarios: Chromium crash observed');
+        for(let attempt=0;;attempt++){
+            try{const disk=JSON.parse(await fs.readFile(path.join(profile,'recovery-drafts',inFlight.draftId+'.json'),'utf8'));if(disk.draftId===inFlight.draftId)break;}
+            catch(error){if(attempt>=50)throw error;}
+            await new Promise(resolve=>setTimeout(resolve,50));
         }
-        result.checks.push('main process completes an in-flight recovery write after renderer death');
-        window.destroy();
-        window = makeWindow();
-        await window.loadFile(path.join(root, 'www/editor.html'), { query: { new: 'true', type: 'canvas', width: '32', height: '32', name: 'Restart fixture' } });
+        result.checks.push('Node.js completes an accepted recovery write after Chromium crashes');
+        console.log('Native user scenarios: recovery file survived');
+        await restart();
+        window=makeWindow();
+        await window.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:'canvas',width:'32',height:'32',name:'Restart fixture'}});
         for (const expected of result.expected) {
             const actual = await window.webContents.executeJavaScript(`(async () => {
                 const editor = window.mollyEditor;
@@ -145,7 +154,10 @@ async function profileLargeProject() {
                 const data = editor.projectManager.serializeProject();
                 return { name: data.name, layers: data.layers.map(item => ({ name: item.name, dataUrl: item.dataUrl, textData: item.textData })) };
             })()`);
-            if (JSON.stringify(actual) !== JSON.stringify({ name: expected.name, layers: expected.layers })) throw new Error(`Restored pixels or text differ: ${expected.name}`);
+            try { assert.deepEqual(actual,{ name: expected.name, layers: expected.layers }); } catch(error) {
+                await fs.writeFile(path.join(root,'.test-output/recovery-difference.json'),JSON.stringify({actual,expected},null,2));
+                throw new Error(`Restored pixels or text differ: ${expected.name}`);
+            }
         }
         result.checks.push('both tabs restore identical pixels and editable text after renderer crash');
         const performance = await window.webContents.executeJavaScript(`(${profileLargeProject.toString()})()`);

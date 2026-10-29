@@ -212,7 +212,7 @@ def main():
     localization = json.loads((ROOT/'scripts'/'data'/'minecraft-block-names-ru.json').read_text(encoding='utf-8'))
     ru = json.loads(ru_file.read_text(encoding='utf-8')) if ru_file.exists() else localization['names']
     en = json.loads((base/'lang'/'en_us.json').read_text(encoding='utf-8'))
-    output = ROOT/'www'/'assets'/'blocks_minecraft'
+    output = ROOT/'src/renderer'/'assets'/'blocks_minecraft'
     output.mkdir(parents=True,exist_ok=True)
     items, skipped = [], []
     for file in sorted((base/'items').glob('*.json')):
@@ -229,7 +229,7 @@ def main():
             items.append({'id':f'block_render:{name}','minecraftId':name,'file':f'{name}.png','folder':'blocks_minecraft','name':ru.get(key,en.get(key,name)), 'en':en.get(key,name),'category':'block_renders'})
         except (ValueError, KeyError, FileNotFoundError, IndexError) as error:
             skipped.append({'id':name,'reason':'Unresolved texture reference in source model' if isinstance(error, FileNotFoundError) else str(error)})
-    catalog = ROOT/'www'/'js'/'utils'/'MinecraftBlocks.js'
+    catalog = ROOT/'src/renderer'/'js'/'utils'/'MinecraftBlocks.js'
     catalog.write_text('// Generated from the user-provided vanilla resource pack. See assets/blocks_minecraft/manifest.json.\nexport const MINECRAFT_BLOCKS = '+json.dumps(items,ensure_ascii=False,indent=2)+';\n',encoding='utf-8')
     manifest = {'source':'User-provided vanilla Minecraft resource pack','versionLabel':args.version,'versionVerified':False,'copyright':'Minecraft textures and models © Mojang AB / Microsoft. Not covered by the application code license.','renderer':'scripts/generate-minecraft-resources.py','renderSize':SIZE,'animation':'First defined frame','limitations':['Entity/special item renderers are excluded','Static GUI lighting approximation; no game shaders or ambient occlusion'],'rendered':len(items),'skipped':skipped,'sourceHashes':renderer.sources}
     manifest['localization'] = localization['source']

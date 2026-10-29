@@ -1,0 +1,105 @@
+{
+  "edition": "Minecraft for Windows",
+  "versionVisible": "26.60",
+  "referenceDate": "2026-10-29",
+  "mainMenuExcluded": true,
+  "references": [
+    {
+      "name": "01-accessibility-switches",
+      "width": 1920,
+      "height": 1080,
+      "file": "01-accessibility-switches.jpg",
+      "format": "JPEG",
+      "sha256": "da94c32e18fdf1c9677399c9353a6f77e74ba685e5a120602c334f21abb6aefd"
+    },
+    {
+      "name": "02-keyboard-sliders-and-buttons",
+      "width": 1920,
+      "height": 1080,
+      "file": "02-keyboard-sliders-and-buttons.jpg",
+      "format": "JPEG",
+      "sha256": "e2693bef5db5a6e48975bae4430fd2af1a2cd7e03a5ed200f8055a78b09dd316"
+    },
+    {
+      "name": "03-touch-controls-normal",
+      "width": 1920,
+      "height": 1080,
+      "file": "03-touch-controls-normal.jpg",
+      "format": "JPEG",
+      "sha256": "78c137d5579409e739dc065fe6cde1fd536f78d4bc4207b2866705eb2861eef7"
+    },
+    {
+      "name": "04-select-modal",
+      "width": 1920,
+      "height": 1080,
+      "file": "04-select-modal.jpg",
+      "format": "JPEG",
+      "sha256": "07a9f92e6aa8b898c0fce4474311eaa64fa5b319e535669eb1e08c9c2332d09b"
+    },
+    {
+      "name": "05-select-hover",
+      "width": 1920,
+      "height": 1080,
+      "file": "05-select-hover.jpg",
+      "format": "JPEG",
+      "sha256": "72a730d4866bed1a43a5317f041652e155bdb7dc86ae274b176db22c1f3c2d22"
+    },
+    {
+      "name": "06-video-segments-disabled-stepped-slider",
+      "width": 1920,
+      "height": 1080,
+      "file": "06-video-segments-disabled-stepped-slider.jpg",
+      "format": "JPEG",
+      "sha256": "3504c42e8ec4852086c3be1339b76bbcb15abdf482a82bacb988868650cb638f"
+    },
+    {
+      "name": "07-video-stepped-slider-scroll",
+      "width": 1920,
+      "height": 1080,
+      "file": "07-video-stepped-slider-scroll.jpg",
+      "format": "JPEG",
+      "sha256": "01e22ae96fc8963c1b9c4de30cd283adcd51f0f357e8c1f254128cd711105b76"
+    },
+    {
+      "name": "08-worlds-tabs-cards-primary",
+      "width": 1920,
+      "height": 1080,
+      "file": "08-worlds-tabs-cards-primary.jpg",
+      "format": "JPEG",
+      "sha256": "1b93a3c811b81fb3b685ba57927a497aaafff4f2d00ef0cb1d6561cd60d7e7e8"
+    },
+    {
+      "name": "09-create-form-inputs-buttons",
+      "width": 1920,
+      "height": 1080,
+      "file": "09-create-form-inputs-buttons.jpg",
+      "format": "JPEG",
+      "sha256": "03eb63f4cd9aa6b6538690f2db4565f3ca0358b41766e801688c768982aaf528"
+    },
+    {
+      "name": "10-text-input-focus",
+      "width": 1920,
+      "height": 1080,
+      "file": "10-text-input-focus.jpg",
+      "format": "JPEG",
+      "sha256": "bf5737df41087d8ad9ea44135334e411a38d090645963f1498ba2b7bf037965d"
+    },
+    {
+      "name": "11-accordion-collapsed-tabs",
+      "width": 1920,
+      "height": 1080,
+      "file": "11-accordion-collapsed-tabs.jpg",
+      "format": "JPEG",
+      "sha256": "671ae9da4df10a31b634edcef0f4649923efc87766da4034f864fcf7b7269769"
+    },
+    {
+      "name": "12-accordion-expanded-list",
+      "width": 1920,
+      "height": 1080,
+      "file": "12-accordion-expanded-list.jpg",
+      "format": "JPEG",
+      "sha256": "9a121c1ae4f49547efe4ad58f8ea33b9508d4d74ab89fd59aecf70b4e465da02"
+    }
+  ],
+  "captureNotes": "Original computer-use captures are JPEG, preserved without re-encoding. Flat-color samples are approximate due to JPEG compression. No main-menu images are included."
+}

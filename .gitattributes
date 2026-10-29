@@ -1,0 +1,5 @@
+* text=auto
+
+# Generated modules are compared byte-for-byte with TypeScript output in CI.
+*.mjs text eol=lf
+*.yml text eol=lf
