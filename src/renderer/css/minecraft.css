@@ -735,7 +735,7 @@
     & .prefix-grid > .prefix-field:has(.bitmap-font-choices) { grid-column: 1 / -1; }
     & :is(.swatch-btn, .color-square-slot, .shading-ramp-slot):hover { transform: none; scale: 1; }
     & .titlebar-btn-close:hover { background-color: #c63535 !important; color: #ffffff !important; }
-    & :is(.tool-btn.active, .settings-tab-btn.active, .doc-tab.active, .utility-tabs [aria-selected="true"]) { animation: none; }
+    & .tool-btn.active { animation: none; }
     & .material-symbols-rounded[data-mc-icon] {
         display: inline-block;
         width: var(--mc-icon-size, 24px);

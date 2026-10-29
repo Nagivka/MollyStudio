@@ -40,6 +40,8 @@ jobs:
       - run: npm run audit
       - run: npm run test:desktop
       - run: npm run test:updates
+      - run: npm run test:ui
+      - run: npm run test:visual-effects
       - run: npm run dist:nsis
       - name: Keep binaries in private Actions artifacts
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6

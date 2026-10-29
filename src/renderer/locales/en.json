@@ -1684,5 +1684,10 @@
   "Проекты и настройки сохраняются при обновлении.": "Projects and settings are preserved during updates.",
   "Загрузка обновления": "Update download",
   "Не удалось выполнить действие. Повторите попытку.": "The action failed. Please try again.",
-  "Не удалось сохранить настройки обновлений.": "Could not save update preferences."
+  "Не удалось сохранить настройки обновлений.": "Could not save update preferences.",
+  "Проверка заняла слишком много времени. Повторите попытку.": "The update check timed out. Please try again.",
+  "Загрузка остановилась из-за отсутствия связи. Повторите загрузку.": "The download stalled. Check your connection and try again.",
+  "Недостаточно места на диске для обновления.": "There is not enough disk space for the update.",
+  "Нет доступа к папке обновлений. Проверьте права доступа.": "The update folder is not accessible. Check your access permissions.",
+  "Новый выпуск пока недоступен. Повторите проверку позже.": "The new release is not available yet. Please check again later."
 }

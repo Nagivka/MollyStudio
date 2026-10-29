@@ -27,6 +27,10 @@ const {app,root,ready,makeWindow,settle,evaluateMain,command}=require('./lib/ele
                 });expect(fit,`Update settings fit ${theme} at ${width}×${height}`);
             }
         }
+        await evaluateMain(()=>{globalThis.__mollyTestRuntime.updateFixture.failNextDownload=true;});
+        await settings.page.locator('[data-update="download"]').click();
+        await settings.page.waitForFunction(()=>document.querySelector('.update-status')?.textContent.includes('Недостаточно места')&&!document.querySelector('[data-update="download"]').disabled);
+        expect(true,'Disk-space failure is explained and the download button becomes available for retry');
         await settings.page.locator('[data-update="download"]').click();
         await settings.page.waitForFunction(()=>document.querySelector('[data-update="install"]')&&!document.querySelector('[data-update="install"]').hidden);
         expect((await command('update-status')).status==='downloaded','Real electron-updater downloads and validates the installer from local HTTP without executing it');
@@ -44,8 +48,9 @@ const {app,root,ready,makeWindow,settle,evaluateMain,command}=require('./lib/ele
             if(i===99)throw Error('Close confirmation was not shown');await new Promise(resolve=>setTimeout(resolve,30));
         }
         await main.page.waitForFunction(()=>!document.body.inert&&!window.mollyEditor.documentTasks.closing);
-        await settings.page.waitForFunction(()=>!document.querySelector('[data-update="install"]').hidden);
+        await settings.page.waitForFunction(()=>!document.querySelector('[data-update="install"]').hidden&&!document.querySelector('[data-update="install"]').disabled);
         expect(await evaluateMain(()=>globalThis.__mollyTestRuntime.updateFixture.installed===0&&globalThis.__mollyTestRuntime.updateFixture.confirmations===1),'Cancelling the real close confirmation prevents installation and restores the editor');
+        expect(true,'Cancelling installation re-enables the install button in the actual settings window');
         const drafts=await main.page.evaluate(async()=>Promise.all((await window.desktopAPI.listRecoveryDrafts()).map(item=>window.desktopAPI.readRecoveryDraft(item.draftId))));
         expect(drafts.some(d=>d.project.layers.some(layer=>layer.name==='Preserve on update')),'Edited pixels are durably recovered before the update confirmation');
         await main.page.evaluate(()=>{window.failUpdateFlush=window.desktopAPI.onFlushRecoveryDrafts(()=>false);});

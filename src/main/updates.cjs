@@ -4,13 +4,15 @@ const {CancellationToken} = require('builder-util-runtime');
 const {atomicWrite, createQueue} = require('./storage.cjs');
 const security = require('./update-security.cjs');
 const {requestBuffer} = require('./update-network.cjs');
+const {abortable,requestWithRetry,errorCode} = require('./update-operations.cjs');
 
 const CHECK_INTERVAL = 6 * 60 * 60 * 1000;
 class UpdateService {
     constructor({app, windows, testMode = false, platform = process.platform, arch = process.arch,
         portable = Boolean(process.env.PORTABLE_EXECUTABLE_FILE), engineFactory = () => require('electron-updater').autoUpdater,
-        request = requestBuffer, publicKey = security.PUBLIC_KEY, now = Date.now}) {
-        Object.assign(this, {app, windows, engineFactory, request, publicKey, now});
+        request = requestBuffer, publicKey = security.PUBLIC_KEY, now = Date.now,
+        checkTimeout = 60000, downloadIdleTimeout = 120000, retryDelays = [0,500,1500]}) {
+        Object.assign(this, {app, windows, engineFactory, request, publicKey, now,checkTimeout,downloadIdleTimeout,retryDelays});
         this.supported = !testMode && app.isPackaged && platform === 'win32' && arch === 'x64' && !portable;
         this.preferencesFile = path.join(app.getPath('userData'), 'update-preferences.json');
         this.writePreferences = createQueue();
@@ -32,7 +34,7 @@ class UpdateService {
         this.set(this.preferences);
     }
     status() { return {...this.state}; }
-    set(patch) { Object.assign(this.state, patch); this.windows.broadcast('update-status', this.status()); }
+    set(patch) { Object.assign(this.state, patch); if(!this.disposed)this.windows.broadcast('update-status', this.status()); }
     async savePreferences() {
         return this.writePreferences(() => atomicWrite(this.preferencesFile, JSON.stringify(this.preferences)));
     }
@@ -47,21 +49,22 @@ class UpdateService {
             this.set(this.preferences);
             if (data.autoCheck === false) clearTimeout(this.timer);
             else if (data.autoCheck === true) this.schedule(1000);
+            if(data.autoDownload===true){this.cancelledVersion=null;if(this.state.status==='available')void this.download().catch(error=>this.fail(error));}
             return this.status();
         });
     }
     async start() {
         await this.ready;
-        this.schedule(Math.max(12000, this.preferences.lastChecked + CHECK_INTERVAL - this.now()));
+        this.schedule(12000);
     }
     schedule(delay = CHECK_INTERVAL) {
         clearTimeout(this.timer);
         if (!this.supported || !this.preferences.autoCheck || this.disposed) return;
-        this.timer = setTimeout(() => { void this.check().catch(() => {}).finally(() => this.schedule()); }, Math.min(CHECK_INTERVAL, Math.max(0, delay)));
+        this.timer = setTimeout(() => { void this.check().catch(() => {}).finally(() => this.schedule(this.state.status==='error'?15*60*1000:CHECK_INTERVAL)); }, Math.min(CHECK_INTERVAL, Math.max(0, delay)));
         this.timer.unref?.();
     }
     fail(error) {
-        const code = String(error?.message || '').match(/^UPDATE_[A-Z_]+$/)?.[0] || 'UPDATE_NETWORK';
+        const code = errorCode(error);
         this.set({status: 'error', error: code});
         return this.status();
     }
@@ -74,6 +77,7 @@ class UpdateService {
         engine.on('error', () => {}); // Async operations below report sanitized failures.
         engine.on('download-progress', progress => {
             if (this.state.status !== 'downloading') return;
+            this.resetDownloadWatchdog?.();
             const time = this.now();
             if (time - (this.lastProgress || 0) < 200 && progress.percent < 100) return;
             this.lastProgress = time;
@@ -93,7 +97,7 @@ class UpdateService {
         this.set({nextCheckAt: this.lastAttempt + 30000});
         this.checking = this.performCheck().finally(() => {
             this.checking = null;
-            if (this.preferences.autoDownload && this.state.status === 'available' && !this.disposed) void this.download().catch(error => this.fail(error));
+            if (this.preferences.autoDownload && this.state.version!==this.cancelledVersion && this.state.status === 'available' && !this.disposed) void this.download().catch(error => this.fail(error));
         });
         return this.checking;
     }
@@ -101,34 +105,38 @@ class UpdateService {
         this.manifest = null; this.installer = null;
         this.set({status: 'checking', error: '', version: '', notes: '', percent: 0, downloaded: 0});
         this.checkAbort = new AbortController();
-        const timeout = setTimeout(() => this.checkAbort?.abort(), 45000); timeout.unref?.();
+        const signal=this.checkAbort.signal;
+        const read=(url,limit)=>requestWithRetry(this.request,[url,limit],signal,this.retryDelays);
+        const timeout = setTimeout(() => this.checkAbort?.abort(Error('UPDATE_CHECK_TIMEOUT')), this.checkTimeout); timeout.unref?.();
         try {
-            const release = JSON.parse((await this.request(`https://api.github.com/repos/${security.REPOSITORY}/releases/latest`, 512 * 1024, this.checkAbort.signal)).toString('utf8'));
+            const release = JSON.parse((await read(`https://api.github.com/repos/${security.REPOSITORY}/releases/latest`,512*1024)).toString('utf8'));
             const version = typeof release.tag_name === 'string' ? release.tag_name.slice(1) : '';
             if (release.tag_name !== `v${version}` || !security.stableVersion(version) || release.draft !== false || release.prerelease !== false) throw Error('UPDATE_INVALID_MANIFEST');
-            this.preferences.lastChecked = this.now();
             if (security.compareVersions(version, this.app.getVersion()) <= 0) {
+                this.preferences.lastChecked = this.now();
                 this.manifest = null; this.installer = null;
                 this.set({status: 'up-to-date', version: '', notes: '', lastChecked: this.preferences.lastChecked});
-                await this.savePreferences(); return this.status();
+                await this.savePreferences().catch(()=>{}); return this.status();
             }
             const base = security.downloadBase(version);
             const names = [...security.releaseNames(version), 'release-manifest.json'];
             if (!Array.isArray(release.assets) || names.some(name => release.assets.filter(asset => asset.name === name && asset.browser_download_url === base + name).length !== 1)) throw Error('UPDATE_UNSIGNED_RELEASE');
-            const manifest = security.readManifest((await this.request(base + 'release-manifest.json', 64 * 1024, this.checkAbort.signal)).toString('utf8'), version, this.publicKey);
-            const yaml = await this.request(base + 'latest.yml', 64 * 1024, this.checkAbort.signal);
+            const manifest = security.readManifest((await read(base+'release-manifest.json',64*1024)).toString('utf8'),version,this.publicKey);
+            const yaml = await read(base+'latest.yml',64*1024);
             const {createHash} = require('node:crypto');
             if (createHash('sha256').update(yaml).digest('hex') !== manifest.files[2].sha256) throw Error('UPDATE_UNTRUSTED_METADATA');
             for (const file of manifest.files) if (release.assets.find(asset => asset.name === file.name).size !== file.size) throw Error('UPDATE_INVALID_MANIFEST');
             const engine = this.getEngine();
             engine.setFeedURL({provider: 'generic', url: base, useMultipleRangeRequest: false});
-            const result = await engine.checkForUpdates();
+            const result = await abortable(engine.checkForUpdates(),signal);
+            if(signal.aborted||this.disposed)throw signal.reason || Error('UPDATE_STOPPED');
             if (!result?.isUpdateAvailable) throw Error('UPDATE_INVALID_VERSION');
             security.validateUpdateInfo(result.updateInfo, manifest);
             this.manifest = manifest; this.installer = null;
+            this.preferences.lastChecked = this.now();
             this.set({status: 'available', version, notes: manifest.notes, total: manifest.files[0].size,
                 percent: 0, lastChecked: this.preferences.lastChecked, releaseUrl: `https://github.com/${security.REPOSITORY}/releases/tag/v${version}`});
-            await this.savePreferences();
+            await this.savePreferences().catch(()=>{});
             return this.status();
         } catch (error) { return this.fail(error); }
         finally { clearTimeout(timeout); this.checkAbort = null; }
@@ -142,32 +150,41 @@ class UpdateService {
     }
     async performDownload() {
         this.downloadToken = new CancellationToken();
+        this.downloadFailure=null;
+        const abort=new AbortController();
+        this.downloadToken.onCancel(()=>abort.abort(Error(this.downloadFailure||'UPDATE_CANCELLED')));
+        let idleTimer;
+        const stop=code=>{this.downloadFailure=code;this.downloadToken?.cancel();};
+        this.resetDownloadWatchdog=()=>{clearTimeout(idleTimer);idleTimer=setTimeout(()=>stop('UPDATE_DOWNLOAD_TIMEOUT'),this.downloadIdleTimeout);idleTimer.unref?.();};
+        this.resetDownloadWatchdog();
+        const maximum=setTimeout(()=>stop('UPDATE_DOWNLOAD_TIMEOUT'),60*60*1000);maximum.unref?.();
         this.set({status: 'downloading', error: '', percent: 0, downloaded: 0});
         try {
             security.validateUpdateInfo(this.getEngine().updateInfoAndProvider?.info, this.manifest);
-            const paths = await this.engine.downloadUpdate(this.downloadToken);
-            if (this.downloadToken.cancelled) { this.set({status: 'available', percent: 0}); return this.status(); }
+            const paths = await abortable(this.engine.downloadUpdate(this.downloadToken),abort.signal);
+            if (this.downloadToken.cancelled) {if(this.downloadFailure)throw Error(this.downloadFailure);this.set({status:'available',percent:0,downloaded:0});return this.status();}
             if (!Array.isArray(paths) || paths.length !== 1 || typeof paths[0] !== 'string' || !path.isAbsolute(paths[0])) throw Error('UPDATE_INVALID_DOWNLOAD');
             await security.verifyFile(paths[0], this.manifest.files[0]);
+            if(this.downloadToken.cancelled){if(this.downloadFailure)throw Error(this.downloadFailure);this.set({status:'available',percent:0,downloaded:0});return this.status();}
             this.installer = paths[0];
             this.set({status: 'downloaded', percent: 100, downloaded: this.manifest.files[0].size});
         } catch (error) {
-            if (this.downloadToken.cancelled) this.set({status: 'available', percent: 0, error: ''});
+            if (this.downloadToken.cancelled&&!this.downloadFailure) this.set({status: 'available', percent: 0, downloaded:0, error: ''});
             else {
-                if (error.message === 'UPDATE_INVALID_DOWNLOAD') await this.engine.downloadedUpdateHelper?.clear?.().catch(() => {});
-                this.fail(error);
+                if (errorCode(error) === 'UPDATE_INVALID_DOWNLOAD') await this.engine.downloadedUpdateHelper?.clear?.().catch(() => {});
+                this.fail(this.downloadFailure?Error(this.downloadFailure):error);
             }
-        } finally { this.downloadToken = null; }
+        } finally {clearTimeout(idleTimer);clearTimeout(maximum);this.resetDownloadWatchdog=null;this.downloadToken = null;}
         return this.status();
     }
-    cancelDownload() { this.downloadToken?.cancel(); return this.status(); }
+    cancelDownload() {this.cancelledVersion=this.state.version;this.downloadToken?.cancel();return this.status();}
     async install() {
         if (this.disposed || !this.supported || this.state.status !== 'downloaded' || !this.installer || !this.manifest || this.installing) return false;
         const main = this.windows.get('main');
         if (!main || this.windows.closing.has(main.id)) return false;
         this.installing = true;
         try { await security.verifyFile(this.installer, this.manifest.files[0]); }
-        catch (error) { this.installing = false; this.fail(error); return false; }
+        catch (error) { this.installing = false;this.installer=null;await this.engine.downloadedUpdateHelper?.clear?.().catch(()=>{});this.fail(error);return false; }
         if (this.windows.get('main') !== main || main.isDestroyed?.() || this.windows.closing.has(main.id)) { this.installing = false; return false; }
         this.set({status: 'installing', error: ''});
         const cleanup = (removeQuit = true) => {
@@ -196,7 +213,7 @@ class UpdateService {
         return true;
     }
     dispose() {
-        this.disposed = true; clearTimeout(this.timer); this.checkAbort?.abort(); this.downloadToken?.cancel();
+        this.disposed = true; clearTimeout(this.timer); this.checkAbort?.abort(Error('UPDATE_STOPPED')); this.downloadToken?.cancel();
     }
 }
 module.exports = {UpdateService, CHECK_INTERVAL};

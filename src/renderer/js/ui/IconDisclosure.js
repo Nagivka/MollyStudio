@@ -1,12 +1,10 @@
 import {labelHTML} from '../core/Locale.mjs';
+import {motionEnabled} from './Motion.mjs';
+export {motionEnabled} from './Motion.mjs';
 let nextId = 0;
 const installed = new WeakSet();
 const active = new Map();
 const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
-
-export function motionEnabled() {
-    return !document.documentElement.classList.contains('no-animations') && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
 
 /** Labels stay visible; icons replace the browser's small disclosure triangle. */
 export function iconDisclosure({ label, icon, content, className = '', open = false, hidden = false }) {

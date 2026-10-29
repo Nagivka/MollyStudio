@@ -24,7 +24,7 @@ function requestBuffer(value, limit = 64 * 1024, signal, hops = 0) {
                 resolve(requestBuffer(next.href, limit, signal, hops + 1)); return;
             }
             if (response.statusCode !== 200) {
-                response.resume(); reject(Error(response.statusCode === 403 || response.statusCode === 429 ? 'UPDATE_RATE_LIMIT' : 'UPDATE_NETWORK')); return;
+                response.resume(); reject(Error(response.statusCode === 403 || response.statusCode === 429 ? 'UPDATE_RATE_LIMIT' : response.statusCode === 404 ? 'UPDATE_NOT_PUBLISHED' : 'UPDATE_NETWORK')); return;
             }
             const chunks = []; let length = 0;
             response.on('data', chunk => {

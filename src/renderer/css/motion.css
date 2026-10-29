@@ -8,9 +8,10 @@
     0%,100% {outline-color:color-mix(in srgb,var(--md-primary) 65%,transparent);}
     50% {outline-color:color-mix(in srgb,var(--md-primary) 80%,var(--md-secondary));}
 }
-:root:not(.no-animations):not(.no-animated-accents) :is(.md-btn.primary,.doc-tab.active,.settings-tab-btn.active) {
+:root {--ui-tab-animation:ui-tab-select;--ui-accent-animation:ui-accent-breathe;}
+:root:not(.no-animations) :is(.md-btn.primary,.doc-tab.active,.settings-tab-btn.active,.utility-tabs [aria-selected="true"]) {
     outline:1px solid var(--md-primary);outline-offset:-1px;
-    animation:ui-accent-breathe 6s ease-in-out infinite !important;
+    animation:var(--ui-tab-animation) 240ms var(--ui-enter-easing),var(--ui-accent-animation) 6s ease-in-out 240ms infinite;
 }
 ::view-transition-old(root),::view-transition-new(root) {animation:none;mix-blend-mode:normal;}
 ::view-transition-new(root) {z-index:1;}
@@ -38,9 +39,6 @@
 }
 :root:not(.no-animations) .tool-popover:popover-open {
     animation: ui-popover-enter 180ms var(--ui-enter-easing) backwards;
-}
-:root:not(.no-animations) :is(.settings-tab-btn.active, .doc-tab.active, .utility-tabs [aria-selected="true"]) {
-    animation: ui-tab-select 240ms var(--ui-enter-easing);
 }
 :root:not(.no-animations) .launcher-home :is(.launcher-home-topline, .launcher-welcome, .launcher-utilities, .launcher-recent-panel) {
     animation: var(--ui-content-animation) 360ms var(--ui-enter-easing) backwards;
@@ -74,5 +72,9 @@
     *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
 .no-card-motion .m3-recent-card {transform:none !important;transition:none !important;}
-.no-animated-accents :is(.md-btn.primary,.doc-tab.active,.settings-tab-btn.active) {animation:none !important;}
+:root.no-animated-accents {--ui-accent-animation:none;}
 .no-click-effects :is(.ui-click-response,.md-ripple-wave) {display:none !important;}
+:root:is([data-theme="minecraft"],[data-theme="light-minecraft"]) {--ui-tab-animation:ui-popover-enter;}
+:root:is([data-theme="minecraft"],[data-theme="light-minecraft"]) :is(.md-btn,.md-icon-btn,.m3-segment-item,.m3-chip,.ui-disclosure-trigger):active:not(:disabled) {scale:1;}
+:root.no-animations *, :root.no-animations *::before, :root.no-animations *::after {animation:none !important;transition:none !important;scroll-behavior:auto !important;}
+@media (prefers-reduced-motion:reduce) {*,*::before,*::after{animation:none !important;transition:none !important;scroll-behavior:auto !important;}}

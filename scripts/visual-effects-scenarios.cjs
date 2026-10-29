@@ -23,6 +23,19 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
                 card.dispatchEvent(new PointerEvent('pointerout',{bubbles:true,relatedTarget:document.body}));expect(!card.style.transform,'Card resets on pointer exit');
             }
             expect(document.querySelector('.doc-tab.active').getAnimations().some(a=>a.animationName==='ui-accent-breathe'),'Active accents have a running color animation');
+            e.settingsManager.set('theme','dark');
+            e.settingsManager.set('animatedAccentsEnabled',false);
+            const tab=document.querySelector('.doc-tab.active');tab.classList.remove('active');void tab.offsetWidth;tab.classList.add('active');
+            expect(tab.getAnimations().some(a=>a.animationName==='ui-tab-select')&&!tab.getAnimations().some(a=>a.animationName==='ui-accent-breathe'),'Turning accents off preserves tab-selection animation');
+            e.settingsManager.set('animatedAccentsEnabled',true);
+            const {animateUI}=await import(new URL('js/ui/Motion.mjs',location.href));
+            const scripted=animateUI(button,[{opacity:.3},{opacity:1}],{duration:10000});
+            e.settingsManager.set('animationsEnabled',false);await wait(30);
+            expect(scripted.playState==='idle','Disabling motion cancels an already running scripted animation');
+            e.settingsManager.set('animationsEnabled',true);
+            // Ripple temporarily clips its own wave and must restore host layout afterwards.
+            button.classList.add('md-btn');button.style.position='static';button.style.overflow='visible';click();await wait(750);
+            expect(button.style.position==='static'&&button.style.overflow==='visible'&&!button.querySelector('.md-ripple-wave'),'Ripple cleanup restores the button original positioning and overflow');
             const {revealTheme}=await import(new URL('js/ui/VisualEffects.js',location.href));
             revealTheme(()=>e.settingsManager.set('theme','light'),button);await wait(170);
             expect(document.documentElement.dataset.theme==='light','Theme reveal applies the selected theme');

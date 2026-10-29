@@ -9,6 +9,7 @@ const security = require('../../src/main/update-security.cjs');
 const {allowedURL} = require('../../src/main/update-network.cjs');
 const {UpdateService} = require('../../src/main/updates.cjs');
 const {prepareRelease} = require('../../scripts/release/sign.cjs');
+const {abortable,requestWithRetry,errorCode}=require('../../src/main/update-operations.cjs');
 
 async function fixture(t, options = {}) {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), 'molly-update-unit-'));
@@ -128,4 +129,52 @@ test('concurrent preference edits preserve both switches on disk',async t=>{
     await Promise.all([f.service.configure({autoCheck:false}),f.service.configure({autoDownload:true})]);
     const saved=JSON.parse(await fs.readFile(path.join(f.root,'update-preferences.json'),'utf8'));
     assert.equal(saved.autoCheck,false);assert.equal(saved.autoDownload,true);
+});
+
+test('transient requests retry, while rate limits and validation failures fail once',async()=>{
+    const controller=new AbortController();let attempts=0;
+    const bytes=await requestWithRetry(async()=>{if(++attempts<3)throw Object.assign(Error('reset'),{code:'ECONNRESET'});return Buffer.from('ok');},[],controller.signal,[0,1,1]);
+    assert.equal(bytes.toString(),'ok');assert.equal(attempts,3);
+    for(const code of ['UPDATE_RATE_LIMIT','UPDATE_INVALID_SIGNATURE','UPDATE_NOT_PUBLISHED']){
+        attempts=0;await assert.rejects(requestWithRetry(async()=>{attempts++;throw Error(code);},[],controller.signal,[0,1,1]),new RegExp(code));assert.equal(attempts,1);
+    }
+});
+test('check watchdog includes native provider metadata and ignores late completion',async t=>{
+    const f=await fixture(t,{checkTimeout:20});let finish;
+    f.engine.checkForUpdates=()=>new Promise(resolve=>{finish=resolve;});
+    const keepAlive=setTimeout(()=>{},1000);t.after(()=>clearTimeout(keepAlive));
+    await f.service.check();assert.equal(f.service.state.error,'UPDATE_CHECK_TIMEOUT');assert.equal(f.service.preferences.lastChecked,0);
+    finish({isUpdateAvailable:true,updateInfo:f.info});await new Promise(resolve=>setImmediate(resolve));
+    assert.equal(f.service.state.status,'error');assert.equal(f.service.manifest,null);
+    f.advance();f.engine.checkForUpdates=async()=>({isUpdateAvailable:true,updateInfo:f.info});
+    await f.service.check();assert.equal(f.service.state.status,'available');
+});
+test('stalled download can fail and retry; deliberate cancellation suppresses automatic restart',async t=>{
+    const f=await fixture(t,{downloadIdleTimeout:15});await f.service.check();
+    f.engine.downloadUpdate=token=>new Promise((resolve,reject)=>token.onCancel(()=>reject(Error('cancelled'))));
+    const keepAlive=setTimeout(()=>{},1000);t.after(()=>clearTimeout(keepAlive));
+    await f.service.download();assert.equal(f.service.state.error,'UPDATE_DOWNLOAD_TIMEOUT');
+    let cancel;
+    f.engine.downloadUpdate=token=>new Promise((resolve,reject)=>{cancel=()=>{f.service.cancelDownload();};token.onCancel(()=>reject(Error('cancelled')));});
+    const pending=f.service.download();await new Promise(resolve=>setImmediate(resolve));cancel();await pending;
+    assert.equal(f.service.state.status,'available');
+    await f.service.configure({autoDownload:true});
+    // Explicitly enabling the preference is allowed to restart; cancelling again must stick.
+    await new Promise(resolve=>setImmediate(resolve));cancel();await f.service.downloading;
+    f.advance();await f.service.check();assert.equal(f.service.downloading,null);assert.equal(f.service.state.status,'available');
+    f.engine.downloadUpdate=async()=>[path.join(f.root,'dist',f.name)];await f.service.download();assert.equal(f.service.state.status,'downloaded');
+});
+test('aborted operations and disk errors expose safe actionable codes',async()=>{
+    const controller=new AbortController(),pending=abortable(new Promise(()=>{}),controller.signal);
+    controller.abort(Error('UPDATE_CHECK_TIMEOUT'));await assert.rejects(pending,/UPDATE_CHECK_TIMEOUT/);
+    assert.equal(errorCode({code:'ENOSPC',message:'private path'}),'UPDATE_DISK_FULL');
+    assert.equal(errorCode({code:'EACCES',message:'private path'}),'UPDATE_ACCESS_DENIED');
+    assert.equal(errorCode(Error('private path')),'UPDATE_NETWORK');
+});
+
+test('download watchdog settles even if the native downloader ignores cancellation',async t=>{
+    const f=await fixture(t,{downloadIdleTimeout:15});await f.service.check();
+    f.engine.downloadUpdate=()=>new Promise(()=>{});
+    const keepAlive=setTimeout(()=>{},1000);t.after(()=>clearTimeout(keepAlive));
+    await f.service.download();assert.equal(f.service.state.error,'UPDATE_DOWNLOAD_TIMEOUT');assert.equal(f.service.downloading,null);
 });

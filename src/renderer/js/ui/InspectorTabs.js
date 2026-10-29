@@ -1,4 +1,5 @@
 import {bindText, bindAttribute} from '../core/Locale.mjs';
+import {animateUI} from './Motion.mjs';
 /** Shared inspector navigation. Moving nodes preserves their bound controls. */
 export default class InspectorTabs {
     constructor(container, definitions, {id, before = null, canSwitch = () => true} = {}) {
@@ -60,9 +61,9 @@ export default class InspectorTabs {
         }
         if (changed) {
             this.container.scrollTop = this.scroll.get(key) || 0;
-            const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.classList.contains('no-animations');
-            if (!reduced && window.mollyEditor?.settingsManager.get('animationsEnabled') !== false)
-                target.panel.animate([{opacity: .2, transform: 'translateY(4px)'}, {opacity: 1, transform: 'translateY(0)'}], {duration: 160, easing: 'ease-out'});
+            for(const tab of this.tabs)if(tab!==target)for(const animation of tab.panel.getAnimations())animation.cancel();
+            const pixel=document.documentElement.dataset.theme?.includes('minecraft');
+            animateUI(target.panel,pixel?[{opacity:.2},{opacity:1}]:[{opacity:.2,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:160,easing:'ease-out'});
         }
         return true;
     }

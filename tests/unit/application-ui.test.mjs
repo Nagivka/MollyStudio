@@ -43,19 +43,22 @@ test('selects reserve an arrow gutter even when legacy controls use inline paddi
 });
 
 test('shared and page-level startup install just one ripple listener per document', () => {
-    const previous = globalThis.document;
+    const globals=['document','window','MutationObserver','matchMedia'];
+    const previous=Object.fromEntries(globals.map(key=>[key,globalThis[key]]));
     const events = [];
     globalThis.document = { addEventListener: (name, handler) => events.push({ name, handler }) };
+    globalThis.window={addEventListener(){}};
+    globalThis.MutationObserver=class{observe(){}};
+    globalThis.matchMedia=()=>({addEventListener(){},matches:false});
     try {
         initRippleEffect();
         initRippleEffect();
-        assert.equal(events.length, 1);
-        assert.equal(events[0].name, 'pointerdown');
+        const pointers=events.filter(event=>event.name==='pointerdown');
+        assert.equal(pointers.length, 1);
         // A disabled button must not create any visual node or cleanup timer.
-        events[0].handler({ button: 0, target: { closest: selector => selector === 'input, select, textarea' ? null : { disabled: true } } });
+        pointers[0].handler({ button: 0, target: { closest: selector => selector === 'input, select, textarea' ? null : { disabled: true } } });
     } finally {
-        if (previous === undefined) delete globalThis.document;
-        else globalThis.document = previous;
+        for(const key of globals)if(previous[key]===undefined)delete globalThis[key];else globalThis[key]=previous[key];
     }
 });
 

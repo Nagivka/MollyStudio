@@ -35,6 +35,8 @@ async function installFixture(electron,runtime,profile) {
         whenReady:()=>electron.app.whenReady(),onQuit(){},quit(){}};
     await fs.writeFile(adapter.appUpdateConfigPath,'updaterCacheDirName: fixture-updater\n');
     const engine=new NsisUpdater(undefined,adapter);engine.httpExecutor=new ElectronHttpExecutor(()=>{});
+    const download=engine.downloadUpdate.bind(engine);
+    engine.downloadUpdate=token=>{if(fixture.failNextDownload){fixture.failNextDownload=false;return Promise.reject(Object.assign(Error('fixture disk full'),{code:'ENOSPC'}));}return download(token);};
     const setFeed=engine.setFeedURL.bind(engine);engine.setFeedURL=()=>setFeed({provider:'generic',url:`http://127.0.0.1:${server.address().port}/`,useMultipleRangeRequest:false});
     engine.quitAndInstall=()=>{engine.quitAndInstallCalled=true;fixture.installed++;};
     const fakeApp=new EventEmitter();Object.assign(fakeApp,{isPackaged:true,getPath:()=>directory,getVersion:()=> '1.4.1',quit:()=>fakeApp.emit('will-quit',{preventDefault(){}})});
