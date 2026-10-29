@@ -1,0 +1,22 @@
+name: Check release repository access
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  check:
+    if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: UPDATES_REPO_TOKEN
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify destination and token without changing releases
+        env:
+          RELEASES_TOKEN: ${{ secrets.UPDATES_REPO_TOKEN }}
+          SOURCE_TOKEN: ${{ github.token }}
+        run: node scripts/release/publish.cjs --check-access

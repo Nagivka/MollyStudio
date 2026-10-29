@@ -32,7 +32,7 @@ function mockApi({sourcePrivate = true, targetPrivate = false, existing = false,
     return {calls, fetchImpl: async (url, options) => {
         calls.push({url, ...options});
         if (url === 'https://api.github.com/repos/Nagivka/MollyStudio') return response({full_name: 'Nagivka/MollyStudio', private: sourcePrivate});
-        if (url === 'https://api.github.com/repos/Nagivka/MollyStudio-Releases') return response({full_name: 'Nagivka/MollyStudio-Releases', private: targetPrivate});
+        if (url === 'https://api.github.com/repos/Nagivka/MollyStudio-Releases') return response({full_name: 'Nagivka/MollyStudio-Releases', private: targetPrivate, permissions: {push: true}});
         if (url.endsWith('/tags/v1.4.1')) return existing ? response({id: 42}) : response(null, 404);
         if (url.startsWith('https://uploads.github.com/')) return response({state: 'uploaded', size: options.body.length,
             name: new URL(url).searchParams.get('name'), digest: badDigest ? 'sha256:wrong' : `sha256:${hash(options.body)}`});
@@ -83,4 +83,12 @@ test('missing token stops before network access', async t => {
     const f = await fixture(t), api = mockApi(); delete f.env.RELEASES_TOKEN;
     await assert.rejects(publish({...f, fetchImpl: api.fetchImpl}), /UPDATES_REPO_TOKEN/);
     assert.equal(api.calls.length, 0);
+});
+
+test('access check performs only repository metadata reads without artifacts or publication', async t => {
+    const f = await fixture(t), api = mockApi();
+    await fs.rm(path.join(f.root, 'dist'), {recursive: true});
+    assert.deepEqual(await publish({...f, fetchImpl: api.fetchImpl, checkAccessOnly: true}), {checked: true});
+    assert.equal(api.calls.length, 2);
+    assert.ok(api.calls.every(call => call.method === 'GET'));
 });
