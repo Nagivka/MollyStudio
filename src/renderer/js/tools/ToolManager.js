@@ -1,4 +1,5 @@
 import {bindText} from '../core/Locale.mjs';
+import {contextClick} from '../core/Platform.mjs';
 import BrushTool from './BrushTool.js';
 import PencilTool from './PencilTool.js';
 import EraserTool from './EraserTool.js';
@@ -317,6 +318,7 @@ export default class ToolManager {
     }
 
     onPointerDown(x, y, e) {
+        if(contextClick(e))return;
         if (!Number.isFinite(x) || !Number.isFinite(y)) return;
         if (this.pointerSession) this.finishPointer();
         const tool = this.getActiveTool();

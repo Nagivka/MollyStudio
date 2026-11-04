@@ -1,5 +1,6 @@
 import TransformOverlay from './TransformOverlay.js';
 import {bindAttribute} from '../core/Locale.mjs';
+import {textNavigation} from '../core/Platform.mjs';
 import {CreateObjectCommand, TextDataCommand} from '../core/Commands.js';
 import {captureTextState, restoreTextState} from '../graphics/TextEdit.mjs';
 import {textMatrix,textWorldPoint,textLocalPoint} from '../graphics/TextTransform.mjs';
@@ -179,15 +180,15 @@ export default class CanvasTextEditor {
                 event.preventDefault();window.mollyEditor?.menuBar.handleAction(event.shiftKey?'file-save-as':'file-save');return;
             }
             if(event.key==='Escape'){event.preventDefault();event.stopPropagation();this.finish(false);return;}
-            if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(event.key)||event.altKey)return;
+            const navigation=textNavigation(event);if(!navigation)return;
             event.preventDefault();this.history.breakGroup();
             const layout=this.tool.getTextLayout(this.layer),range=this.selection(),caret=caretPosition(layout,range.focus,this.line);let hit;
-            if(['ArrowLeft','ArrowRight'].includes(event.key)){
-                const direction=event.key==='ArrowLeft'?-1:1;
-                hit=!event.shiftKey&&range.start!==range.end&&!modifier?{index:direction<0?range.start:range.end,line:null}:moveHorizontal(layout,range.focus,this.line,direction,modifier);this.goalX=null;
-            }else if(['Home','End'].includes(event.key)){
-                const end=event.key==='End',row=layout.lines[caret.line];hit={index:modifier?end?layout.text.length:0:end?row.end:row.start,line:modifier?null:caret.line};this.goalX=null;
-            }else{hit=moveVertical(layout,range.focus,this.line,event.key==='ArrowUp'?-1:1,this.goalX);this.goalX=hit.goalX;}
+            if(navigation.kind==='horizontal'){
+                const {direction,word}=navigation;
+                hit=!event.shiftKey&&range.start!==range.end&&!word?{index:direction<0?range.start:range.end,line:null}:moveHorizontal(layout,range.focus,this.line,direction,word);this.goalX=null;
+            }else if(navigation.kind==='line'||navigation.kind==='document'){
+                const {end}=navigation,row=layout.lines[caret.line],whole=navigation.kind==='document';hit={index:whole?end?layout.text.length:0:end?row.end:row.start,line:whole?null:caret.line};this.goalX=null;
+            }else{hit=moveVertical(layout,range.focus,this.line,navigation.direction,this.goalX);this.goalX=hit.goalX;}
             this.caret(hit.index,event.shiftKey?range.anchor:hit.index,hit.line);this.ensureVisible();
         });
         document.addEventListener('selectionchange',()=>{if(this.active&&document.activeElement===input){this.blink=true;this.render();}});

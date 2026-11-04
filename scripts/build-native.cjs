@@ -5,6 +5,9 @@ const {run}=require('./lib/portable-tools.cjs');
 const {updateTarget,targetReleaseNames}=require('../src/main/update-targets.cjs');
 const root=path.resolve(__dirname,'..');
 async function buildNative(platform=process.platform,arch=process.arch){
+    // GitHub resolves absent optional secrets to empty strings. The signer
+    // interprets an empty CSC_LINK as the current directory, not "no certificate".
+    for(const name of ['CSC_LINK','CSC_NAME','CSC_KEY_PASSWORD','APPLE_ID','APPLE_APP_SPECIFIC_PASSWORD','APPLE_TEAM_ID','APPLE_API_KEY'])if(process.env[name]==='')delete process.env[name];
     if(platform==='win32')return run(process.execPath,[path.join(__dirname,'build-installer.cjs')],{cwd:root});
     if(!['darwin','linux'].includes(platform)||process.platform!==platform)throw Error('Build macOS on macOS and Linux on Linux.');
     const target=updateTarget(platform,arch);if(!target)throw Error('Supported architectures: x64, arm64.');
