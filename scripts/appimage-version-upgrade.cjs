@@ -25,9 +25,9 @@ async function main() {
         for (const version of [previousVersion, nextVersion]) {
             await build({targets: Platform.LINUX.createTarget(['AppImage'], Arch[process.arch]), publish: 'never', config: {
                 directories: {output: path.join(directory, version, 'dist')},
-                extraMetadata: {version, main: '.fixture-entry.cjs'}, buildVersion: version + '.0',
+                extraMetadata: {version, main: 'scripts/lib/appimage-update-entry.cjs'}, buildVersion: version + '.0',
                 files: [...require('../electron-builder.cjs').files,
-                    {from: 'scripts/lib/appimage-update-entry.cjs', to: '.fixture-entry.cjs'}],
+                    'scripts/lib/appimage-update-entry.cjs'],
                 linux: {artifactName: 'MollyStudio-${version}.0-${arch}-linux.${ext}'}
             }});
         }
