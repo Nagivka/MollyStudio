@@ -28,7 +28,7 @@ async function main() {
                 extraMetadata: {version, main: 'scripts/lib/appimage-update-entry.cjs'}, buildVersion: version + '.0',
                 files: [...require('../electron-builder.cjs').files,
                     'scripts/lib/appimage-update-entry.cjs'],
-                linux: {artifactName: 'MollyStudio-${version}.0-${arch}-linux.${ext}'}
+                linux: {artifactName: targetReleaseNames(version, target)[0]}
             }});
         }
         const nextRoot = path.join(directory, nextVersion), name = targetReleaseNames(nextVersion, target)[0];
@@ -87,4 +87,4 @@ async function main() {
         await fs.rm(directory, {recursive: true, force: true});
     }
 }
-main().catch(error => {console.error(error);process.exitCode = 1;});
+main().catch(error => {console.error(error);process.exit(1);});

@@ -41,6 +41,7 @@ jobs:
             launch=(aa-exec -p mollystudio-ci-upgrade --)
           fi
           "${launch[@]}" xvfb-run -a node scripts/appimage-version-upgrade.cjs
+          test -s .test-output/appimage-version-upgrade.json
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         if: always()
         with:
