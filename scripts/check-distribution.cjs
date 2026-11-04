@@ -43,6 +43,6 @@ const digest = bytes => createHash('sha256').update(bytes).digest('hex');
         requiresNewBuild:!!differences.length,cleanWindowsVerified:false};
     await fs.mkdir(path.join(root,'.test-output'),{recursive:true});
     await fs.writeFile(path.join(root,'.test-output/distribution-preflight.json'),JSON.stringify(report,null,2));
-    console.log(JSON.stringify({passed:report.passed,chromiumRuntimePresent:report.chromiumRuntimePresent,differentFiles:differences.length,unexpectedFiles:unexpected.length,requiresNewBuild:report.requiresNewBuild,cleanWindowsVerified:false}));
+    console.log(JSON.stringify({passed:report.passed,chromiumRuntimePresent:report.chromiumRuntimePresent,missingRuntime,differentFiles:differences.length,unexpectedFiles:unexpected.length,requiresNewBuild:report.requiresNewBuild,cleanWindowsVerified:false}));
     if(!report.passed)process.exitCode=1;
 })().catch(error=>{console.error(error.message);process.exitCode=1;});

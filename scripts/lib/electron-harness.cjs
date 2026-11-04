@@ -19,7 +19,7 @@ function environment() {
 async function ready(settings = {}) {
     options = settings;
     application = await _electron.launch({executablePath: require('electron'),
-        args: [root, '--force-device-scale-factor=1', '--lang=ru', ...(process.env.CI&&process.platform==='linux'?['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']:[]), ...(settings.args || [])], env: environment(), timeout: 30000});
+        args: [root, '--force-device-scale-factor=1', '--lang=ru', ...(process.env.CI&&(process.platform==='linux'||process.platform==='darwin'&&process.arch==='x64')?['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']:[]), ...(settings.args || [])], env: environment(), timeout: 30000});
     application.process().stdout?.on('data', bytes => { log += bytes; });
     application.process().stderr?.on('data', bytes => { log += bytes; });
     context = application.context();

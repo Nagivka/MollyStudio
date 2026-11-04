@@ -4,6 +4,7 @@
   "description": "Редактор Minecraft GUI, пиксельной графики и префиксов",
   "homepage": "https://github.com/Nagivka/MollyStudio-Releases",
   "author": "nagivka",
+  "desktopName": "mollystudio.desktop",
   "license": "MIT",
   "scripts": {
     "test:basement": "node scripts/run-electron-check.cjs scripts/basement-scenarios.cjs",

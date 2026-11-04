@@ -19,7 +19,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
   finally{r.loadFor=originalLoad;}
   expect(!e.panel.inert&&!e.viewport.stage.inert&&JSON.stringify(p.titleData)===stable,'An opening failure releases controls without changing the last complete title');
   const retry=e.panel.querySelector('[data-title-retry]');expect(!retry.hidden&&!retry.disabled,'An opening failure exposes a usable retry action');retry.click();for(let i=0;e.opening&&i<200;i++)await new Promise(resolve=>setTimeout(resolve,10));
-  expect(retry.hidden&&!retry.disabled,'Retrying loads the document and removes the recovery action');
+  expect(retry.hidden&&!retry.disabled,'Retrying loads the document and removes the recovery action: '+e.panel.querySelector('.title-warning').textContent);
   await e.show(p);expect(e.panel.querySelector('.title-warning').textContent==='','Reopening a cached title clears the completed loading status');
   e.change(value=>{value.text='🚀';});const missingWarning=e.panel.querySelector('.title-warning').textContent;await e.show(p);
   expect(missingWarning.includes('🚀')&&e.panel.querySelector('.title-warning').textContent===missingWarning,'Reopening a cached title preserves the actual unsupported-character warning');

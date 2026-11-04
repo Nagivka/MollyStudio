@@ -14,7 +14,8 @@ async function buildNative(platform=process.platform,arch=process.arch){
     const {build,Platform,Arch}=require('electron-builder'),pkg=require('../package.json');
     const signed=platform==='darwin'&&Boolean(process.env.CSC_LINK||process.env.CSC_NAME&&process.env.CSC_NAME!=='-');
     const config={extraMetadata:{mollyMacUpdates:signed}};
-    if(platform==='darwin')config.mac={...(!signed?{identity:'-'}:{}),notarize:signed&&Boolean(process.env.APPLE_API_KEY||process.env.APPLE_ID&&process.env.APPLE_APP_SPECIFIC_PASSWORD&&process.env.APPLE_TEAM_ID)};
+    if(platform==='darwin')config.mac={artifactName:`MollyStudio-${pkg.version}.0-${arch}-mac.\${ext}`,...(!signed?{identity:'-',hardenedRuntime:false}:{}),notarize:signed&&Boolean(process.env.APPLE_API_KEY||process.env.APPLE_ID&&process.env.APPLE_APP_SPECIFIC_PASSWORD&&process.env.APPLE_TEAM_ID)};
+    else config.linux={artifactName:`MollyStudio-${pkg.version}.0-${arch}-linux.\${ext}`};
     const artifacts=await build({targets:(platform==='darwin'?Platform.MAC:Platform.LINUX).createTarget(platform==='darwin'?['dmg','zip']:['AppImage','deb','tar.gz'],Arch[arch]),config,publish:'never'});
     const output=path.join(root,'dist'),checksums=[];
     for(const file of artifacts){if(!/\.(?:dmg|zip|AppImage|deb|tar\.gz)$/.test(file))continue;
@@ -28,5 +29,5 @@ async function buildNative(platform=process.platform,arch=process.arch){
     const report={platform,arch,signed,version:pkg.version,files:checksums,unpacked,checkedAt:new Date().toISOString()};
     await fs.writeFile(path.join(output,`build-${platform}-${arch}.json`),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));return report;
 }
-if(require.main===module)buildNative(process.argv[2]||process.platform,process.argv[3]||process.arch).catch(error=>{console.error(error);process.exitCode=1;});
+if(require.main===module)buildNative(process.argv[2]||process.platform,process.argv[3]||process.arch).catch(error=>{console.error(error);process.exit(1);});
 module.exports={buildNative};
