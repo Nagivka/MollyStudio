@@ -4,6 +4,7 @@ const path = require('node:path');
 const {checkContext,checkInputs,resumeChecks}=require('./lib/check-inputs.cjs');
 const root=path.resolve(__dirname,'..'),results=[];
 const suites=['startup-scenarios','electron-smoke','file-open-scenarios','lifecycle-scenarios','user-scenarios','tool-scenarios','text-scenarios','property-scenarios','export-scenarios','prefix-scenarios','audit-scenarios','utility-scenarios','launcher-scenarios','ui-motion-scenarios','usability-scenarios','localization-scenarios','session-scenarios','save-error-scenarios'];
+suites.splice(suites.indexOf('electron-smoke')+1,0,'platform-scenarios');
 suites.splice(suites.indexOf('usability-scenarios')+1,0,'gui-style-scenarios');
 suites.splice(suites.indexOf('ui-motion-scenarios')+1,0,'weather-scenarios');
 suites.splice(suites.indexOf('text-scenarios')+1,0,'canvas-text-scenarios');

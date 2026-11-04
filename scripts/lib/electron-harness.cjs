@@ -18,8 +18,25 @@ function environment() {
 }
 async function ready(settings = {}) {
     options = settings;
-    application = await _electron.launch({executablePath: require('electron'),
-        args: [root, '--force-device-scale-factor=1', '--lang=ru', ...(process.env.CI&&(process.platform==='linux'||process.platform==='darwin'&&process.arch==='x64')?['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']:[]), ...(settings.args || [])], env: environment(), timeout: 30000});
+    const intelGraphics=process.env.CI&&process.platform==='darwin'&&process.arch==='x64'&&settings.graphics;
+    // Hosted Intel Macs have no Metal-capable GPU. Probe CI-only backends;
+    // these switches are never part of application startup or distributions.
+    const candidates=intelGraphics?[
+        ['--use-gl=angle','--use-angle=gl','--ignore-gpu-blocklist'],
+        ['--use-gl=angle','--use-angle=swiftshader-webgl','--enable-unsafe-swiftshader','--ignore-gpu-blocklist'],
+        ['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist'],
+        ['--use-gl=angle','--use-angle=metal','--ignore-gpu-blocklist']
+    ]:[process.env.CI&&process.platform==='linux'?['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']:[]];
+    const probes=[];
+    for(const switches of candidates){
+        application = await _electron.launch({executablePath: require('electron'),args:[root,'--force-device-scale-factor=1','--lang=ru',...switches,...(settings.args||[])],env:environment(),timeout:30000});
+        if(!intelGraphics)break;
+        const page=await application.firstWindow(),available=await page.evaluate(()=>{const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl',{antialias:true,preserveDrawingBuffer:true});if(!gl)return false;gl.getExtension('WEBGL_lose_context')?.loseContext();return true;});
+        probes.push({switches,available,features:await application.evaluate(({app})=>app.getGPUFeatureStatus())});
+        if(available)break;
+        await application.evaluate(({app})=>app.exit(0));await application.close();application=null;
+    }
+    if(intelGraphics){await fs.mkdir(path.join(root,'.test-output'),{recursive:true});await fs.writeFile(path.join(root,'.test-output/ci-graphics.json'),JSON.stringify(probes,null,2));if(!application)throw Error('No WebGL backend on the hosted Intel Mac: '+JSON.stringify(probes));}
     application.process().stdout?.on('data', bytes => { log += bytes; });
     application.process().stderr?.on('data', bytes => { log += bytes; });
     context = application.context();

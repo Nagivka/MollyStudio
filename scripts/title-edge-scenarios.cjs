@@ -1,7 +1,7 @@
 const fs=require('node:fs/promises'),path=require('node:path');
 const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
 (async()=>{let win;try{
- await ready();win=makeWindow(1280,900);await win.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:'title',name:'Title edge audit'}});await settle(win);
+ await ready({graphics:true});win=makeWindow(1280,900);await win.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:'title',name:'Title edge audit'}});await settle(win);
  const checks=await win.page.evaluate(async()=>{
   const a=mollyEditor,e=a.titleEditor,r=e.renderer;await a.getActiveProject().prefixLoadPromise;
   const checks=[],expect=(ok,label)=>{if(!ok)throw Error(label);checks.push(label);};

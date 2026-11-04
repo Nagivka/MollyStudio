@@ -45,6 +45,12 @@ test('atomic writes accept long destination names and keep the original after a 
     assert.deepEqual(await fs.readdir(root), [path.basename(file)]);
 }));
 
+test('an explicit packaged profile is isolated without enabling private test controls',async()=>fixture(async root=>{
+    const directory=path.join(root,'отдельный профиль'),paths=new Map(),app={isPackaged:true,commandLine:{getSwitchValue:()=>directory},setPath:(name,value)=>paths.set(name,value)};
+    assert.equal(configureProfile(app,root),null);assert.equal(paths.get('userData'),syncFs.realpathSync.native(directory));assert.equal(paths.get('sessionData'),paths.get('userData'));
+    app.commandLine.getSwitchValue=()=> '../relative-profile';assert.throws(()=>configureProfile(app),/absolute path/);
+}));
+
 test('large export payloads decode without a recursive repeated-group expression', () => {
     const expected = Buffer.alloc(5 * 1024 * 1024, 91);
     assert.deepEqual(decode(expected.toString('base64'), 'base64'), expected);

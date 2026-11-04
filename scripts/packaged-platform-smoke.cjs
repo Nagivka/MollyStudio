@@ -6,9 +6,9 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeou
     const report=JSON.parse(await fs.readFile(path.join(root,`dist/build-${process.platform}-${process.arch}.json`),'utf8'));
     const directory=await fs.mkdtemp(path.join(os.tmpdir(),'molly-packaged-smoke-')),profile=path.join(directory,'profile'),fixture=path.join(directory,'fixture.mlst');
     await fs.mkdir(profile);await fs.writeFile(path.join(profile,'update-preferences.json'),JSON.stringify({autoCheck:false,autoDownload:false}));
-    await fs.writeFile(fixture,JSON.stringify({version:'1.4.5',type:'canvas',name:'Native smoke',config:{width:64,height:64},layers:[]}));
+    await fs.writeFile(fixture,JSON.stringify({mollyVersion:2,type:'canvas',name:'Native smoke',config:{width:64,height:64},layers:[]}));
     const server=net.createServer();server.listen(0,'127.0.0.1');await once(server,'listening');const port=server.address().port;await new Promise(resolve=>server.close(resolve));
-    const executable=distributionLayout(path.join(root,report.unpacked),process.platform).executable;
+    const executable=process.argv[2]||distributionLayout(path.join(root,report.unpacked),process.platform).executable;
     const env={...process.env};for(const key of ['MOLLY_TEST_PROFILE','MOLLY_MANUAL_CHECK','ELECTRON_RUN_AS_NODE','NODE_OPTIONS'])delete env[key];
     let child,browser,log='';
     try{
@@ -37,10 +37,11 @@ const root=path.resolve(__dirname,'..'),delay=ms=>new Promise(resolve=>setTimeou
         const saved=JSON.parse(await fs.readFile(fixture,'utf8')),pixels=PNG.sync.read(Buffer.from(result.png.split(',')[1],'base64'));
         const expected=PNG.sync.read(Buffer.from(saved.layers.at(-1).dataUrl.split(',')[1],'base64'));
         if(!pixels.data.equals(expected.data))throw Error('Packaged export pixels differ from saved MLST');
-        const closed=page.waitForEvent('close');await page.evaluate(()=>desktopAPI.close());await closed;
-        const output={passed:true,platform:process.platform,arch:process.arch,packaged:true,productionFuses:true,associationArgumentOpened:true,mlstSaved:true,pngPixelsEqual:true,cleanClose:true,checkedAt:new Date().toISOString()};
-        await fs.mkdir(path.join(root,'.test-output'),{recursive:true});await fs.writeFile(path.join(root,'.test-output/packaged-platform-smoke.json'),JSON.stringify(output,null,2));console.log(JSON.stringify(output));
+        const closed=page.waitForEvent('close');await page.evaluate(()=>{setTimeout(()=>desktopAPI.close(),50);});await closed;
+        const output={passed:true,platform:process.platform,arch:process.arch,packaged:true,installed:process.argv[3]==='installed',productionFuses:true,associationArgumentOpened:true,mlstSaved:true,pngPixelsEqual:true,cleanClose:true,checkedAt:new Date().toISOString()};
+        await fs.mkdir(path.join(root,'.test-output'),{recursive:true});await fs.writeFile(path.join(root,`.test-output/packaged-platform-smoke${output.installed?'-installed':''}.json`),JSON.stringify(output,null,2));console.log(JSON.stringify(output));
     }finally{
+        await fs.mkdir(path.join(root,'.test-output'),{recursive:true});await fs.writeFile(path.join(root,'.test-output/packaged-process.log'),log);
         await browser?.close().catch(()=>{});
         if(child&&child.exitCode===null){const stopped=once(child,'exit');child.kill();await Promise.race([stopped,delay(10000)]);}
         if(path.dirname(directory)!==os.tmpdir()||!path.basename(directory).startsWith('molly-packaged-smoke-'))throw Error('Invalid smoke cleanup path');

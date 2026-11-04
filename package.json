@@ -22,6 +22,7 @@
     "dist:portable": "node scripts/build-portable.cjs",
     "test:manual": "node scripts/manual-check.cjs",
     "test:desktop": "node scripts/run-electron-check.cjs scripts/electron-smoke.cjs",
+    "test:platform": "node scripts/run-electron-check.cjs scripts/platform-scenarios.cjs",
     "test:startup": "node scripts/run-electron-check.cjs scripts/startup-scenarios.cjs",
     "test:files": "node scripts/run-electron-check.cjs scripts/file-open-scenarios.cjs",
     "test:lifecycle": "node scripts/run-electron-check.cjs scripts/lifecycle-scenarios.cjs",
