@@ -80,7 +80,15 @@ async function checkProjectAssociation(executable, fixture) {
         const saved=JSON.parse(await fs.readFile(fixture,'utf8')),pixels=PNG.sync.read(Buffer.from(result.png.split(',')[1],'base64'));
         const expected=PNG.sync.read(Buffer.from(saved.layers.at(-1).dataUrl.split(',')[1],'base64'));
         if(!pixels.data.equals(expected.data))throw Error('Packaged export pixels differ from saved MLST');
-        if(appImage && !await page.evaluate(async()=>Boolean((await desktopAPI.getUpdateStatus()).supported)))throw Error('AppImage update channel is unavailable');
+        if(appImage){
+            if(!await page.evaluate(async()=>Boolean((await desktopAPI.getUpdateStatus()).supported)))throw Error('AppImage update channel is unavailable');
+            const session=await browser.newBrowserCDPSession();
+            const {processInfo}=await session.send('SystemInfo.getProcessInfo');
+            await session.detach();
+            const renderer=processInfo.find(process=>process.type==='renderer');
+            const status=renderer&&await fs.readFile(`/proc/${renderer.id}/status`,'utf8');
+            if(!status||!/^Seccomp:\s+2$/m.test(status)||!/^NoNewPrivs:\s+1$/m.test(status))throw Error('AppImage renderer does not have the Chromium sandbox');
+        }
         if(wayland){
             const scale=await page.evaluate(()=>devicePixelRatio);
             if(!waylandSurface||Math.abs(scale-1.25)>.01)throw Error(`Expected a native Wayland surface at 125% scale (native=${waylandSurface}, devicePixelRatio=${scale})`);
