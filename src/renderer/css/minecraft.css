@@ -248,12 +248,6 @@
             --mc-ink: #ffffff;
         }
 
-        &:active:not(:disabled):not([aria-disabled="true"]) {
-            --mc-button-bevel: color-mix(in srgb, var(--mc-base) 82%, black);
-            --mc-button-shadow: var(--mc-face);
-            box-shadow: none;
-            transform: none;
-        }
 
         &:is(:disabled, [aria-disabled="true"]) {
             --mc-base: #b1b2b5;
@@ -543,8 +537,8 @@
     }
     & .md-switch .md-switch-track .md-switch-thumb,
     & .m3-switch .m3-switch-track .m3-switch-thumb {
-        /* Bedrock lever sits one pixel above the track's vertical centre. */
-        top: calc((var(--mc-switch-track-height) - var(--mc-switch-thumb-size)) / 2 - 3px);
+        /* Border contributes 2px: lever centre is 2px above track centre. */
+        top: calc((var(--mc-switch-track-height) - var(--mc-switch-thumb-size)) / 2 - 4px);
         left: -2px;
         bottom: auto;
         width: var(--mc-switch-thumb-size);
@@ -655,8 +649,7 @@
     & :is(button, [role="button"], [role="tab"]):active { scale: 1 !important; }
     & .bottom-status-bar :is(.md-zoom-text-btn, .md-zoom-btn, .md-icon-btn-micro) { height: 32px !important; min-height: 32px !important; padding-block: 0; }
     & .bottom-status-bar :is(.md-zoom-btn, .md-icon-btn-micro) { width: 32px !important; min-width: 32px !important; padding: 0; }
-    /* Joined raised segments; the selected face and caption sit 4px lower.
-       Keep the outer hit area fixed while changing the internal padding. */
+    /* Selected segments keep the same raised face and caption position. */
     & .m3-segmented-button {
         border: 0;
         border-radius: 0;
@@ -676,22 +669,6 @@
             border-color: var(--mc-edge);
             transition: background-color 100ms linear, color 100ms linear;
             &:not(:first-child) { border-left-width: 0; }
-            &:is(.active, .selected, [aria-pressed="true"], [aria-selected="true"]) {
-                background-image:
-                    linear-gradient(white, white),
-                    linear-gradient(var(--md-surface-container), var(--md-surface-container)),
-                    linear-gradient(var(--mc-edge), var(--mc-edge)),
-                    linear-gradient(to top, var(--mc-button-shadow) 0 2px, var(--mc-button-bevel) 2px 4px, transparent 4px),
-                    linear-gradient(to right, var(--mc-button-bevel) 0 2px, transparent 2px calc(100% - 2px), var(--mc-button-bevel) calc(100% - 2px)),
-                    linear-gradient(to bottom, transparent 0 4px, var(--mc-button-bevel) 4px 6px, transparent 6px);
-                background-size: min(48px, 50%) 2px, 100% 2px, 100% 2px, 100% 100%, 100% calc(100% - 4px), 100% 100%;
-                background-position: center bottom, left top, left top 2px, left top, left bottom, left top;
-                background-repeat: no-repeat;
-                border-top-color: var(--md-surface-container);
-                padding-top: 10px;
-                padding-bottom: 4px;
-                box-shadow: none;
-            }
             &:focus-visible { z-index: 1; }
         }
     }

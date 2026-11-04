@@ -34,7 +34,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
             const errors=['overlaps','clipped','overflow','pixelFallbacks','dialogsOutside'].filter(key=>report[key].length);
             if(report.rootOverflow>2)errors.push('rootOverflow');
             if(details.rounded.length)errors.push('rounded');
-            if(details.levers.some(lever=>Math.abs(lever.dy+1)>.15))errors.push('lever offset');
+            if(details.levers.some(lever=>Math.abs(lever.dy+2)>.15))errors.push('lever offset');
             if(details.brokenGroupEdges.length)errors.push('missing row border');
             if(details.scrimFilter!=='none')errors.push('blurred scrim');
             results.push({context,errors,report,details});
@@ -141,7 +141,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
         }
         await fs.writeFile(path.join(output,'report.json'),JSON.stringify({passed:results.every(r=>!r.errors.length),cases:results.length,results},null,2));
         const failed=results.filter(r=>r.errors.length);
-        if(failed.length)throw Error(JSON.stringify(failed.map(({context,errors,report,details})=>({context,errors,overlaps:report.overlaps,clipped:report.clipped,overflow:report.overflow,rounded:details.rounded,offsets:details.levers.filter(l=>Math.abs(l.dy+1)>.15)}))).slice(0,18000));
+        if(failed.length)throw Error(JSON.stringify(failed.map(({context,errors,report,details})=>({context,errors,overlaps:report.overlaps,clipped:report.clipped,overflow:report.overflow,rounded:details.rounded,offsets:details.levers.filter(l=>Math.abs(l.dy+2)>.15)}))).slice(0,18000));
         if(win.__testErrors.length)throw Error(win.__testErrors.join('\n'));
         console.log(JSON.stringify({passed:true,cases:results.length}));
     }catch(error){console.error(error);process.exitCode=1;}finally{clearTimeout(timer);win?.destroy();app.exit(process.exitCode||0);}

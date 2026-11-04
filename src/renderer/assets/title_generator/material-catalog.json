@@ -1,0 +1,4278 @@
+{
+  "fonts": {
+    "minecraft-ten": {
+      "textures": [
+        {
+          "id": "none",
+          "sourceId": "flat",
+          "name": "Flat",
+          "category": "Flat",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-flat.png",
+          "preview": "previews/minecraft-ten-flat.png"
+        },
+        {
+          "id": "acacia_planks",
+          "sourceId": "acacia_planks",
+          "name": "Acacia Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-ten-acacia_planks.png",
+          "preview": "previews/minecraft-ten-acacia_planks.png"
+        },
+        {
+          "id": "amethyst",
+          "sourceId": "amethyst",
+          "name": "Amethyst",
+          "category": "Amethyst",
+          "author": "Bold_Muddy",
+          "asset": "minecraft-ten-amethyst.png",
+          "preview": "previews/minecraft-ten-amethyst.png"
+        },
+        {
+          "id": "create_andesite_casing",
+          "sourceId": "create_andesite_casing",
+          "name": "Andesite Casing",
+          "category": "Create Casing",
+          "author": "MoonArts",
+          "asset": "minecraft-ten-create_andesite_casing.png",
+          "preview": "previews/minecraft-ten-create_andesite_casing.png"
+        },
+        {
+          "id": "aroace",
+          "sourceId": "aroace",
+          "name": "Aroace",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-ten-aroace.png",
+          "preview": "previews/minecraft-ten-aroace.png"
+        },
+        {
+          "id": "aromantic",
+          "sourceId": "aromantic",
+          "name": "Aromantic",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-ten-aromantic.png",
+          "preview": "previews/minecraft-ten-aromantic.png"
+        },
+        {
+          "id": "asexual",
+          "sourceId": "asexual",
+          "name": "Asexual",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-ten-asexual.png",
+          "preview": "previews/minecraft-ten-asexual.png"
+        },
+        {
+          "id": "atmosphere",
+          "sourceId": "atmosphere",
+          "name": "Atmosphere",
+          "category": "Atmosphere",
+          "author": "Zodiuss",
+          "asset": "minecraft-ten-atmosphere.png",
+          "preview": "previews/minecraft-ten-atmosphere.png"
+        },
+        {
+          "id": "bamboo",
+          "sourceId": "bamboo",
+          "name": "Bamboo",
+          "category": "Bamboo",
+          "author": "Klayv",
+          "asset": "minecraft-ten-bamboo.png",
+          "preview": "previews/minecraft-ten-bamboo.png"
+        },
+        {
+          "id": "bamboo_planks",
+          "sourceId": "bamboo_planks",
+          "name": "Bamboo Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-ten-bamboo_planks.png",
+          "preview": "previews/minecraft-ten-bamboo_planks.png"
+        },
+        {
+          "id": "barrel",
+          "sourceId": "barrel",
+          "name": "Barrel",
+          "category": "Barrel",
+          "author": "Klayv",
+          "asset": "minecraft-ten-barrel.png",
+          "preview": "previews/minecraft-ten-barrel.png"
+        },
+        {
+          "id": "beach",
+          "sourceId": "beach",
+          "name": "Beach",
+          "category": "Beach",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-beach.png",
+          "preview": "previews/minecraft-ten-beach.png"
+        },
+        {
+          "id": "bee",
+          "sourceId": "bee",
+          "name": "Bee",
+          "category": "Bee",
+          "author": "Bold_Muddy & Ewan Howell",
+          "asset": "minecraft-ten-bee.png",
+          "preview": "previews/minecraft-ten-bee.png"
+        },
+        {
+          "id": "gold",
+          "sourceId": "bevelled_gold",
+          "name": "Bevelled Gold",
+          "category": "Bevelled Gold",
+          "author": "CL697 & ShrimpSnail",
+          "asset": "minecraft-ten-bevelled_gold.png",
+          "preview": "previews/minecraft-ten-bevelled_gold.png"
+        },
+        {
+          "id": "birch_planks",
+          "sourceId": "birch_planks",
+          "name": "Birch Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-ten-birch_planks.png",
+          "preview": "previews/minecraft-ten-birch_planks.png"
+        },
+        {
+          "id": "bisexual",
+          "sourceId": "bisexual",
+          "name": "Bisexual",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-ten-bisexual.png",
+          "preview": "previews/minecraft-ten-bisexual.png"
+        },
+        {
+          "id": "blueprint",
+          "sourceId": "blueprint",
+          "name": "Blueprint",
+          "category": "Blueprint",
+          "author": "WassMan",
+          "asset": "minecraft-ten-blueprint.png",
+          "preview": "previews/minecraft-ten-blueprint.png"
+        },
+        {
+          "id": "create_brass_casing",
+          "sourceId": "create_brass_casing",
+          "name": "Brass Casing",
+          "category": "Create Casing",
+          "author": "MoonArts",
+          "asset": "minecraft-ten-create_brass_casing.png",
+          "preview": "previews/minecraft-ten-create_brass_casing.png"
+        },
+        {
+          "id": "bricks",
+          "sourceId": "bricks",
+          "name": "Bricks",
+          "category": "Bricks",
+          "author": "IAmMaker",
+          "asset": "minecraft-ten-bricks.png",
+          "preview": "previews/minecraft-ten-bricks.png"
+        },
+        {
+          "id": "bricks_bare_bones",
+          "sourceId": "bricks_bare_bones",
+          "name": "Bricks (Bare Bones)",
+          "category": "Bricks",
+          "author": "Klayv",
+          "asset": "minecraft-ten-bricks_bare_bones.png",
+          "preview": "previews/minecraft-ten-bricks_bare_bones.png"
+        },
+        {
+          "id": "bricks_minecraft",
+          "sourceId": "bricks_minecraft",
+          "name": "Bricks (Minecraft)",
+          "category": "Bricks",
+          "author": "IAmMaker",
+          "asset": "minecraft-ten-bricks_minecraft.png",
+          "preview": "previews/minecraft-ten-bricks_minecraft.png"
+        },
+        {
+          "id": "bubbles",
+          "sourceId": "bubbles",
+          "name": "Bubbles",
+          "category": "Bubbles",
+          "author": "7px",
+          "asset": "minecraft-ten-bubbles.png",
+          "preview": "previews/minecraft-ten-bubbles.png"
+        },
+        {
+          "id": "cake",
+          "sourceId": "cake",
+          "name": "Cake",
+          "category": "Cake",
+          "author": "Magminer",
+          "asset": "minecraft-ten-cake.png",
+          "preview": "previews/minecraft-ten-cake.png"
+        },
+        {
+          "id": "cake_minecraft",
+          "sourceId": "cake_minecraft",
+          "name": "Cake (Minecraft)",
+          "category": "Cake",
+          "author": "Ewan Howell & 0Szysza",
+          "asset": "minecraft-ten-cake_minecraft.png",
+          "preview": "previews/minecraft-ten-cake_minecraft.png"
+        },
+        {
+          "id": "cake_no_drops",
+          "sourceId": "cake_no_drops",
+          "name": "Cake (No Drops)",
+          "category": "Cake",
+          "author": "Magminer",
+          "asset": "minecraft-ten-cake_no_drops.png",
+          "preview": "previews/minecraft-ten-cake_no_drops.png"
+        },
+        {
+          "id": "cake_plain",
+          "sourceId": "cake_plain",
+          "name": "Cake (Plain)",
+          "category": "Cake",
+          "author": "Magminer",
+          "asset": "minecraft-ten-cake_plain.png",
+          "preview": "previews/minecraft-ten-cake_plain.png"
+        },
+        {
+          "id": "cherry_blossom",
+          "sourceId": "cherry_blossom",
+          "name": "Cherry Blossom",
+          "category": "Cherry Blossom",
+          "author": "Klayv",
+          "asset": "minecraft-ten-cherry_blossom.png",
+          "preview": "previews/minecraft-ten-cherry_blossom.png"
+        },
+        {
+          "id": "cherry_blossom_small",
+          "sourceId": "cherry_blossom_small",
+          "name": "Cherry Blossom (Small)",
+          "category": "Cherry Blossom",
+          "author": "NotAGanesh",
+          "asset": "minecraft-ten-cherry_blossom_small.png",
+          "preview": "previews/minecraft-ten-cherry_blossom_small.png"
+        },
+        {
+          "id": "cherry_planks",
+          "sourceId": "cherry_planks",
+          "name": "Cherry Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-ten-cherry_planks.png",
+          "preview": "previews/minecraft-ten-cherry_planks.png"
+        },
+        {
+          "id": "classic_cobblestone",
+          "sourceId": "classic_cobblestone",
+          "name": "Classic Cobblestone",
+          "category": "Classic Cobblestone",
+          "author": "Bold_Muddy",
+          "asset": "minecraft-ten-classic_cobblestone.png",
+          "preview": "previews/minecraft-ten-classic_cobblestone.png"
+        },
+        {
+          "id": "copper",
+          "sourceId": "copper",
+          "name": "Copper",
+          "category": "Copper",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-copper.png",
+          "preview": "previews/minecraft-ten-copper.png"
+        },
+        {
+          "id": "create_copper_casing",
+          "sourceId": "create_copper_casing",
+          "name": "Copper Casing",
+          "category": "Create Casing",
+          "author": "MoonArts",
+          "asset": "minecraft-ten-create_copper_casing.png",
+          "preview": "previews/minecraft-ten-create_copper_casing.png"
+        },
+        {
+          "id": "stone",
+          "sourceId": "cracked",
+          "name": "Cracked",
+          "category": "Cracked",
+          "author": "ShrimpSnail, Ewan Howell, & MrBrose",
+          "asset": "minecraft-ten-cracked.png",
+          "preview": "previews/minecraft-ten-cracked.png"
+        },
+        {
+          "id": "cracked_left",
+          "sourceId": "cracked_left",
+          "name": "Cracked Left",
+          "category": "Cracked",
+          "author": "ShrimpSnail, Ewan Howell, & MrBrose",
+          "asset": "minecraft-ten-cracked_left.png",
+          "preview": "previews/minecraft-ten-cracked_left.png"
+        },
+        {
+          "id": "cracked_old",
+          "sourceId": "cracked_old",
+          "name": "Cracked Old",
+          "category": "Cracked",
+          "author": "Yanuar Mohendra, MrBrose, & ShrimpSnail",
+          "asset": "minecraft-ten-cracked_old.png",
+          "preview": "previews/minecraft-ten-cracked_old.png"
+        },
+        {
+          "id": "cracked_old_pixelated",
+          "sourceId": "cracked_old_pixelated",
+          "name": "Cracked Old (Pixelated)",
+          "category": "Cracked",
+          "author": "Yanuar Mohendra & ShrimpSnail",
+          "asset": "minecraft-ten-cracked_old_pixelated.png",
+          "preview": "previews/minecraft-ten-cracked_old_pixelated.png"
+        },
+        {
+          "id": "cracked_right",
+          "sourceId": "cracked_right",
+          "name": "Cracked Right",
+          "category": "Cracked",
+          "author": "ShrimpSnail, Ewan Howell, & MrBrose",
+          "asset": "minecraft-ten-cracked_right.png",
+          "preview": "previews/minecraft-ten-cracked_right.png"
+        },
+        {
+          "id": "create",
+          "sourceId": "create",
+          "name": "Create Mod",
+          "category": "Create Mod",
+          "author": "FeDoT_Dev",
+          "asset": "minecraft-ten-create.png",
+          "preview": "previews/minecraft-ten-create.png"
+        },
+        {
+          "id": "creeper",
+          "sourceId": "creeper",
+          "name": "Creeper",
+          "category": "Creeper",
+          "author": "Andre_601",
+          "asset": "minecraft-ten-creeper.png",
+          "preview": "previews/minecraft-ten-creeper.png"
+        },
+        {
+          "id": "crimson_nylium",
+          "sourceId": "crimson_nylium",
+          "name": "Crimson Nylium",
+          "category": "Grass",
+          "author": "ShrimpSnail, DamienBrittan, & blank3times",
+          "asset": "minecraft-ten-crimson_nylium.png",
+          "preview": "previews/minecraft-ten-crimson_nylium.png"
+        },
+        {
+          "id": "crimson_planks",
+          "sourceId": "crimson_planks",
+          "name": "Crimson Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-ten-crimson_planks.png",
+          "preview": "previews/minecraft-ten-crimson_planks.png"
+        },
+        {
+          "id": "crystal",
+          "sourceId": "crystal",
+          "name": "Crystal (Caves & Cliffs)",
+          "category": "Crystal (Caves & Cliffs)",
+          "author": "blank3times",
+          "asset": "minecraft-ten-crystal.png",
+          "preview": "previews/minecraft-ten-crystal.png"
+        },
+        {
+          "id": "dark_oak_planks",
+          "sourceId": "dark_oak_planks",
+          "name": "Dark Oak Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-ten-dark_oak_planks.png",
+          "preview": "previews/minecraft-ten-dark_oak_planks.png"
+        },
+        {
+          "id": "deep_dark",
+          "sourceId": "deep_dark",
+          "name": "Deep Dark (Wild Update)",
+          "category": "Deep Dark (Wild Update)",
+          "author": "Banjoei & Shrimpsnail",
+          "asset": "minecraft-ten-deep_dark.png",
+          "preview": "previews/minecraft-ten-deep_dark.png"
+        },
+        {
+          "id": "dock",
+          "sourceId": "dock",
+          "name": "Dock",
+          "category": "Dock",
+          "author": "RyanCR",
+          "asset": "minecraft-ten-dock.png",
+          "preview": "previews/minecraft-ten-dock.png"
+        },
+        {
+          "id": "dock_clear",
+          "sourceId": "dock_clear",
+          "name": "Dock (Clear)",
+          "category": "Dock",
+          "author": "RyanCR",
+          "asset": "minecraft-ten-dock_clear.png",
+          "preview": "previews/minecraft-ten-dock_clear.png"
+        },
+        {
+          "id": "dunes",
+          "sourceId": "dunes",
+          "name": "Dunes",
+          "category": "Dunes",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-dunes.png",
+          "preview": "previews/minecraft-ten-dunes.png"
+        },
+        {
+          "id": "dungeons_terracotta",
+          "sourceId": "dungeons_terracotta",
+          "name": "Dungeons Terracotta",
+          "category": "Dungeons Terracotta",
+          "author": "HARYA_",
+          "asset": "minecraft-ten-dungeons_terracotta.png",
+          "preview": "previews/minecraft-ten-dungeons_terracotta.png"
+        },
+        {
+          "id": "earth",
+          "sourceId": "earth",
+          "name": "Earth",
+          "category": "Earth",
+          "author": "HARYA_",
+          "asset": "minecraft-ten-earth.png",
+          "preview": "previews/minecraft-ten-earth.png"
+        },
+        {
+          "id": "enby",
+          "sourceId": "enby",
+          "name": "Enby",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-ten-enby.png",
+          "preview": "previews/minecraft-ten-enby.png"
+        },
+        {
+          "id": "end_crystal",
+          "sourceId": "end_crystal",
+          "name": "End Crystal",
+          "category": "End Crystal",
+          "author": "blank3times",
+          "asset": "minecraft-ten-end_crystal.png",
+          "preview": "previews/minecraft-ten-end_crystal.png"
+        },
+        {
+          "id": "enderman",
+          "sourceId": "enderman",
+          "name": "Enderman",
+          "category": "Enderman",
+          "author": "B1tseK",
+          "asset": "minecraft-ten-enderman.png",
+          "preview": "previews/minecraft-ten-enderman.png"
+        },
+        {
+          "id": "femboy",
+          "sourceId": "femboy",
+          "name": "Femboy",
+          "category": "Pride",
+          "author": "0Szysza",
+          "asset": "minecraft-ten-femboy.png",
+          "preview": "previews/minecraft-ten-femboy.png"
+        },
+        {
+          "id": "fired",
+          "sourceId": "fired",
+          "name": "Fired",
+          "category": "Fired",
+          "author": "FloideN",
+          "asset": "minecraft-ten-fired.png",
+          "preview": "previews/minecraft-ten-fired.png"
+        },
+        {
+          "id": "flames",
+          "sourceId": "flames",
+          "name": "Flames",
+          "category": "Flames",
+          "author": "RyanCR",
+          "asset": "minecraft-ten-flames.png",
+          "preview": "previews/minecraft-ten-flames.png"
+        },
+        {
+          "id": "flat_coloured",
+          "sourceId": "flat_coloured",
+          "name": "Flat Coloured",
+          "category": "Flat Coloured",
+          "author": "TheAnnoying",
+          "asset": "minecraft-ten-flat_coloured.png",
+          "preview": "previews/minecraft-ten-flat_coloured.png"
+        },
+        {
+          "id": "flowers",
+          "sourceId": "flowers",
+          "name": "Flowers",
+          "category": "Grass",
+          "author": "0Szysza",
+          "asset": "minecraft-ten-flowers.png",
+          "preview": "previews/minecraft-ten-flowers.png"
+        },
+        {
+          "id": "fluid",
+          "sourceId": "fluid",
+          "name": "Fluid",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-ten-fluid.png",
+          "preview": "previews/minecraft-ten-fluid.png"
+        },
+        {
+          "id": "fruit",
+          "sourceId": "fruit",
+          "name": "Fruit",
+          "category": "Fruit",
+          "author": "Ewan Howell & DamienBrittan",
+          "asset": "minecraft-ten-fruit.png",
+          "preview": "previews/minecraft-ten-fruit.png"
+        },
+        {
+          "id": "furnace",
+          "sourceId": "furnace",
+          "name": "Furnace",
+          "category": "Furnace",
+          "author": "B1tseK",
+          "asset": "minecraft-ten-furnace.png",
+          "preview": "previews/minecraft-ten-furnace.png"
+        },
+        {
+          "id": "gay",
+          "sourceId": "gay",
+          "name": "Gay",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-ten-gay.png",
+          "preview": "previews/minecraft-ten-gay.png"
+        },
+        {
+          "id": "gilded_netherite",
+          "sourceId": "gilded_netherite",
+          "name": "Gilded Netherite",
+          "category": "Netherite",
+          "author": "DragonSlayr15001",
+          "asset": "minecraft-ten-gilded_netherite.png",
+          "preview": "previews/minecraft-ten-gilded_netherite.png"
+        },
+        {
+          "id": "glow_squid",
+          "sourceId": "glow_squid",
+          "name": "Glow Squid",
+          "category": "Glow Squid",
+          "author": "BitseK",
+          "asset": "minecraft-ten-glow_squid.png",
+          "preview": "previews/minecraft-ten-glow_squid.png"
+        },
+        {
+          "id": "glow_squid_old",
+          "sourceId": "glow_squid_old",
+          "name": "Glow Squid (Old)",
+          "category": "Glow Squid",
+          "author": "BitseK",
+          "asset": "minecraft-ten-glow_squid_old.png",
+          "preview": "previews/minecraft-ten-glow_squid_old.png"
+        },
+        {
+          "id": "gradient",
+          "sourceId": "gradient",
+          "name": "Gradient",
+          "category": "Gradient",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-gradient.png",
+          "preview": "previews/minecraft-ten-gradient.png"
+        },
+        {
+          "id": "grass",
+          "sourceId": "grass",
+          "name": "Grass",
+          "category": "Grass",
+          "author": "ShrimpSnail, DamienBrittan, & blank3times",
+          "asset": "minecraft-ten-grass.png",
+          "preview": "previews/minecraft-ten-grass.png"
+        },
+        {
+          "id": "grass_side",
+          "sourceId": "grass_side",
+          "name": "Grass Side",
+          "category": "Grass",
+          "author": "Magminer & Ewan Howell",
+          "asset": "minecraft-ten-grass_side.png",
+          "preview": "previews/minecraft-ten-grass_side.png"
+        },
+        {
+          "id": "grass_side_flowers",
+          "sourceId": "grass_side_flowers",
+          "name": "Grass Side Flowers",
+          "category": "Grass",
+          "author": "Magminer & Ewan Howell & 0Szysza",
+          "asset": "minecraft-ten-grass_side_flowers.png",
+          "preview": "previews/minecraft-ten-grass_side_flowers.png"
+        },
+        {
+          "id": "gurgles",
+          "sourceId": "gurgles",
+          "name": "Gurgles",
+          "category": "Gurgles",
+          "author": "BitseK",
+          "asset": "minecraft-ten-gurgles.png",
+          "preview": "previews/minecraft-ten-gurgles.png"
+        },
+        {
+          "id": "haunted",
+          "sourceId": "haunted",
+          "name": "Haunted",
+          "category": "Haunted",
+          "author": "Ninjaabdullah",
+          "asset": "minecraft-ten-haunted.png",
+          "preview": "previews/minecraft-ten-haunted.png"
+        },
+        {
+          "id": "hay_bale",
+          "sourceId": "hay_bale",
+          "name": "Hay Bale",
+          "category": "Hay Bale",
+          "author": "Klayv",
+          "asset": "minecraft-ten-hay_bale.png",
+          "preview": "previews/minecraft-ten-hay_bale.png"
+        },
+        {
+          "id": "heterosexual",
+          "sourceId": "heterosexual",
+          "name": "Heterosexual",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-ten-heterosexual.png",
+          "preview": "previews/minecraft-ten-heterosexual.png"
+        },
+        {
+          "id": "ice",
+          "sourceId": "ice",
+          "name": "Ice",
+          "category": "Ice",
+          "author": "Feby Kah & Ewan Howell",
+          "asset": "minecraft-ten-ice.png",
+          "preview": "previews/minecraft-ten-ice.png"
+        },
+        {
+          "id": "inner_shadow",
+          "sourceId": "inner_shadow",
+          "name": "Inner Shadow",
+          "category": "Inner Shadow",
+          "author": "justwilly",
+          "asset": "minecraft-ten-inner_shadow.png",
+          "preview": "previews/minecraft-ten-inner_shadow.png"
+        },
+        {
+          "id": "intersex",
+          "sourceId": "intersex",
+          "name": "Intersex",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-ten-intersex.png",
+          "preview": "previews/minecraft-ten-intersex.png"
+        },
+        {
+          "id": "iron_block",
+          "sourceId": "iron_block",
+          "name": "Iron Block",
+          "category": "Iron Block",
+          "author": "Andre_601",
+          "asset": "minecraft-ten-iron_block.png",
+          "preview": "previews/minecraft-ten-iron_block.png"
+        },
+        {
+          "id": "jungle_planks",
+          "sourceId": "jungle_planks",
+          "name": "Jungle Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-ten-jungle_planks.png",
+          "preview": "previews/minecraft-ten-jungle_planks.png"
+        },
+        {
+          "id": "lagoona",
+          "sourceId": "lagoona",
+          "name": "Lagoona",
+          "category": "Lagoona",
+          "author": "BitseK & Ewan Howell",
+          "asset": "minecraft-ten-lagoona.png",
+          "preview": "previews/minecraft-ten-lagoona.png"
+        },
+        {
+          "id": "lesbian",
+          "sourceId": "lesbian",
+          "name": "Lesbian",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-ten-lesbian.png",
+          "preview": "previews/minecraft-ten-lesbian.png"
+        },
+        {
+          "id": "mangrove",
+          "sourceId": "mangrove",
+          "name": "Mangrove (Wild Update)",
+          "category": "Mangrove (Wild Update)",
+          "author": "Narrator2 & TheAnnoying",
+          "asset": "minecraft-ten-mangrove.png",
+          "preview": "previews/minecraft-ten-mangrove.png"
+        },
+        {
+          "id": "mangrove_planks",
+          "sourceId": "mangrove_planks",
+          "name": "Mangrove Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-ten-mangrove_planks.png",
+          "preview": "previews/minecraft-ten-mangrove_planks.png"
+        },
+        {
+          "id": "midnight",
+          "sourceId": "midnight",
+          "name": "Midnight",
+          "category": "Midnight",
+          "author": "Ninjaabdullah",
+          "asset": "minecraft-ten-midnight.png",
+          "preview": "previews/minecraft-ten-midnight.png"
+        },
+        {
+          "id": "mineimator",
+          "sourceId": "mineimator",
+          "name": "Mine-Imator Family",
+          "category": "Mine-Imator Family",
+          "author": "ModelBench & ShrimpSnail",
+          "asset": "minecraft-ten-mineimator.png",
+          "preview": "previews/minecraft-ten-mineimator.png"
+        },
+        {
+          "id": "minecon",
+          "sourceId": "minecon",
+          "name": "Minecon",
+          "category": "Minecon",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-minecon.png",
+          "preview": "previews/minecraft-ten-minecon.png"
+        },
+        {
+          "id": "mycelium",
+          "sourceId": "mycelium",
+          "name": "Mycelium",
+          "category": "Grass",
+          "author": "ShrimpSnail, DamienBrittan, & blank3times",
+          "asset": "minecraft-ten-mycelium.png",
+          "preview": "previews/minecraft-ten-mycelium.png"
+        },
+        {
+          "id": "neon",
+          "sourceId": "neon",
+          "name": "Neon",
+          "category": "Neon",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-neon.png",
+          "preview": "previews/minecraft-ten-neon.png"
+        },
+        {
+          "id": "neon_glow",
+          "sourceId": "neon_glow",
+          "name": "Neon Glow",
+          "category": "Neon",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-neon_glow.png",
+          "preview": "previews/minecraft-ten-neon_glow.png"
+        },
+        {
+          "id": "netherite",
+          "sourceId": "netherite",
+          "name": "Netherite",
+          "category": "Netherite",
+          "author": "DragonSlayr15001",
+          "asset": "minecraft-ten-netherite.png",
+          "preview": "previews/minecraft-ten-netherite.png"
+        },
+        {
+          "id": "oak_planks",
+          "sourceId": "oak_planks",
+          "name": "Oak Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-ten-oak_planks.png",
+          "preview": "previews/minecraft-ten-oak_planks.png"
+        },
+        {
+          "id": "oxidised_copper",
+          "sourceId": "oxidised_copper",
+          "name": "Oxidised Copper",
+          "category": "Copper",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-oxidised_copper.png",
+          "preview": "previews/minecraft-ten-oxidised_copper.png"
+        },
+        {
+          "id": "oxidising_copper",
+          "sourceId": "oxidising_copper",
+          "name": "Oxidising Copper",
+          "category": "Copper",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-oxidising_copper.png",
+          "preview": "previews/minecraft-ten-oxidising_copper.png"
+        },
+        {
+          "id": "pale_oak_planks",
+          "sourceId": "pale_oak_planks",
+          "name": "Pale Oak Planks",
+          "category": "Planks",
+          "author": "0Szysza",
+          "asset": "minecraft-ten-pale_oak_planks.png",
+          "preview": "previews/minecraft-ten-pale_oak_planks.png"
+        },
+        {
+          "id": "pansexual",
+          "sourceId": "pansexual",
+          "name": "Pansexual",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-ten-pansexual.png",
+          "preview": "previews/minecraft-ten-pansexual.png"
+        },
+        {
+          "id": "pixel",
+          "sourceId": "pixel",
+          "name": "Pixel",
+          "category": "Pixel",
+          "author": "MrBrose",
+          "asset": "minecraft-ten-pixel.png",
+          "preview": "previews/minecraft-ten-pixel.png"
+        },
+        {
+          "id": "podzol",
+          "sourceId": "podzol",
+          "name": "Podzol",
+          "category": "Grass",
+          "author": "ShrimpSnail, DamienBrittan, & blank3times",
+          "asset": "minecraft-ten-podzol.png",
+          "preview": "previews/minecraft-ten-podzol.png"
+        },
+        {
+          "id": "pride",
+          "sourceId": "pride",
+          "name": "Pride",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-ten-pride.png",
+          "preview": "previews/minecraft-ten-pride.png"
+        },
+        {
+          "id": "sand",
+          "sourceId": "sand",
+          "name": "Sand",
+          "category": "Beach",
+          "author": "Magminer",
+          "asset": "minecraft-ten-sand.png",
+          "preview": "previews/minecraft-ten-sand.png"
+        },
+        {
+          "id": "simplacity",
+          "sourceId": "simplacity",
+          "name": "Simplacity",
+          "category": "Simplacity",
+          "author": "ShinyDragon96 & ShiNeaL",
+          "asset": "minecraft-ten-simplacity.png",
+          "preview": "previews/minecraft-ten-simplacity.png"
+        },
+        {
+          "id": "smooth",
+          "sourceId": "smooth",
+          "name": "Smooth",
+          "category": "Smooth",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-smooth.png",
+          "preview": "previews/minecraft-ten-smooth.png"
+        },
+        {
+          "id": "smooth_inverted",
+          "sourceId": "smooth_inverted",
+          "name": "Smooth (Inverted Highlight)",
+          "category": "Smooth",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-smooth_inverted.png",
+          "preview": "previews/minecraft-ten-smooth_inverted.png"
+        },
+        {
+          "id": "smooth_old",
+          "sourceId": "smooth_old",
+          "name": "Smooth (Old)",
+          "category": "Smooth",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-smooth_old.png",
+          "preview": "previews/minecraft-ten-smooth_old.png"
+        },
+        {
+          "id": "smooth_inverted_old",
+          "sourceId": "smooth_inverted_old",
+          "name": "Smooth (Old) (Inverted Highlight)",
+          "category": "Smooth",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-smooth_inverted_old.png",
+          "preview": "previews/minecraft-ten-smooth_inverted_old.png"
+        },
+        {
+          "id": "smooth_bevelled",
+          "sourceId": "smooth_bevelled",
+          "name": "Smooth Bevelled",
+          "category": "Smooth Bevelled",
+          "author": "justwilly",
+          "asset": "minecraft-ten-smooth_bevelled.png",
+          "preview": "previews/minecraft-ten-smooth_bevelled.png"
+        },
+        {
+          "id": "sniffer",
+          "sourceId": "sniffer",
+          "name": "Sniffer",
+          "category": "Sniffer",
+          "author": "SmarterCob",
+          "asset": "minecraft-ten-sniffer.png",
+          "preview": "previews/minecraft-ten-sniffer.png"
+        },
+        {
+          "id": "flames_soul",
+          "sourceId": "flames_soul",
+          "name": "Soul Flames",
+          "category": "Flames",
+          "author": "RyanCR",
+          "asset": "minecraft-ten-flames_soul.png",
+          "preview": "previews/minecraft-ten-flames_soul.png"
+        },
+        {
+          "id": "spruce_planks",
+          "sourceId": "spruce_planks",
+          "name": "Spruce Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-ten-spruce_planks.png",
+          "preview": "previews/minecraft-ten-spruce_planks.png"
+        },
+        {
+          "id": "story_mode1",
+          "sourceId": "story_mode1",
+          "name": "Story Mode (Season 1)",
+          "category": "Story Mode",
+          "author": "Yanuar Mohendra, ShrimpSnail, & Ewan Howell",
+          "asset": "minecraft-ten-story_mode1.png",
+          "preview": "previews/minecraft-ten-story_mode1.png"
+        },
+        {
+          "id": "story_mode",
+          "sourceId": "story_mode",
+          "name": "Story Mode (Season 2)",
+          "category": "Story Mode",
+          "author": "Yanuar Mohendra, ShrimpSnail, & Ewan Howell",
+          "asset": "minecraft-ten-story_mode.png",
+          "preview": "previews/minecraft-ten-story_mode.png"
+        },
+        {
+          "id": "stripped_bamboo",
+          "sourceId": "stripped_bamboo",
+          "name": "Stripped Bamboo",
+          "category": "Bamboo",
+          "author": "Klayv",
+          "asset": "minecraft-ten-stripped_bamboo.png",
+          "preview": "previews/minecraft-ten-stripped_bamboo.png"
+        },
+        {
+          "id": "sunset",
+          "sourceId": "sunset",
+          "name": "Sunset",
+          "category": "Sunset",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-sunset.png",
+          "preview": "previews/minecraft-ten-sunset.png"
+        },
+        {
+          "id": "terracotta",
+          "sourceId": "terracotta",
+          "name": "Terracotta",
+          "category": "Terracotta",
+          "author": "Klayv",
+          "asset": "minecraft-ten-terracotta.png",
+          "preview": "previews/minecraft-ten-terracotta.png"
+        },
+        {
+          "id": "trails_and_tales",
+          "sourceId": "trails_and_tales",
+          "name": "Trails And Tales",
+          "category": "Trails And Tales",
+          "author": "Abe",
+          "asset": "minecraft-ten-trails_and_tales.png",
+          "preview": "previews/minecraft-ten-trails_and_tales.png"
+        },
+        {
+          "id": "create_train_casing",
+          "sourceId": "create_train_casing",
+          "name": "Train Casing",
+          "category": "Create Casing",
+          "author": "MoonArts",
+          "asset": "minecraft-ten-create_train_casing.png",
+          "preview": "previews/minecraft-ten-create_train_casing.png"
+        },
+        {
+          "id": "trans",
+          "sourceId": "trans",
+          "name": "Trans",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-ten-trans.png",
+          "preview": "previews/minecraft-ten-trans.png"
+        },
+        {
+          "id": "transfeminine",
+          "sourceId": "transfeminine",
+          "name": "Transfeminine",
+          "category": "Pride",
+          "author": "0Szysza",
+          "asset": "minecraft-ten-transfeminine.png",
+          "preview": "previews/minecraft-ten-transfeminine.png"
+        },
+        {
+          "id": "transmasculine",
+          "sourceId": "transmasculine",
+          "name": "Transmasculine",
+          "category": "Pride",
+          "author": "0Szysza",
+          "asset": "minecraft-ten-transmasculine.png",
+          "preview": "previews/minecraft-ten-transmasculine.png"
+        },
+        {
+          "id": "warped_nylium",
+          "sourceId": "warped_nylium",
+          "name": "Warped Nylium",
+          "category": "Grass",
+          "author": "ShrimpSnail, DamienBrittan, & blank3times",
+          "asset": "minecraft-ten-warped_nylium.png",
+          "preview": "previews/minecraft-ten-warped_nylium.png"
+        },
+        {
+          "id": "warped_planks",
+          "sourceId": "warped_planks",
+          "name": "Warped Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-ten-warped_planks.png",
+          "preview": "previews/minecraft-ten-warped_planks.png"
+        },
+        {
+          "id": "winter",
+          "sourceId": "winter",
+          "name": "Winter",
+          "category": "Winter",
+          "author": "Klayv",
+          "asset": "minecraft-ten-winter.png",
+          "preview": "previews/minecraft-ten-winter.png"
+        }
+      ],
+      "overlays": [
+        {
+          "id": "highlights_bottom",
+          "sourceId": "highlights_bottom",
+          "name": "Highlights (Bottom)",
+          "category": "Highlights (Bottom)",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-overlay-highlights_bottom.png",
+          "preview": "previews/minecraft-ten-highlights_bottom.png"
+        },
+        {
+          "id": "highlights_top",
+          "sourceId": "highlights_top",
+          "name": "Highlights (Top)",
+          "category": "Highlights (Top)",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-overlay-highlights_top.png",
+          "preview": "previews/minecraft-ten-highlights_top.png"
+        },
+        {
+          "id": "bevel",
+          "sourceId": "bevel",
+          "name": "Bevel",
+          "category": "Bevel",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-overlay-bevel.png",
+          "preview": "previews/minecraft-ten-bevel.png"
+        },
+        {
+          "id": "cracks",
+          "sourceId": "cracks",
+          "name": "Cracks",
+          "category": "Cracks",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-overlay-cracks.png",
+          "preview": "previews/minecraft-ten-cracks.png"
+        },
+        {
+          "id": "shine",
+          "sourceId": "shine",
+          "name": "Shine",
+          "category": "Shine",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-overlay-shine.png",
+          "preview": "previews/minecraft-ten-shine.png"
+        },
+        {
+          "id": "shine_random",
+          "sourceId": "shine_random",
+          "name": "Shine (Random)",
+          "category": "Shine (Random)",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-overlay-shine_random.png",
+          "preview": "previews/minecraft-ten-shine_random.png"
+        },
+        {
+          "id": "outline",
+          "sourceId": "outline",
+          "name": "Outline",
+          "category": "Outline",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-overlay-outline.png",
+          "preview": "previews/minecraft-ten-outline.png"
+        },
+        {
+          "id": "inset_outline",
+          "sourceId": "inset_outline",
+          "name": "Inset Outline",
+          "category": "Inset Outline",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-overlay-inset_outline.png",
+          "preview": "previews/minecraft-ten-inset_outline.png"
+        },
+        {
+          "id": "edge_fade",
+          "sourceId": "edge_fade",
+          "name": "Edge Fade",
+          "category": "Edge Fade",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-overlay-edge_fade.png",
+          "preview": "previews/minecraft-ten-edge_fade.png"
+        },
+        {
+          "id": "tiles",
+          "sourceId": "tiles",
+          "name": "Tiles",
+          "category": "Tiles",
+          "author": "0Szysza",
+          "asset": "minecraft-ten-overlay-tiles.png",
+          "preview": "previews/minecraft-ten-tiles.png"
+        },
+        {
+          "id": "bevel_highlight_bottom",
+          "sourceId": "bevel_highlight_bottom",
+          "name": "Bevel Highlight (Bottom)",
+          "category": "Bevel Highlight (Bottom)",
+          "author": "FloideN",
+          "asset": "minecraft-ten-overlay-bevel_highlight_bottom.png",
+          "preview": "previews/minecraft-ten-bevel_highlight_bottom.png"
+        },
+        {
+          "id": "bevel_highlight_top",
+          "sourceId": "bevel_highlight_top",
+          "name": "Bevel Highlight (Top)",
+          "category": "Bevel Highlight (Top)",
+          "author": "FloideN",
+          "asset": "minecraft-ten-overlay-bevel_highlight_top.png",
+          "preview": "previews/minecraft-ten-bevel_highlight_top.png"
+        },
+        {
+          "id": "texture_highlight_1",
+          "sourceId": "texture_highlight_1",
+          "name": "Texture Highlight",
+          "category": "Texture Highlight",
+          "author": "FloideN",
+          "asset": "minecraft-ten-overlay-texture_highlight_1.png",
+          "preview": "previews/minecraft-ten-texture_highlight_1.png"
+        },
+        {
+          "id": "texture_highlight_2",
+          "sourceId": "texture_highlight_2",
+          "name": "Texture Highlight (Offset)",
+          "category": "Texture Highlight (Offset)",
+          "author": "FloideN",
+          "asset": "minecraft-ten-overlay-texture_highlight_2.png",
+          "preview": "previews/minecraft-ten-texture_highlight_2.png"
+        },
+        {
+          "id": "cartoon",
+          "sourceId": "cartoon",
+          "name": "Cartoon",
+          "category": "Cartoon",
+          "author": "Gyak",
+          "asset": "minecraft-ten-overlay-cartoon.png",
+          "preview": "previews/minecraft-ten-cartoon.png"
+        },
+        {
+          "id": "outline_fade",
+          "sourceId": "outline_fade",
+          "name": "Outline Fade",
+          "category": "Outline Fade",
+          "author": "blank3times",
+          "asset": "minecraft-ten-overlay-outline_fade.png",
+          "preview": "previews/minecraft-ten-outline_fade.png"
+        },
+        {
+          "id": "glass",
+          "sourceId": "glass",
+          "name": "Glass",
+          "category": "Glass",
+          "author": "BitseK",
+          "asset": "minecraft-ten-overlay-glass.png",
+          "preview": "previews/minecraft-ten-glass.png"
+        },
+        {
+          "id": "glass_old",
+          "sourceId": "glass_old",
+          "name": "Glass (Old)",
+          "category": "Glass (Old)",
+          "author": "BitseK",
+          "asset": "minecraft-ten-overlay-glass_old.png",
+          "preview": "previews/minecraft-ten-glass_old.png"
+        },
+        {
+          "id": "highlights_right",
+          "sourceId": "highlights_right",
+          "name": "Highlights (Right)",
+          "category": "Highlights (Right)",
+          "author": "BitseK",
+          "asset": "minecraft-ten-overlay-highlights_right.png",
+          "preview": "previews/minecraft-ten-highlights_right.png"
+        },
+        {
+          "id": "highlights_left",
+          "sourceId": "highlights_left",
+          "name": "Highlights (Left)",
+          "category": "Highlights (Left)",
+          "author": "BitseK",
+          "asset": "minecraft-ten-overlay-highlights_left.png",
+          "preview": "previews/minecraft-ten-highlights_left.png"
+        },
+        {
+          "id": "glass_tempered",
+          "sourceId": "glass_tempered",
+          "name": "Glass (Tempered)",
+          "category": "Glass (Tempered)",
+          "author": "BitseK",
+          "asset": "minecraft-ten-overlay-glass_tempered.png",
+          "preview": "previews/minecraft-ten-glass_tempered.png"
+        }
+      ]
+    },
+    "minecraft-ten-v2": {
+      "textures": [
+        {
+          "id": "none",
+          "sourceId": "flat",
+          "name": "Flat",
+          "category": "Flat",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-v2-flat.png",
+          "preview": "previews/minecraft-ten-v2-flat.png"
+        },
+        {
+          "id": "cherry_blossom",
+          "sourceId": "cherry_blossom",
+          "name": "Cherry Blossom",
+          "category": "Cherry Blossom",
+          "author": "Klayv & blank3times",
+          "asset": "minecraft-ten-v2-cherry_blossom.png",
+          "preview": "previews/minecraft-ten-v2-cherry_blossom.png"
+        },
+        {
+          "id": "stone",
+          "sourceId": "cracked",
+          "name": "Cracked",
+          "category": "Cracked",
+          "author": "ShrimpSnail, Ewan Howell, & MrBrose",
+          "asset": "minecraft-ten-v2-cracked.png",
+          "preview": "previews/minecraft-ten-v2-cracked.png"
+        },
+        {
+          "id": "cracked_left",
+          "sourceId": "cracked_left",
+          "name": "Cracked Left",
+          "category": "Cracked",
+          "author": "ShrimpSnail, Ewan Howell, & MrBrose",
+          "asset": "minecraft-ten-v2-cracked_left.png",
+          "preview": "previews/minecraft-ten-v2-cracked_left.png"
+        },
+        {
+          "id": "cracked_old",
+          "sourceId": "cracked_old",
+          "name": "Cracked Old",
+          "category": "Cracked",
+          "author": "Yanuar Mohendra, MrBrose, ShrimpSnail, & Ewan Howell",
+          "asset": "minecraft-ten-v2-cracked_old.png",
+          "preview": "previews/minecraft-ten-v2-cracked_old.png"
+        },
+        {
+          "id": "cracked_old_pixelated",
+          "sourceId": "cracked_old_pixelated",
+          "name": "Cracked Old (Pixelated)",
+          "category": "Cracked",
+          "author": "Yanuar Mohendra, ShrimpSnail, & Ewan Howell",
+          "asset": "minecraft-ten-v2-cracked_old_pixelated.png",
+          "preview": "previews/minecraft-ten-v2-cracked_old_pixelated.png"
+        },
+        {
+          "id": "cracked_right",
+          "sourceId": "cracked_right",
+          "name": "Cracked Right",
+          "category": "Cracked",
+          "author": "ShrimpSnail, Ewan Howell, & MrBrose",
+          "asset": "minecraft-ten-v2-cracked_right.png",
+          "preview": "previews/minecraft-ten-v2-cracked_right.png"
+        },
+        {
+          "id": "crystal",
+          "sourceId": "crystal",
+          "name": "Crystal (Caves & Cliffs)",
+          "category": "Crystal (Caves & Cliffs)",
+          "author": "blank3times",
+          "asset": "minecraft-ten-v2-crystal.png",
+          "preview": "previews/minecraft-ten-v2-crystal.png"
+        },
+        {
+          "id": "deep_dark",
+          "sourceId": "deep_dark",
+          "name": "Deep Dark (Wild Update)",
+          "category": "Deep Dark (Wild Update)",
+          "author": "Banjoei, Shrimpsnail, & blank3times",
+          "asset": "minecraft-ten-v2-deep_dark.png",
+          "preview": "previews/minecraft-ten-v2-deep_dark.png"
+        },
+        {
+          "id": "mangrove",
+          "sourceId": "mangrove",
+          "name": "Mangrove (Wild Update)",
+          "category": "Mangrove (Wild Update)",
+          "author": "Narrator2, TheAnnoying, & blank3times",
+          "asset": "minecraft-ten-v2-mangrove.png",
+          "preview": "previews/minecraft-ten-v2-mangrove.png"
+        },
+        {
+          "id": "trails_and_tales",
+          "sourceId": "trails_and_tales",
+          "name": "Trails And Tales",
+          "category": "Trails And Tales",
+          "author": "Abe & Ewan Howell",
+          "asset": "minecraft-ten-v2-trails_and_tales.png",
+          "preview": "previews/minecraft-ten-v2-trails_and_tales.png"
+        }
+      ],
+      "overlays": [
+        {
+          "id": "highlights_bottom",
+          "sourceId": "highlights_bottom",
+          "name": "Highlights (Bottom)",
+          "category": "Highlights (Bottom)",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-v2-overlay-highlights_bottom.png",
+          "preview": "previews/minecraft-ten-v2-highlights_bottom.png"
+        },
+        {
+          "id": "highlights_top",
+          "sourceId": "highlights_top",
+          "name": "Highlights (Top)",
+          "category": "Highlights (Top)",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-v2-overlay-highlights_top.png",
+          "preview": "previews/minecraft-ten-v2-highlights_top.png"
+        }
+      ]
+    },
+    "minecraft-ten-cyrillic": {
+      "textures": [
+        {
+          "id": "none",
+          "sourceId": "flat",
+          "name": "Flat",
+          "category": "Flat",
+          "author": "xllifi",
+          "asset": "minecraft-ten-cyrillic-flat.png",
+          "preview": "previews/minecraft-ten-cyrillic-flat.png"
+        },
+        {
+          "id": "acacia_planks",
+          "sourceId": "acacia_planks",
+          "name": "Acacia Planks",
+          "category": "Planks",
+          "author": "B1tseK & TheAnnoying",
+          "asset": "minecraft-ten-cyrillic-acacia_planks.png",
+          "preview": "previews/minecraft-ten-cyrillic-acacia_planks.png"
+        },
+        {
+          "id": "aroace",
+          "sourceId": "aroace",
+          "name": "Aroace",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-ten-cyrillic-aroace.png",
+          "preview": "previews/minecraft-ten-cyrillic-aroace.png"
+        },
+        {
+          "id": "aromantic",
+          "sourceId": "aromantic",
+          "name": "Aromantic",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-ten-cyrillic-aromantic.png",
+          "preview": "previews/minecraft-ten-cyrillic-aromantic.png"
+        },
+        {
+          "id": "asexual",
+          "sourceId": "asexual",
+          "name": "Asexual",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-ten-cyrillic-asexual.png",
+          "preview": "previews/minecraft-ten-cyrillic-asexual.png"
+        },
+        {
+          "id": "atmosphere",
+          "sourceId": "atmosphere",
+          "name": "Atmosphere",
+          "category": "Atmosphere",
+          "author": "Zodiuss & jackeyrolz",
+          "asset": "minecraft-ten-cyrillic-atmosphere.png",
+          "preview": "previews/minecraft-ten-cyrillic-atmosphere.png"
+        },
+        {
+          "id": "bamboo_planks",
+          "sourceId": "bamboo_planks",
+          "name": "Bamboo Planks",
+          "category": "Planks",
+          "author": "B1tseK & TheAnnoying",
+          "asset": "minecraft-ten-cyrillic-bamboo_planks.png",
+          "preview": "previews/minecraft-ten-cyrillic-bamboo_planks.png"
+        },
+        {
+          "id": "gold",
+          "sourceId": "bevelled_gold",
+          "name": "Bevelled Gold",
+          "category": "Bevelled Gold",
+          "author": "CL697 & ShrimpSnail & jackeyrolz",
+          "asset": "minecraft-ten-cyrillic-bevelled_gold.png",
+          "preview": "previews/minecraft-ten-cyrillic-bevelled_gold.png"
+        },
+        {
+          "id": "birch_planks",
+          "sourceId": "birch_planks",
+          "name": "Birch Planks",
+          "category": "Planks",
+          "author": "B1tseK & TheAnnoying",
+          "asset": "minecraft-ten-cyrillic-birch_planks.png",
+          "preview": "previews/minecraft-ten-cyrillic-birch_planks.png"
+        },
+        {
+          "id": "bisexual",
+          "sourceId": "bisexual",
+          "name": "Bisexual",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-ten-cyrillic-bisexual.png",
+          "preview": "previews/minecraft-ten-cyrillic-bisexual.png"
+        },
+        {
+          "id": "bubbles",
+          "sourceId": "bubbles",
+          "name": "Bubbles",
+          "category": "Bubbles",
+          "author": "B1tseK & 7px",
+          "asset": "minecraft-ten-cyrillic-bubbles.png",
+          "preview": "previews/minecraft-ten-cyrillic-bubbles.png"
+        },
+        {
+          "id": "cherry_planks",
+          "sourceId": "cherry_planks",
+          "name": "Cherry Planks",
+          "category": "Planks",
+          "author": "B1tseK & TheAnnoying",
+          "asset": "minecraft-ten-cyrillic-cherry_planks.png",
+          "preview": "previews/minecraft-ten-cyrillic-cherry_planks.png"
+        },
+        {
+          "id": "stone",
+          "sourceId": "cracked",
+          "name": "Cracked",
+          "category": "Cracked",
+          "author": "xllifi",
+          "asset": "minecraft-ten-cyrillic-cracked.png",
+          "preview": "previews/minecraft-ten-cyrillic-cracked.png"
+        },
+        {
+          "id": "cracked_old",
+          "sourceId": "cracked_old",
+          "name": "Cracked Old",
+          "category": "Cracked",
+          "author": "Yozhenka",
+          "asset": "minecraft-ten-cyrillic-cracked_old.png",
+          "preview": "previews/minecraft-ten-cyrillic-cracked_old.png"
+        },
+        {
+          "id": "crimson_planks",
+          "sourceId": "crimson_planks",
+          "name": "Crimson Planks",
+          "category": "Planks",
+          "author": "B1tseK & TheAnnoying",
+          "asset": "minecraft-ten-cyrillic-crimson_planks.png",
+          "preview": "previews/minecraft-ten-cyrillic-crimson_planks.png"
+        },
+        {
+          "id": "dark_oak_planks",
+          "sourceId": "dark_oak_planks",
+          "name": "Dark Oak Planks",
+          "category": "Planks",
+          "author": "B1tseK & TheAnnoying",
+          "asset": "minecraft-ten-cyrillic-dark_oak_planks.png",
+          "preview": "previews/minecraft-ten-cyrillic-dark_oak_planks.png"
+        },
+        {
+          "id": "enby",
+          "sourceId": "enby",
+          "name": "Enby",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-ten-cyrillic-enby.png",
+          "preview": "previews/minecraft-ten-cyrillic-enby.png"
+        },
+        {
+          "id": "enderman",
+          "sourceId": "enderman",
+          "name": "Enderman",
+          "category": "Enderman",
+          "author": "B1tseK",
+          "asset": "minecraft-ten-cyrillic-enderman.png",
+          "preview": "previews/minecraft-ten-cyrillic-enderman.png"
+        },
+        {
+          "id": "femboy",
+          "sourceId": "femboy",
+          "name": "Femboy",
+          "category": "Pride",
+          "author": "0Szysza",
+          "asset": "minecraft-ten-cyrillic-femboy.png",
+          "preview": "previews/minecraft-ten-cyrillic-femboy.png"
+        },
+        {
+          "id": "fired",
+          "sourceId": "fired",
+          "name": "Fired",
+          "category": "Fired",
+          "author": "B1tseK & Ewan Howell",
+          "asset": "minecraft-ten-cyrillic-fired.png",
+          "preview": "previews/minecraft-ten-cyrillic-fired.png"
+        },
+        {
+          "id": "flat_coloured",
+          "sourceId": "flat_coloured",
+          "name": "Flat (Coloured)",
+          "category": "Flat (Coloured)",
+          "author": "B1tseK & TheAnnoying",
+          "asset": "minecraft-ten-cyrillic-flat_coloured.png",
+          "preview": "previews/minecraft-ten-cyrillic-flat_coloured.png"
+        },
+        {
+          "id": "fluid",
+          "sourceId": "fluid",
+          "name": "Fluid",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-ten-cyrillic-fluid.png",
+          "preview": "previews/minecraft-ten-cyrillic-fluid.png"
+        },
+        {
+          "id": "furnace",
+          "sourceId": "furnace",
+          "name": "Furnace",
+          "category": "Furnace",
+          "author": "B1tseK",
+          "asset": "minecraft-ten-cyrillic-furnace.png",
+          "preview": "previews/minecraft-ten-cyrillic-furnace.png"
+        },
+        {
+          "id": "gay",
+          "sourceId": "gay",
+          "name": "Gay",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-ten-cyrillic-gay.png",
+          "preview": "previews/minecraft-ten-cyrillic-gay.png"
+        },
+        {
+          "id": "gurgles",
+          "sourceId": "gurgles",
+          "name": "Gurgles",
+          "category": "Gurgles",
+          "author": "B1tseK",
+          "asset": "minecraft-ten-cyrillic-gurgles.png",
+          "preview": "previews/minecraft-ten-cyrillic-gurgles.png"
+        },
+        {
+          "id": "heterosexual",
+          "sourceId": "heterosexual",
+          "name": "Heterosexual",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-ten-cyrillic-heterosexual.png",
+          "preview": "previews/minecraft-ten-cyrillic-heterosexual.png"
+        },
+        {
+          "id": "intersex",
+          "sourceId": "intersex",
+          "name": "Intersex",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-ten-cyrillic-intersex.png",
+          "preview": "previews/minecraft-ten-cyrillic-intersex.png"
+        },
+        {
+          "id": "jungle_planks",
+          "sourceId": "jungle_planks",
+          "name": "Jungle Planks",
+          "category": "Planks",
+          "author": "B1tseK & TheAnnoying",
+          "asset": "minecraft-ten-cyrillic-jungle_planks.png",
+          "preview": "previews/minecraft-ten-cyrillic-jungle_planks.png"
+        },
+        {
+          "id": "lagoona",
+          "sourceId": "lagoona",
+          "name": "Lagoona",
+          "category": "Lagoona",
+          "author": "B1tseK & Ewan Howell",
+          "asset": "minecraft-ten-cyrillic-lagoona.png",
+          "preview": "previews/minecraft-ten-cyrillic-lagoona.png"
+        },
+        {
+          "id": "lesbian",
+          "sourceId": "lesbian",
+          "name": "Lesbian",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-ten-cyrillic-lesbian.png",
+          "preview": "previews/minecraft-ten-cyrillic-lesbian.png"
+        },
+        {
+          "id": "mangrove_planks",
+          "sourceId": "mangrove_planks",
+          "name": "Mangrove Planks",
+          "category": "Planks",
+          "author": "B1tseK & TheAnnoying",
+          "asset": "minecraft-ten-cyrillic-mangrove_planks.png",
+          "preview": "previews/minecraft-ten-cyrillic-mangrove_planks.png"
+        },
+        {
+          "id": "neon",
+          "sourceId": "neon",
+          "name": "Neon",
+          "category": "Neon",
+          "author": "MCAlexisYT",
+          "asset": "minecraft-ten-cyrillic-neon.png",
+          "preview": "previews/minecraft-ten-cyrillic-neon.png"
+        },
+        {
+          "id": "neon_glow",
+          "sourceId": "neon_glow",
+          "name": "Neon Glow",
+          "category": "Neon",
+          "author": "MCAlexisYT",
+          "asset": "minecraft-ten-cyrillic-neon_glow.png",
+          "preview": "previews/minecraft-ten-cyrillic-neon_glow.png"
+        },
+        {
+          "id": "oak_planks",
+          "sourceId": "oak_planks",
+          "name": "Oak Planks",
+          "category": "Planks",
+          "author": "B1tseK & TheAnnoying",
+          "asset": "minecraft-ten-cyrillic-oak_planks.png",
+          "preview": "previews/minecraft-ten-cyrillic-oak_planks.png"
+        },
+        {
+          "id": "pale_oak_planks",
+          "sourceId": "pale_oak_planks",
+          "name": "Pale Oak Planks",
+          "category": "Planks",
+          "author": "0Szysza",
+          "asset": "minecraft-ten-cyrillic-pale_oak_planks.png",
+          "preview": "previews/minecraft-ten-cyrillic-pale_oak_planks.png"
+        },
+        {
+          "id": "pansexual",
+          "sourceId": "pansexual",
+          "name": "Pansexual",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-ten-cyrillic-pansexual.png",
+          "preview": "previews/minecraft-ten-cyrillic-pansexual.png"
+        },
+        {
+          "id": "pixel",
+          "sourceId": "pixel",
+          "name": "Pixel",
+          "category": "Pixel",
+          "author": "Sawiq",
+          "asset": "minecraft-ten-cyrillic-pixel.png",
+          "preview": "previews/minecraft-ten-cyrillic-pixel.png"
+        },
+        {
+          "id": "pride",
+          "sourceId": "pride",
+          "name": "Pride",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-ten-cyrillic-pride.png",
+          "preview": "previews/minecraft-ten-cyrillic-pride.png"
+        },
+        {
+          "id": "spruce_planks",
+          "sourceId": "spruce_planks",
+          "name": "Spruce Planks",
+          "category": "Planks",
+          "author": "B1tseK & TheAnnoying",
+          "asset": "minecraft-ten-cyrillic-spruce_planks.png",
+          "preview": "previews/minecraft-ten-cyrillic-spruce_planks.png"
+        },
+        {
+          "id": "trans",
+          "sourceId": "trans",
+          "name": "Trans",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-ten-cyrillic-trans.png",
+          "preview": "previews/minecraft-ten-cyrillic-trans.png"
+        },
+        {
+          "id": "transfeminine",
+          "sourceId": "transfeminine",
+          "name": "Transfeminine",
+          "category": "Pride",
+          "author": "0Szysza",
+          "asset": "minecraft-ten-cyrillic-transfeminine.png",
+          "preview": "previews/minecraft-ten-cyrillic-transfeminine.png"
+        },
+        {
+          "id": "transmasculine",
+          "sourceId": "transmasculine",
+          "name": "Transmasculine",
+          "category": "Pride",
+          "author": "0Szysza",
+          "asset": "minecraft-ten-cyrillic-transmasculine.png",
+          "preview": "previews/minecraft-ten-cyrillic-transmasculine.png"
+        },
+        {
+          "id": "warped_planks",
+          "sourceId": "warped_planks",
+          "name": "Warped Planks",
+          "category": "Planks",
+          "author": "B1tseK & TheAnnoying",
+          "asset": "minecraft-ten-cyrillic-warped_planks.png",
+          "preview": "previews/minecraft-ten-cyrillic-warped_planks.png"
+        }
+      ],
+      "overlays": [
+        {
+          "id": "highlights_bottom",
+          "sourceId": "highlights_bottom",
+          "name": "Highlights (Bottom)",
+          "category": "Highlights (Bottom)",
+          "author": "xllifi",
+          "asset": "minecraft-ten-cyrillic-overlay-highlights_bottom.png",
+          "preview": "previews/minecraft-ten-cyrillic-highlights_bottom.png"
+        },
+        {
+          "id": "highlights_top",
+          "sourceId": "highlights_top",
+          "name": "Highlights (Top)",
+          "category": "Highlights (Top)",
+          "author": "xllifi",
+          "asset": "minecraft-ten-cyrillic-overlay-highlights_top.png",
+          "preview": "previews/minecraft-ten-cyrillic-highlights_top.png"
+        },
+        {
+          "id": "glass",
+          "sourceId": "glass",
+          "name": "Glass",
+          "category": "Glass",
+          "author": "BitseK",
+          "asset": "minecraft-ten-cyrillic-overlay-glass.png",
+          "preview": "previews/minecraft-ten-cyrillic-glass.png"
+        },
+        {
+          "id": "glass_old",
+          "sourceId": "glass_old",
+          "name": "Glass (Old)",
+          "category": "Glass (Old)",
+          "author": "BitseK",
+          "asset": "minecraft-ten-cyrillic-overlay-glass_old.png",
+          "preview": "previews/minecraft-ten-cyrillic-glass_old.png"
+        },
+        {
+          "id": "glass_tempered",
+          "sourceId": "glass_tempered",
+          "name": "Glass (Tempered)",
+          "category": "Glass (Tempered)",
+          "author": "BitseK",
+          "asset": "minecraft-ten-cyrillic-overlay-glass_tempered.png",
+          "preview": "previews/minecraft-ten-cyrillic-glass_tempered.png"
+        },
+        {
+          "id": "outline",
+          "sourceId": "outline",
+          "name": "Outline",
+          "category": "Outline",
+          "author": "BitseK & Ewan Howell",
+          "asset": "minecraft-ten-cyrillic-overlay-outline.png",
+          "preview": "previews/minecraft-ten-cyrillic-outline.png"
+        }
+      ]
+    },
+    "minecraft-five-bold": {
+      "textures": [
+        {
+          "id": "none",
+          "sourceId": "flat",
+          "name": "Flat",
+          "category": "Flat",
+          "author": "Ewan Howell",
+          "asset": "minecraft-five-bold-flat.png",
+          "preview": "previews/minecraft-five-bold-flat.png"
+        },
+        {
+          "id": "acacia_planks",
+          "sourceId": "acacia_planks",
+          "name": "Acacia Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-five-bold-acacia_planks.png",
+          "preview": "previews/minecraft-five-bold-acacia_planks.png"
+        },
+        {
+          "id": "aroace",
+          "sourceId": "aroace",
+          "name": "Aroace",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-five-bold-aroace.png",
+          "preview": "previews/minecraft-five-bold-aroace.png"
+        },
+        {
+          "id": "aromantic",
+          "sourceId": "aromantic",
+          "name": "Aromantic",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-five-bold-aromantic.png",
+          "preview": "previews/minecraft-five-bold-aromantic.png"
+        },
+        {
+          "id": "asexual",
+          "sourceId": "asexual",
+          "name": "Asexual",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-five-bold-asexual.png",
+          "preview": "previews/minecraft-five-bold-asexual.png"
+        },
+        {
+          "id": "bamboo_planks",
+          "sourceId": "bamboo_planks",
+          "name": "Bamboo Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-five-bold-bamboo_planks.png",
+          "preview": "previews/minecraft-five-bold-bamboo_planks.png"
+        },
+        {
+          "id": "gold",
+          "sourceId": "bevelled_gold",
+          "name": "Bevelled Gold",
+          "category": "Bevelled Gold",
+          "author": "PopitTart",
+          "asset": "minecraft-five-bold-bevelled_gold.png",
+          "preview": "previews/minecraft-five-bold-bevelled_gold.png"
+        },
+        {
+          "id": "birch_planks",
+          "sourceId": "birch_planks",
+          "name": "Birch Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-five-bold-birch_planks.png",
+          "preview": "previews/minecraft-five-bold-birch_planks.png"
+        },
+        {
+          "id": "bisexual",
+          "sourceId": "bisexual",
+          "name": "Bisexual",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-five-bold-bisexual.png",
+          "preview": "previews/minecraft-five-bold-bisexual.png"
+        },
+        {
+          "id": "bubbles",
+          "sourceId": "bubbles",
+          "name": "Bubbles",
+          "category": "Bubbles",
+          "author": "Cubeoidal",
+          "asset": "minecraft-five-bold-bubbles.png",
+          "preview": "previews/minecraft-five-bold-bubbles.png"
+        },
+        {
+          "id": "cherry_planks",
+          "sourceId": "cherry_planks",
+          "name": "Cherry Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-five-bold-cherry_planks.png",
+          "preview": "previews/minecraft-five-bold-cherry_planks.png"
+        },
+        {
+          "id": "crimson_planks",
+          "sourceId": "crimson_planks",
+          "name": "Crimson Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-five-bold-crimson_planks.png",
+          "preview": "previews/minecraft-five-bold-crimson_planks.png"
+        },
+        {
+          "id": "dark_oak_planks",
+          "sourceId": "dark_oak_planks",
+          "name": "Dark Oak Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-five-bold-dark_oak_planks.png",
+          "preview": "previews/minecraft-five-bold-dark_oak_planks.png"
+        },
+        {
+          "id": "dots",
+          "sourceId": "dots",
+          "name": "Dots",
+          "category": "Dots",
+          "author": "Ewan Howell",
+          "asset": "minecraft-five-bold-dots.png",
+          "preview": "previews/minecraft-five-bold-dots.png"
+        },
+        {
+          "id": "edition",
+          "sourceId": "edition",
+          "name": "Edition",
+          "category": "Edition",
+          "author": "Patred",
+          "asset": "minecraft-five-bold-edition.png",
+          "preview": "previews/minecraft-five-bold-edition.png"
+        },
+        {
+          "id": "enby",
+          "sourceId": "enby",
+          "name": "Enby",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-five-bold-enby.png",
+          "preview": "previews/minecraft-five-bold-enby.png"
+        },
+        {
+          "id": "femboy",
+          "sourceId": "femboy",
+          "name": "Femboy",
+          "category": "Pride",
+          "author": "0Szysza",
+          "asset": "minecraft-five-bold-femboy.png",
+          "preview": "previews/minecraft-five-bold-femboy.png"
+        },
+        {
+          "id": "flat_coloured",
+          "sourceId": "flat_coloured",
+          "name": "Flat Coloured",
+          "category": "Flat Coloured",
+          "author": "Ewan Howell",
+          "asset": "minecraft-five-bold-flat_coloured.png",
+          "preview": "previews/minecraft-five-bold-flat_coloured.png"
+        },
+        {
+          "id": "fluid",
+          "sourceId": "fluid",
+          "name": "Fluid",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-five-bold-fluid.png",
+          "preview": "previews/minecraft-five-bold-fluid.png"
+        },
+        {
+          "id": "gay",
+          "sourceId": "gay",
+          "name": "Gay",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-five-bold-gay.png",
+          "preview": "previews/minecraft-five-bold-gay.png"
+        },
+        {
+          "id": "gradient",
+          "sourceId": "gradient",
+          "name": "Gradient",
+          "category": "Gradient",
+          "author": "Cubeoidal",
+          "asset": "minecraft-five-bold-gradient.png",
+          "preview": "previews/minecraft-five-bold-gradient.png"
+        },
+        {
+          "id": "heterosexual",
+          "sourceId": "heterosexual",
+          "name": "Heterosexual",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-five-bold-heterosexual.png",
+          "preview": "previews/minecraft-five-bold-heterosexual.png"
+        },
+        {
+          "id": "intersex",
+          "sourceId": "intersex",
+          "name": "Intersex",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-five-bold-intersex.png",
+          "preview": "previews/minecraft-five-bold-intersex.png"
+        },
+        {
+          "id": "jungle_planks",
+          "sourceId": "jungle_planks",
+          "name": "Jungle Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-five-bold-jungle_planks.png",
+          "preview": "previews/minecraft-five-bold-jungle_planks.png"
+        },
+        {
+          "id": "lesbian",
+          "sourceId": "lesbian",
+          "name": "Lesbian",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-five-bold-lesbian.png",
+          "preview": "previews/minecraft-five-bold-lesbian.png"
+        },
+        {
+          "id": "mangrove",
+          "sourceId": "mangrove",
+          "name": "Mangrove (Wild Update)",
+          "category": "Mangrove (Wild Update)",
+          "author": "Cubeoidal",
+          "asset": "minecraft-five-bold-mangrove.png",
+          "preview": "previews/minecraft-five-bold-mangrove.png"
+        },
+        {
+          "id": "mangrove_planks",
+          "sourceId": "mangrove_planks",
+          "name": "Mangrove Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-five-bold-mangrove_planks.png",
+          "preview": "previews/minecraft-five-bold-mangrove_planks.png"
+        },
+        {
+          "id": "midnight",
+          "sourceId": "midnight",
+          "name": "Midnight",
+          "category": "Midnight",
+          "author": "Ninjaabdullah",
+          "asset": "minecraft-five-bold-midnight.png",
+          "preview": "previews/minecraft-five-bold-midnight.png"
+        },
+        {
+          "id": "mob_vote",
+          "sourceId": "mob_vote",
+          "name": "Mob Vote",
+          "category": "Mob Vote",
+          "author": "PopitTart",
+          "asset": "minecraft-five-bold-mob_vote.png",
+          "preview": "previews/minecraft-five-bold-mob_vote.png"
+        },
+        {
+          "id": "mob_vote_gold",
+          "sourceId": "mob_vote_gold",
+          "name": "Mob Vote Gold",
+          "category": "Mob Vote",
+          "author": "PopitTart",
+          "asset": "minecraft-five-bold-mob_vote_gold.png",
+          "preview": "previews/minecraft-five-bold-mob_vote_gold.png"
+        },
+        {
+          "id": "neon",
+          "sourceId": "neon",
+          "name": "Neon",
+          "category": "Neon",
+          "author": "MCAlexisYT",
+          "asset": "minecraft-five-bold-neon.png",
+          "preview": "previews/minecraft-five-bold-neon.png"
+        },
+        {
+          "id": "neon_glow",
+          "sourceId": "neon_glow",
+          "name": "Neon Glow",
+          "category": "Neon",
+          "author": "MCAlexisYT",
+          "asset": "minecraft-five-bold-neon_glow.png",
+          "preview": "previews/minecraft-five-bold-neon_glow.png"
+        },
+        {
+          "id": "oak_planks",
+          "sourceId": "oak_planks",
+          "name": "Oak Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-five-bold-oak_planks.png",
+          "preview": "previews/minecraft-five-bold-oak_planks.png"
+        },
+        {
+          "id": "pansexual",
+          "sourceId": "pansexual",
+          "name": "Pansexual",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-five-bold-pansexual.png",
+          "preview": "previews/minecraft-five-bold-pansexual.png"
+        },
+        {
+          "id": "pride",
+          "sourceId": "pride",
+          "name": "Pride",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-five-bold-pride.png",
+          "preview": "previews/minecraft-five-bold-pride.png"
+        },
+        {
+          "id": "spruce_planks",
+          "sourceId": "spruce_planks",
+          "name": "Spruce Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-five-bold-spruce_planks.png",
+          "preview": "previews/minecraft-five-bold-spruce_planks.png"
+        },
+        {
+          "id": "trans",
+          "sourceId": "trans",
+          "name": "Trans",
+          "category": "Pride",
+          "author": "Snuzzle",
+          "asset": "minecraft-five-bold-trans.png",
+          "preview": "previews/minecraft-five-bold-trans.png"
+        },
+        {
+          "id": "transfeminine",
+          "sourceId": "transfeminine",
+          "name": "Transfeminine",
+          "category": "Pride",
+          "author": "0Szysza",
+          "asset": "minecraft-five-bold-transfeminine.png",
+          "preview": "previews/minecraft-five-bold-transfeminine.png"
+        },
+        {
+          "id": "transmasculine",
+          "sourceId": "transmasculine",
+          "name": "Transmasculine",
+          "category": "Pride",
+          "author": "0Szysza",
+          "asset": "minecraft-five-bold-transmasculine.png",
+          "preview": "previews/minecraft-five-bold-transmasculine.png"
+        },
+        {
+          "id": "warped_planks",
+          "sourceId": "warped_planks",
+          "name": "Warped Planks",
+          "category": "Planks",
+          "author": "TheAnnoying",
+          "asset": "minecraft-five-bold-warped_planks.png",
+          "preview": "previews/minecraft-five-bold-warped_planks.png"
+        }
+      ],
+      "overlays": [
+        {
+          "id": "highlights_bottom",
+          "sourceId": "highlights_bottom",
+          "name": "Highlights (Bottom)",
+          "category": "Highlights (Bottom)",
+          "author": "Shrimpsnail",
+          "asset": "minecraft-five-bold-overlay-highlights_bottom.png",
+          "preview": "previews/minecraft-five-bold-highlights_bottom.png"
+        },
+        {
+          "id": "highlights_top",
+          "sourceId": "highlights_top",
+          "name": "Highlights (Top)",
+          "category": "Highlights (Top)",
+          "author": "Shrimpsnail",
+          "asset": "minecraft-five-bold-overlay-highlights_top.png",
+          "preview": "previews/minecraft-five-bold-highlights_top.png"
+        }
+      ]
+    },
+    "minecraft-five-bold-cyrillic": {
+      "textures": [
+        {
+          "id": "none",
+          "sourceId": "flat",
+          "name": "Flat",
+          "category": "Flat",
+          "author": "xllifi",
+          "asset": "minecraft-five-bold-cyrillic-flat.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-flat.png"
+        },
+        {
+          "id": "acacia_planks",
+          "sourceId": "acacia_planks",
+          "name": "Acacia Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-cyrillic-acacia_planks.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-acacia_planks.png"
+        },
+        {
+          "id": "aroace",
+          "sourceId": "aroace",
+          "name": "Aroace",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-five-bold-cyrillic-aroace.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-aroace.png"
+        },
+        {
+          "id": "aromantic",
+          "sourceId": "aromantic",
+          "name": "Aromantic",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-five-bold-cyrillic-aromantic.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-aromantic.png"
+        },
+        {
+          "id": "asexual",
+          "sourceId": "asexual",
+          "name": "Asexual",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-five-bold-cyrillic-asexual.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-asexual.png"
+        },
+        {
+          "id": "bamboo_planks",
+          "sourceId": "bamboo_planks",
+          "name": "Bamboo Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-cyrillic-bamboo_planks.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-bamboo_planks.png"
+        },
+        {
+          "id": "birch_planks",
+          "sourceId": "birch_planks",
+          "name": "Birch Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-cyrillic-birch_planks.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-birch_planks.png"
+        },
+        {
+          "id": "bisexual",
+          "sourceId": "bisexual",
+          "name": "Bisexual",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-five-bold-cyrillic-bisexual.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-bisexual.png"
+        },
+        {
+          "id": "cherry_planks",
+          "sourceId": "cherry_planks",
+          "name": "Cherry Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-cyrillic-cherry_planks.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-cherry_planks.png"
+        },
+        {
+          "id": "crimson_planks",
+          "sourceId": "crimson_planks",
+          "name": "Crimson Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-cyrillic-crimson_planks.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-crimson_planks.png"
+        },
+        {
+          "id": "dark_oak_planks",
+          "sourceId": "dark_oak_planks",
+          "name": "Dark Oak Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-cyrillic-dark_oak_planks.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-dark_oak_planks.png"
+        },
+        {
+          "id": "edition",
+          "sourceId": "edition",
+          "name": "Edition",
+          "category": "Edition",
+          "author": "xllifi",
+          "asset": "minecraft-five-bold-cyrillic-edition.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-edition.png"
+        },
+        {
+          "id": "enby",
+          "sourceId": "enby",
+          "name": "Enby",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-five-bold-cyrillic-enby.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-enby.png"
+        },
+        {
+          "id": "femboy",
+          "sourceId": "femboy",
+          "name": "Femboy",
+          "category": "Pride",
+          "author": "0Szysza",
+          "asset": "minecraft-five-bold-cyrillic-femboy.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-femboy.png"
+        },
+        {
+          "id": "flat_coloured",
+          "sourceId": "flat_coloured",
+          "name": "Flat Coloured",
+          "category": "Flat Coloured",
+          "author": "xllifi",
+          "asset": "minecraft-five-bold-cyrillic-flat_coloured.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-flat_coloured.png"
+        },
+        {
+          "id": "fluid",
+          "sourceId": "fluid",
+          "name": "Fluid",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-five-bold-cyrillic-fluid.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-fluid.png"
+        },
+        {
+          "id": "gay",
+          "sourceId": "gay",
+          "name": "Gay",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-five-bold-cyrillic-gay.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-gay.png"
+        },
+        {
+          "id": "heterosexual",
+          "sourceId": "heterosexual",
+          "name": "Heterosexual",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-five-bold-cyrillic-heterosexual.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-heterosexual.png"
+        },
+        {
+          "id": "intersex",
+          "sourceId": "intersex",
+          "name": "Intersex",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-five-bold-cyrillic-intersex.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-intersex.png"
+        },
+        {
+          "id": "jungle_planks",
+          "sourceId": "jungle_planks",
+          "name": "Jungle Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-cyrillic-jungle_planks.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-jungle_planks.png"
+        },
+        {
+          "id": "lesbian",
+          "sourceId": "lesbian",
+          "name": "Lesbian",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-five-bold-cyrillic-lesbian.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-lesbian.png"
+        },
+        {
+          "id": "mangrove_planks",
+          "sourceId": "mangrove_planks",
+          "name": "Mangrove Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-cyrillic-mangrove_planks.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-mangrove_planks.png"
+        },
+        {
+          "id": "oak_planks",
+          "sourceId": "oak_planks",
+          "name": "Oak Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-cyrillic-oak_planks.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-oak_planks.png"
+        },
+        {
+          "id": "pansexual",
+          "sourceId": "pansexual",
+          "name": "Pansexual",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-five-bold-cyrillic-pansexual.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-pansexual.png"
+        },
+        {
+          "id": "pride",
+          "sourceId": "pride",
+          "name": "Pride",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-five-bold-cyrillic-pride.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-pride.png"
+        },
+        {
+          "id": "spruce_planks",
+          "sourceId": "spruce_planks",
+          "name": "Spruce Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-cyrillic-spruce_planks.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-spruce_planks.png"
+        },
+        {
+          "id": "trans",
+          "sourceId": "trans",
+          "name": "Trans",
+          "category": "Pride",
+          "author": "Yozhenka",
+          "asset": "minecraft-five-bold-cyrillic-trans.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-trans.png"
+        },
+        {
+          "id": "transfeminine",
+          "sourceId": "transfeminine",
+          "name": "Transfeminine",
+          "category": "Pride",
+          "author": "0Szysza",
+          "asset": "minecraft-five-bold-cyrillic-transfeminine.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-transfeminine.png"
+        },
+        {
+          "id": "transmasculine",
+          "sourceId": "transmasculine",
+          "name": "Transmasculine",
+          "category": "Pride",
+          "author": "0Szysza",
+          "asset": "minecraft-five-bold-cyrillic-transmasculine.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-transmasculine.png"
+        },
+        {
+          "id": "warped_planks",
+          "sourceId": "warped_planks",
+          "name": "Warped Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-cyrillic-warped_planks.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-warped_planks.png"
+        }
+      ],
+      "overlays": [
+        {
+          "id": "highlights_bottom",
+          "sourceId": "highlights_bottom",
+          "name": "Highlights (Bottom)",
+          "category": "Highlights (Bottom)",
+          "author": "xllifi",
+          "asset": "minecraft-five-bold-cyrillic-overlay-highlights_bottom.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-highlights_bottom.png"
+        },
+        {
+          "id": "highlights_top",
+          "sourceId": "highlights_top",
+          "name": "Highlights (Top)",
+          "category": "Highlights (Top)",
+          "author": "xllifi",
+          "asset": "minecraft-five-bold-cyrillic-overlay-highlights_top.png",
+          "preview": "previews/minecraft-five-bold-cyrillic-highlights_top.png"
+        }
+      ]
+    },
+    "minecraft-five-bold-block": {
+      "textures": [
+        {
+          "id": "none",
+          "sourceId": "flat",
+          "name": "Flat",
+          "category": "Flat",
+          "author": "Ewan Howell",
+          "asset": "minecraft-five-bold-block-flat.png",
+          "preview": "previews/minecraft-five-bold-block-flat.png"
+        },
+        {
+          "id": "acacia_planks",
+          "sourceId": "acacia_planks",
+          "name": "Acacia Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-block-acacia_planks.png",
+          "preview": "previews/minecraft-five-bold-block-acacia_planks.png"
+        },
+        {
+          "id": "bamboo_planks",
+          "sourceId": "bamboo_planks",
+          "name": "Bamboo Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-block-bamboo_planks.png",
+          "preview": "previews/minecraft-five-bold-block-bamboo_planks.png"
+        },
+        {
+          "id": "bedrock_button",
+          "sourceId": "bedrock_button",
+          "name": "Bedrock Button",
+          "category": "Bedrock Button",
+          "author": "Klayv",
+          "asset": "minecraft-five-bold-block-bedrock_button.png",
+          "preview": "previews/minecraft-five-bold-block-bedrock_button.png"
+        },
+        {
+          "id": "bedrock_button_unpressed",
+          "sourceId": "bedrock_button_unpressed",
+          "name": "Bedrock Button (Unpressed)",
+          "category": "Bedrock Button",
+          "author": "Klayv",
+          "asset": "minecraft-five-bold-block-bedrock_button_unpressed.png",
+          "preview": "previews/minecraft-five-bold-block-bedrock_button_unpressed.png"
+        },
+        {
+          "id": "birch_planks",
+          "sourceId": "birch_planks",
+          "name": "Birch Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-block-birch_planks.png",
+          "preview": "previews/minecraft-five-bold-block-birch_planks.png"
+        },
+        {
+          "id": "cherry_planks",
+          "sourceId": "cherry_planks",
+          "name": "Cherry Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-block-cherry_planks.png",
+          "preview": "previews/minecraft-five-bold-block-cherry_planks.png"
+        },
+        {
+          "id": "crimson_planks",
+          "sourceId": "crimson_planks",
+          "name": "Crimson Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-block-crimson_planks.png",
+          "preview": "previews/minecraft-five-bold-block-crimson_planks.png"
+        },
+        {
+          "id": "dark_oak_planks",
+          "sourceId": "dark_oak_planks",
+          "name": "Dark Oak Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-block-dark_oak_planks.png",
+          "preview": "previews/minecraft-five-bold-block-dark_oak_planks.png"
+        },
+        {
+          "id": "jungle_planks",
+          "sourceId": "jungle_planks",
+          "name": "Jungle Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-block-jungle_planks.png",
+          "preview": "previews/minecraft-five-bold-block-jungle_planks.png"
+        },
+        {
+          "id": "live",
+          "sourceId": "live",
+          "name": "Live",
+          "category": "Live",
+          "author": "Ewan Howell",
+          "asset": "minecraft-five-bold-block-live.png",
+          "preview": "previews/minecraft-five-bold-block-live.png"
+        },
+        {
+          "id": "mangrove_planks",
+          "sourceId": "mangrove_planks",
+          "name": "Mangrove Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-block-mangrove_planks.png",
+          "preview": "previews/minecraft-five-bold-block-mangrove_planks.png"
+        },
+        {
+          "id": "neon",
+          "sourceId": "neon",
+          "name": "Neon",
+          "category": "Neon",
+          "author": "MCAlexisYT",
+          "asset": "minecraft-five-bold-block-neon.png",
+          "preview": "previews/minecraft-five-bold-block-neon.png"
+        },
+        {
+          "id": "oak_planks",
+          "sourceId": "oak_planks",
+          "name": "Oak Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-block-oak_planks.png",
+          "preview": "previews/minecraft-five-bold-block-oak_planks.png"
+        },
+        {
+          "id": "spruce_planks",
+          "sourceId": "spruce_planks",
+          "name": "Spruce Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-block-spruce_planks.png",
+          "preview": "previews/minecraft-five-bold-block-spruce_planks.png"
+        },
+        {
+          "id": "warped_planks",
+          "sourceId": "warped_planks",
+          "name": "Warped Planks",
+          "category": "Planks",
+          "author": "BitseK & TheAnnoying",
+          "asset": "minecraft-five-bold-block-warped_planks.png",
+          "preview": "previews/minecraft-five-bold-block-warped_planks.png"
+        }
+      ],
+      "overlays": [
+        {
+          "id": "highlights_bottom",
+          "sourceId": "highlights_bottom",
+          "name": "Highlights (Bottom)",
+          "category": "Highlights (Bottom)",
+          "author": "Shrimpsnail",
+          "asset": "minecraft-five-bold-block-overlay-highlights_bottom.png",
+          "preview": "previews/minecraft-five-bold-block-highlights_bottom.png"
+        },
+        {
+          "id": "highlights_top",
+          "sourceId": "highlights_top",
+          "name": "Highlights (Top)",
+          "category": "Highlights (Top)",
+          "author": "Shrimpsnail",
+          "asset": "minecraft-five-bold-block-overlay-highlights_top.png",
+          "preview": "previews/minecraft-five-bold-block-highlights_top.png"
+        },
+        {
+          "id": "drop_shadow",
+          "sourceId": "drop_shadow",
+          "name": "Drop Shadow",
+          "category": "Drop Shadow",
+          "author": "Ewan Howell",
+          "asset": "minecraft-five-bold-block-overlay-drop_shadow.png",
+          "preview": "previews/minecraft-five-bold-block-drop_shadow.png"
+        },
+        {
+          "id": "drop_shadow_left",
+          "sourceId": "drop_shadow_left",
+          "name": "Drop Shadow (Left)",
+          "category": "Drop Shadow (Left)",
+          "author": "Ewan Howell",
+          "asset": "minecraft-five-bold-block-overlay-drop_shadow_left.png",
+          "preview": "previews/minecraft-five-bold-block-drop_shadow_left.png"
+        },
+        {
+          "id": "drop_shadow_right",
+          "sourceId": "drop_shadow_right",
+          "name": "Drop Shadow (Right)",
+          "category": "Drop Shadow (Right)",
+          "author": "Ewan Howell",
+          "asset": "minecraft-five-bold-block-overlay-drop_shadow_right.png",
+          "preview": "previews/minecraft-five-bold-block-drop_shadow_right.png"
+        },
+        {
+          "id": "bedrock",
+          "sourceId": "bedrock",
+          "name": "Bedrock Button",
+          "category": "Bedrock Button",
+          "author": "Klayv",
+          "asset": "minecraft-five-bold-block-overlay-bedrock.png",
+          "preview": "previews/minecraft-five-bold-block-bedrock.png"
+        }
+      ],
+      "fontOverlay": "minecraft-five-bold-block-font-overlay.png"
+    },
+    "minecraft-ten-outline": {
+      "textures": [
+        {
+          "id": "none",
+          "sourceId": "flat",
+          "name": "Flat",
+          "category": "Flat",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-outline-flat.png",
+          "preview": "previews/minecraft-ten-outline-flat.png"
+        },
+        {
+          "id": "discord",
+          "sourceId": "discord",
+          "name": "Discord",
+          "category": "Mob Vote Icon",
+          "author": "Aurora_123_",
+          "asset": "minecraft-ten-outline-discord.png",
+          "preview": "previews/minecraft-ten-outline-discord.png"
+        },
+        {
+          "id": "texture:gold",
+          "sourceId": "gold",
+          "name": "Gold",
+          "category": "Gold",
+          "author": "Patrow1",
+          "asset": "minecraft-ten-outline-gold.png",
+          "preview": "previews/minecraft-ten-outline-gold.png"
+        },
+        {
+          "id": "marketplace",
+          "sourceId": "marketplace",
+          "name": "Marketplace",
+          "category": "Marketplace",
+          "author": "Ewan Howell",
+          "asset": "minecraft-ten-outline-marketplace.png",
+          "preview": "previews/minecraft-ten-outline-marketplace.png"
+        },
+        {
+          "id": "mint_and_black",
+          "sourceId": "mint_and_black",
+          "name": "Mint And Black",
+          "category": "Mob Vote Icon",
+          "author": "Aurora_123_",
+          "asset": "minecraft-ten-outline-mint_and_black.png",
+          "preview": "previews/minecraft-ten-outline-mint_and_black.png"
+        },
+        {
+          "id": "mob_vote_icon",
+          "sourceId": "mob_vote_icon",
+          "name": "Mob Vote Icon",
+          "category": "Mob Vote Icon",
+          "author": "B1tseK",
+          "asset": "minecraft-ten-outline-mob_vote_icon.png",
+          "preview": "previews/minecraft-ten-outline-mob_vote_icon.png"
+        },
+        {
+          "id": "mob_vote_icon_gradient",
+          "sourceId": "mob_vote_icon_gradient",
+          "name": "Mob Vote Icon Gradient",
+          "category": "Mob Vote Icon",
+          "author": "B1tseK",
+          "asset": "minecraft-ten-outline-mob_vote_icon_gradient.png",
+          "preview": "previews/minecraft-ten-outline-mob_vote_icon_gradient.png"
+        },
+        {
+          "id": "neon",
+          "sourceId": "neon",
+          "name": "Neon",
+          "category": "Neon",
+          "author": "MCAlexisYT",
+          "asset": "minecraft-ten-outline-neon.png",
+          "preview": "previews/minecraft-ten-outline-neon.png"
+        },
+        {
+          "id": "neon_glow",
+          "sourceId": "neon_glow",
+          "name": "Neon Glow",
+          "category": "Neon",
+          "author": "MCAlexisYT",
+          "asset": "minecraft-ten-outline-neon_glow.png",
+          "preview": "previews/minecraft-ten-outline-neon_glow.png"
+        },
+        {
+          "id": "pink_and_black",
+          "sourceId": "pink_and_black",
+          "name": "Pink And Black",
+          "category": "Mob Vote Icon",
+          "author": "Aurora_123_",
+          "asset": "minecraft-ten-outline-pink_and_black.png",
+          "preview": "previews/minecraft-ten-outline-pink_and_black.png"
+        },
+        {
+          "id": "realms",
+          "sourceId": "realms",
+          "name": "Realms",
+          "category": "Realms",
+          "author": "blank3times",
+          "asset": "minecraft-ten-outline-realms.png",
+          "preview": "previews/minecraft-ten-outline-realms.png"
+        },
+        {
+          "id": "white_and_black",
+          "sourceId": "white_and_black",
+          "name": "White And Black",
+          "category": "Mob Vote Icon",
+          "author": "Aurora_123_",
+          "asset": "minecraft-ten-outline-white_and_black.png",
+          "preview": "previews/minecraft-ten-outline-white_and_black.png"
+        },
+        {
+          "id": "white_and_red",
+          "sourceId": "white_and_red",
+          "name": "White And Red",
+          "category": "Mob Vote Icon",
+          "author": "Aurora_123_",
+          "asset": "minecraft-ten-outline-white_and_red.png",
+          "preview": "previews/minecraft-ten-outline-white_and_red.png"
+        }
+      ],
+      "overlays": [
+        {
+          "id": "bottom_depth",
+          "sourceId": "bottom_depth",
+          "name": "Bottom depth",
+          "category": "Bottom depth",
+          "author": "Shrimpsnail",
+          "asset": "minecraft-ten-outline-overlay-bottom_depth.png",
+          "preview": "previews/minecraft-ten-outline-bottom_depth.png"
+        }
+      ]
+    },
+    "minecraft-dungeons": {
+      "textures": [
+        {
+          "id": "none",
+          "sourceId": "flat",
+          "name": "Flat",
+          "category": "Flat",
+          "author": "Shrimpsnail & Ewan Howell",
+          "asset": "minecraft-dungeons-flat.png",
+          "preview": "previews/minecraft-dungeons-flat.png"
+        },
+        {
+          "id": "acacia_planks",
+          "sourceId": "acacia_planks",
+          "name": "Acacia Planks",
+          "category": "Planks",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-acacia_planks.png",
+          "preview": "previews/minecraft-dungeons-acacia_planks.png"
+        },
+        {
+          "id": "bamboo_planks",
+          "sourceId": "bamboo_planks",
+          "name": "Bamboo Planks",
+          "category": "Planks",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-bamboo_planks.png",
+          "preview": "previews/minecraft-dungeons-bamboo_planks.png"
+        },
+        {
+          "id": "birch_planks",
+          "sourceId": "birch_planks",
+          "name": "Birch Planks",
+          "category": "Planks",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-birch_planks.png",
+          "preview": "previews/minecraft-dungeons-birch_planks.png"
+        },
+        {
+          "id": "cherry_planks",
+          "sourceId": "cherry_planks",
+          "name": "Cherry Planks",
+          "category": "Planks",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-cherry_planks.png",
+          "preview": "previews/minecraft-dungeons-cherry_planks.png"
+        },
+        {
+          "id": "crimson_planks",
+          "sourceId": "crimson_planks",
+          "name": "Crimson Planks",
+          "category": "Planks",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-crimson_planks.png",
+          "preview": "previews/minecraft-dungeons-crimson_planks.png"
+        },
+        {
+          "id": "dark_oak_planks",
+          "sourceId": "dark_oak_planks",
+          "name": "Dark Oak Planks",
+          "category": "Planks",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-dark_oak_planks.png",
+          "preview": "previews/minecraft-dungeons-dark_oak_planks.png"
+        },
+        {
+          "id": "fruit",
+          "sourceId": "fruit",
+          "name": "Fruit",
+          "category": "Fruit",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-fruit.png",
+          "preview": "previews/minecraft-dungeons-fruit.png"
+        },
+        {
+          "id": "gradient",
+          "sourceId": "gradient",
+          "name": "Gradient",
+          "category": "Gradient",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-gradient.png",
+          "preview": "previews/minecraft-dungeons-gradient.png"
+        },
+        {
+          "id": "gradient_prerelease",
+          "sourceId": "gradient_prerelease",
+          "name": "Gradient (Early)",
+          "category": "Gradient",
+          "author": "blank3times",
+          "asset": "minecraft-dungeons-gradient_prerelease.png",
+          "preview": "previews/minecraft-dungeons-gradient_prerelease.png"
+        },
+        {
+          "id": "jungle_planks",
+          "sourceId": "jungle_planks",
+          "name": "Jungle Planks",
+          "category": "Planks",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-jungle_planks.png",
+          "preview": "previews/minecraft-dungeons-jungle_planks.png"
+        },
+        {
+          "id": "mangrove_planks",
+          "sourceId": "mangrove_planks",
+          "name": "Mangrove Planks",
+          "category": "Planks",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-mangrove_planks.png",
+          "preview": "previews/minecraft-dungeons-mangrove_planks.png"
+        },
+        {
+          "id": "neon",
+          "sourceId": "neon",
+          "name": "Neon",
+          "category": "Neon",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-neon.png",
+          "preview": "previews/minecraft-dungeons-neon.png"
+        },
+        {
+          "id": "neon_glow",
+          "sourceId": "neon_glow",
+          "name": "Neon Glow",
+          "category": "Neon",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-neon_glow.png",
+          "preview": "previews/minecraft-dungeons-neon_glow.png"
+        },
+        {
+          "id": "oak_planks",
+          "sourceId": "oak_planks",
+          "name": "Oak Planks",
+          "category": "Planks",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-oak_planks.png",
+          "preview": "previews/minecraft-dungeons-oak_planks.png"
+        },
+        {
+          "id": "spruce_planks",
+          "sourceId": "spruce_planks",
+          "name": "Spruce Planks",
+          "category": "Planks",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-spruce_planks.png",
+          "preview": "previews/minecraft-dungeons-spruce_planks.png"
+        },
+        {
+          "id": "warped_planks",
+          "sourceId": "warped_planks",
+          "name": "Warped Planks",
+          "category": "Planks",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-warped_planks.png",
+          "preview": "previews/minecraft-dungeons-warped_planks.png"
+        }
+      ],
+      "overlays": [
+        {
+          "id": "highlights_bottom",
+          "sourceId": "highlights_bottom",
+          "name": "Highlights (Bottom)",
+          "category": "Highlights (Bottom)",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-overlay-highlights_bottom.png",
+          "preview": "previews/minecraft-dungeons-highlights_bottom.png"
+        },
+        {
+          "id": "highlights_top",
+          "sourceId": "highlights_top",
+          "name": "Highlights (Top)",
+          "category": "Highlights (Top)",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-overlay-highlights_top.png",
+          "preview": "previews/minecraft-dungeons-highlights_top.png"
+        },
+        {
+          "id": "outline",
+          "sourceId": "outline",
+          "name": "Outline",
+          "category": "Outline",
+          "author": "Ewan Howell",
+          "asset": "minecraft-dungeons-overlay-outline.png",
+          "preview": "previews/minecraft-dungeons-outline.png"
+        }
+      ]
+    },
+    "minecraft-gui": {
+      "textures": [
+        {
+          "id": "none",
+          "sourceId": "flat",
+          "name": "Flat",
+          "category": "Flat",
+          "author": "Ewan Howell",
+          "asset": "minecraft-gui-flat.png",
+          "preview": "previews/minecraft-gui-flat.png"
+        },
+        {
+          "id": "achievement",
+          "sourceId": "achievement",
+          "name": "Achievement",
+          "category": "Achievement",
+          "author": "B1tseK",
+          "asset": "minecraft-gui-achievement.png",
+          "preview": "previews/minecraft-gui-achievement.png"
+        },
+        {
+          "id": "chambered",
+          "sourceId": "chambered",
+          "name": "Chambered",
+          "category": "Chambered",
+          "author": "blank3times",
+          "asset": "minecraft-gui-chambered.png",
+          "preview": "previews/minecraft-gui-chambered.png"
+        },
+        {
+          "id": "chambered_panel",
+          "sourceId": "chambered_panel",
+          "name": "Chambered Panel",
+          "category": "Chambered",
+          "author": "blank3times",
+          "asset": "minecraft-gui-chambered_panel.png",
+          "preview": "previews/minecraft-gui-chambered_panel.png"
+        },
+        {
+          "id": "diamond",
+          "sourceId": "diamond",
+          "name": "Diamond",
+          "category": "Diamond",
+          "author": "Ewan Howell",
+          "asset": "minecraft-gui-diamond.png",
+          "preview": "previews/minecraft-gui-diamond.png"
+        },
+        {
+          "id": "hotbar",
+          "sourceId": "hotbar",
+          "name": "Hotbar",
+          "category": "Hotbar",
+          "author": "B1tseK",
+          "asset": "minecraft-gui-hotbar.png",
+          "preview": "previews/minecraft-gui-hotbar.png"
+        },
+        {
+          "id": "lightness",
+          "sourceId": "lightness",
+          "name": "Lightness",
+          "category": "Lightness",
+          "author": "Doharbdjr",
+          "asset": "minecraft-gui-lightness.png",
+          "preview": "previews/minecraft-gui-lightness.png"
+        },
+        {
+          "id": "map",
+          "sourceId": "map",
+          "name": "Map",
+          "category": "Map",
+          "author": "B1tseK",
+          "asset": "minecraft-gui-map.png",
+          "preview": "previews/minecraft-gui-map.png"
+        },
+        {
+          "id": "menu_button",
+          "sourceId": "menu_button",
+          "name": "Menu Button",
+          "category": "Menu Button",
+          "author": "B1tseK",
+          "asset": "minecraft-gui-menu_button.png",
+          "preview": "previews/minecraft-gui-menu_button.png"
+        },
+        {
+          "id": "oled",
+          "sourceId": "oled",
+          "name": "OLED",
+          "category": "OLED",
+          "author": "Ewan Howell",
+          "asset": "minecraft-gui-oled.png",
+          "preview": "previews/minecraft-gui-oled.png"
+        },
+        {
+          "id": "shields",
+          "sourceId": "shields",
+          "name": "Shields",
+          "category": "Shields",
+          "author": "Doharbdjr",
+          "asset": "minecraft-gui-shields.png",
+          "preview": "previews/minecraft-gui-shields.png"
+        }
+      ],
+      "overlays": [
+        {
+          "id": "highlights_bottom",
+          "sourceId": "highlights_bottom",
+          "name": "Highlights (Bottom)",
+          "category": "Highlights (Bottom)",
+          "author": "Ewan Howell",
+          "asset": "minecraft-gui-overlay-highlights_bottom.png",
+          "preview": "previews/minecraft-gui-highlights_bottom.png"
+        },
+        {
+          "id": "highlights_top",
+          "sourceId": "highlights_top",
+          "name": "Highlights (Top)",
+          "category": "Highlights (Top)",
+          "author": "Ewan Howell",
+          "asset": "minecraft-gui-overlay-highlights_top.png",
+          "preview": "previews/minecraft-gui-highlights_top.png"
+        },
+        {
+          "id": "shadow",
+          "sourceId": "shadow",
+          "name": "Shadow",
+          "category": "Shadow",
+          "author": "Ewan Howell",
+          "asset": "minecraft-gui-overlay-shadow.png",
+          "preview": "previews/minecraft-gui-shadow.png"
+        },
+        {
+          "id": "outline",
+          "sourceId": "outline",
+          "name": "Outline",
+          "category": "Outline",
+          "author": "Ewan Howell",
+          "asset": "minecraft-gui-overlay-outline.png",
+          "preview": "previews/minecraft-gui-outline.png"
+        }
+      ],
+      "fontOverlay": "minecraft-gui-font-overlay.png"
+    },
+    "minecraft-seven": {
+      "textures": [
+        {
+          "id": "none",
+          "sourceId": "flat",
+          "name": "Flat",
+          "category": "Flat",
+          "author": "Ewan Howell",
+          "asset": "minecraft-seven-flat.png",
+          "preview": "previews/minecraft-seven-flat.png"
+        },
+        {
+          "id": "flat_coloured",
+          "sourceId": "flat_coloured",
+          "name": "Flat Coloured",
+          "category": "Flat Coloured",
+          "author": "Ewan Howell",
+          "asset": "minecraft-seven-flat_coloured.png",
+          "preview": "previews/minecraft-seven-flat_coloured.png"
+        }
+      ],
+      "overlays": [
+        {
+          "id": "highlights_bottom",
+          "sourceId": "highlights_bottom",
+          "name": "Highlights (Bottom)",
+          "category": "Highlights (Bottom)",
+          "author": "Ewan Howell",
+          "asset": "minecraft-seven-overlay-highlights_bottom.png",
+          "preview": "previews/minecraft-seven-highlights_bottom.png"
+        },
+        {
+          "id": "highlights_top",
+          "sourceId": "highlights_top",
+          "name": "Highlights (Top)",
+          "category": "Highlights (Top)",
+          "author": "Ewan Howell",
+          "asset": "minecraft-seven-overlay-highlights_top.png",
+          "preview": "previews/minecraft-seven-highlights_top.png"
+        }
+      ]
+    },
+    "minecraft-five": {
+      "textures": [
+        {
+          "id": "none",
+          "sourceId": "flat",
+          "name": "Flat",
+          "category": "Flat",
+          "author": "Ewan Howell",
+          "asset": "minecraft-five-flat.png",
+          "preview": "previews/minecraft-five-flat.png"
+        },
+        {
+          "id": "edition",
+          "sourceId": "edition",
+          "name": "Edition",
+          "category": "Edition",
+          "author": "Ewan Howell",
+          "asset": "minecraft-five-edition.png",
+          "preview": "previews/minecraft-five-edition.png"
+        }
+      ],
+      "overlays": [
+        {
+          "id": "highlights_bottom",
+          "sourceId": "highlights_bottom",
+          "name": "Highlights (Bottom)",
+          "category": "Highlights (Bottom)",
+          "author": "Ewan Howell",
+          "asset": "minecraft-five-overlay-highlights_bottom.png",
+          "preview": "previews/minecraft-five-highlights_bottom.png"
+        },
+        {
+          "id": "highlights_top",
+          "sourceId": "highlights_top",
+          "name": "Highlights (Top)",
+          "category": "Highlights (Top)",
+          "author": "Ewan Howell",
+          "asset": "minecraft-five-overlay-highlights_top.png",
+          "preview": "previews/minecraft-five-highlights_top.png"
+        }
+      ]
+    },
+    "minecraft-sga": {
+      "textures": [
+        {
+          "id": "none",
+          "sourceId": "flat",
+          "name": "Flat",
+          "category": "Flat",
+          "author": "Westbot",
+          "asset": "minecraft-sga-flat.png",
+          "preview": "previews/minecraft-sga-flat.png"
+        },
+        {
+          "id": "smooth",
+          "sourceId": "smooth",
+          "name": "Smooth",
+          "category": "Smooth",
+          "author": "Ewan Howell",
+          "asset": "minecraft-sga-smooth.png",
+          "preview": "previews/minecraft-sga-smooth.png"
+        }
+      ],
+      "overlays": [
+        {
+          "id": "outline",
+          "sourceId": "outline",
+          "name": "Outline",
+          "category": "Outline",
+          "author": "Westbot",
+          "asset": "minecraft-sga-overlay-outline.png",
+          "preview": "previews/minecraft-sga-outline.png"
+        },
+        {
+          "id": "highlights_top",
+          "sourceId": "highlights_top",
+          "name": "Highlights Top",
+          "category": "Highlights Top",
+          "author": "Ewan Howell",
+          "asset": "minecraft-sga-overlay-highlights_top.png",
+          "preview": "previews/minecraft-sga-highlights_top.png"
+        },
+        {
+          "id": "highlights_bottom",
+          "sourceId": "highlights_bottom",
+          "name": "Highlights Bottom",
+          "category": "Highlights Bottom",
+          "author": "Ewan Howell",
+          "asset": "minecraft-sga-overlay-highlights_bottom.png",
+          "preview": "previews/minecraft-sga-highlights_bottom.png"
+        }
+      ]
+    },
+    "block-serif": {
+      "textures": [
+        {
+          "id": "none",
+          "sourceId": "flat",
+          "name": "Flat",
+          "category": "Flat",
+          "author": "Dragonslayr15001",
+          "asset": "block-serif-flat.png",
+          "preview": "previews/block-serif-flat.png"
+        },
+        {
+          "id": "brass",
+          "sourceId": "brass",
+          "name": "Brass",
+          "category": "Brass",
+          "author": "Dragonslayr15001",
+          "asset": "block-serif-brass.png",
+          "preview": "previews/block-serif-brass.png"
+        },
+        {
+          "id": "colourful",
+          "sourceId": "colourful",
+          "name": "Colourful",
+          "category": "Colourful",
+          "author": "Dragonslayr15001",
+          "asset": "block-serif-colourful.png",
+          "preview": "previews/block-serif-colourful.png"
+        }
+      ],
+      "overlays": [
+        {
+          "id": "highlight_top",
+          "sourceId": "highlight_top",
+          "name": "Highlight Top",
+          "category": "Highlight Top",
+          "author": "Dragonslayr15001",
+          "asset": "block-serif-overlay-highlight_top.png",
+          "preview": "previews/block-serif-highlight_top.png"
+        },
+        {
+          "id": "highlight_bottom",
+          "sourceId": "highlight_bottom",
+          "name": "Highlight Bottom",
+          "category": "Highlight Bottom",
+          "author": "Dragonslayr15001",
+          "asset": "block-serif-overlay-highlight_bottom.png",
+          "preview": "previews/block-serif-highlight_bottom.png"
+        },
+        {
+          "id": "half_gradient",
+          "sourceId": "half_gradient",
+          "name": "Half Gradient",
+          "category": "Half Gradient",
+          "author": "Dragonslayr15001",
+          "asset": "block-serif-overlay-half_gradient.png",
+          "preview": "previews/block-serif-half_gradient.png"
+        },
+        {
+          "id": "half_highlights",
+          "sourceId": "half_highlights",
+          "name": "Half Highlights",
+          "category": "Half Highlights",
+          "author": "Dragonslayr15001",
+          "asset": "block-serif-overlay-half_highlights.png",
+          "preview": "previews/block-serif-half_highlights.png"
+        }
+      ],
+      "fontOverlay": "block-serif-font-overlay.png"
+    }
+  },
+  "tileables": {
+    "cobblestone": {
+      "name": "Cobblestone",
+      "category": "Stone",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/stone/cobblestone.png"
+    },
+    "stone": {
+      "name": "Stone",
+      "category": "Stone",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/stone/stone.png"
+    },
+    "deepslate": {
+      "name": "Deepslate",
+      "category": "Stone",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/stone/deepslate.png"
+    },
+    "deepslate_top": {
+      "name": "Deepslate Top",
+      "category": "Stone",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/stone/deepslate_top.png"
+    },
+    "cobbled_deepslate": {
+      "name": "Cobbled Deepslate",
+      "category": "Stone",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/stone/cobbled_deepslate.png"
+    },
+    "andesite": {
+      "name": "Andesite",
+      "category": "Stone",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/stone/andesite.png"
+    },
+    "diorite": {
+      "name": "Diorite",
+      "category": "Stone",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/stone/diorite.png"
+    },
+    "granite": {
+      "name": "Granite",
+      "category": "Stone",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/stone/granite.png"
+    },
+    "calcite": {
+      "name": "Calcite",
+      "category": "Stone",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/stone/calcite.png"
+    },
+    "tuff": {
+      "name": "Tuff",
+      "category": "Stone",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/stone/tuff.png"
+    },
+    "bedrock": {
+      "name": "Bedrock",
+      "category": "Stone",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/stone/bedrock.png"
+    },
+    "netherrack": {
+      "name": "Netherrack",
+      "category": "Stone",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/stone/netherrack.png"
+    },
+    "blackstone": {
+      "name": "Blackstone",
+      "category": "Stone",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/stone/blackstone.png"
+    },
+    "blackstone_top": {
+      "name": "Blackstone Top",
+      "category": "Stone",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/stone/blackstone_top.png"
+    },
+    "basalt": {
+      "name": "Basalt",
+      "category": "Stone",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/stone/basalt.png"
+    },
+    "end_stone": {
+      "name": "End Stone",
+      "category": "Stone",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/stone/end_stone.png"
+    },
+    "sponge": {
+      "name": "Sponge",
+      "category": "Sponge",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/sponge.png"
+    },
+    "oak_planks": {
+      "name": "Oak Planks",
+      "category": "Planks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/planks/oak_planks.png"
+    },
+    "spruce_planks": {
+      "name": "Spruce Planks",
+      "category": "Planks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/planks/spruce_planks.png"
+    },
+    "birch_planks": {
+      "name": "Birch Planks",
+      "category": "Planks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/planks/birch_planks.png"
+    },
+    "jungle_planks": {
+      "name": "Jungle Planks",
+      "category": "Planks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/planks/jungle_planks.png"
+    },
+    "acacia_planks": {
+      "name": "Acacia Planks",
+      "category": "Planks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/planks/acacia_planks.png"
+    },
+    "dark_oak_planks": {
+      "name": "Dark Oak Planks",
+      "category": "Planks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/planks/dark_oak_planks.png"
+    },
+    "mangrove_planks": {
+      "name": "Mangrove Planks",
+      "category": "Planks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/planks/mangrove_planks.png"
+    },
+    "cherry_planks": {
+      "name": "Cherry Planks",
+      "category": "Planks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/planks/cherry_planks.png"
+    },
+    "bamboo_planks": {
+      "name": "Bamboo Planks",
+      "category": "Planks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/planks/bamboo_planks.png"
+    },
+    "bamboo_mosaic": {
+      "name": "Bamboo Mosaic",
+      "category": "Planks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/planks/bamboo_mosaic.png"
+    },
+    "crimson_planks": {
+      "name": "Crimson Planks",
+      "category": "Planks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/planks/crimson_planks.png"
+    },
+    "warped_planks": {
+      "name": "Warped Planks",
+      "category": "Planks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/planks/warped_planks.png"
+    },
+    "twisted_wood": {
+      "name": "Twisted Wood",
+      "category": "Twisted Wood",
+      "author": "CCCode",
+      "asset": "tileables/dokucraft/twisted_wood.png"
+    },
+    "checkerboard": {
+      "name": "Checkerboard",
+      "category": "Checkerboard",
+      "author": "Ewan Howell",
+      "asset": "tileables/patterns/checkerboard.png"
+    },
+    "white_wool": {
+      "name": "White Wool",
+      "category": "Wool",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/wool/white_wool.png"
+    },
+    "light_gray_wool": {
+      "name": "Light Gray Wool",
+      "category": "Wool",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/wool/light_gray_wool.png"
+    },
+    "gray_wool": {
+      "name": "Gray Wool",
+      "category": "Wool",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/wool/gray_wool.png"
+    },
+    "black_wool": {
+      "name": "Black Wool",
+      "category": "Wool",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/wool/black_wool.png"
+    },
+    "brown_wool": {
+      "name": "Brown Wool",
+      "category": "Wool",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/wool/brown_wool.png"
+    },
+    "red_wool": {
+      "name": "Red Wool",
+      "category": "Wool",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/wool/red_wool.png"
+    },
+    "orange_wool": {
+      "name": "Orange Wool",
+      "category": "Wool",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/wool/orange_wool.png"
+    },
+    "yellow_wool": {
+      "name": "Yellow Wool",
+      "category": "Wool",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/wool/yellow_wool.png"
+    },
+    "lime_wool": {
+      "name": "Lime Wool",
+      "category": "Wool",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/wool/lime_wool.png"
+    },
+    "green_wool": {
+      "name": "Green Wool",
+      "category": "Wool",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/wool/green_wool.png"
+    },
+    "cyan_wool": {
+      "name": "Cyan Wool",
+      "category": "Wool",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/wool/cyan_wool.png"
+    },
+    "light_blue_wool": {
+      "name": "Light Blue Wool",
+      "category": "Wool",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/wool/light_blue_wool.png"
+    },
+    "blue_wool": {
+      "name": "Blue Wool",
+      "category": "Wool",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/wool/blue_wool.png"
+    },
+    "purple_wool": {
+      "name": "Purple Wool",
+      "category": "Wool",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/wool/purple_wool.png"
+    },
+    "magenta_wool": {
+      "name": "Magenta Wool",
+      "category": "Wool",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/wool/magenta_wool.png"
+    },
+    "pink_wool": {
+      "name": "Pink Wool",
+      "category": "Wool",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/wool/pink_wool.png"
+    },
+    "grass": {
+      "name": "Grass",
+      "category": "Grass",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/grass/grass.png"
+    },
+    "dirt_path": {
+      "name": "Dirt Path",
+      "category": "Grass",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/grass/dirt_path.png"
+    },
+    "podzol": {
+      "name": "Podzol",
+      "category": "Grass",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/grass/podzol.png"
+    },
+    "mycelium": {
+      "name": "Mycelium",
+      "category": "Grass",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/grass/mycelium.png"
+    },
+    "crimson_nylium": {
+      "name": "Crimson Nylium",
+      "category": "Grass",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/grass/crimson_nylium.png"
+    },
+    "warped_nylium": {
+      "name": "Warped Nylium",
+      "category": "Grass",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/grass/warped_nylium.png"
+    },
+    "oak_log": {
+      "name": "Oak Log",
+      "category": "Logs",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/log/oak_log.png"
+    },
+    "spruce_log": {
+      "name": "Spruce Log",
+      "category": "Logs",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/log/spruce_log.png"
+    },
+    "birch_log": {
+      "name": "Birch Log",
+      "category": "Logs",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/log/birch_log.png"
+    },
+    "jungle_log": {
+      "name": "Jungle Log",
+      "category": "Logs",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/log/jungle_log.png"
+    },
+    "acacia_log": {
+      "name": "Acacia Log",
+      "category": "Logs",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/log/acacia_log.png"
+    },
+    "dark_oak_log": {
+      "name": "Dark Oak Log",
+      "category": "Logs",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/log/dark_oak_log.png"
+    },
+    "mangrove_log": {
+      "name": "Mangrove Log",
+      "category": "Logs",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/log/mangrove_log.png"
+    },
+    "cherry_log": {
+      "name": "Cherry Log",
+      "category": "Logs",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/log/cherry_log.png"
+    },
+    "bamboo_block": {
+      "name": "Bamboo Block",
+      "category": "Logs",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/log/bamboo_block.png"
+    },
+    "bamboo_block_top": {
+      "name": "Bamboo Block Top",
+      "category": "Logs",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/log/bamboo_block_top.png"
+    },
+    "stripped_bamboo_block": {
+      "name": "Stripped Bamboo Block",
+      "category": "Logs",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/log/stripped_bamboo_block.png"
+    },
+    "stripped_bamboo_block_top": {
+      "name": "Stripped Bamboo Block Top",
+      "category": "Logs",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/log/stripped_bamboo_block_top.png"
+    },
+    "crimson_stem": {
+      "name": "Crimson Stem",
+      "category": "Logs",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/log/crimson_stem.png"
+    },
+    "warped_stem": {
+      "name": "Warped Stem",
+      "category": "Logs",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/log/warped_stem.png"
+    },
+    "white_glazed_terracotta": {
+      "name": "White Glazed Terracotta",
+      "category": "Glazed Terracotta",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/glazed_terracotta/white_glazed_terracotta.png"
+    },
+    "light_gray_glazed_terracotta": {
+      "name": "Light Gray Glazed Terracotta",
+      "category": "Glazed Terracotta",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/glazed_terracotta/light_gray_glazed_terracotta.png"
+    },
+    "gray_glazed_terracotta": {
+      "name": "Gray Glazed Terracotta",
+      "category": "Glazed Terracotta",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/glazed_terracotta/gray_glazed_terracotta.png"
+    },
+    "black_glazed_terracotta": {
+      "name": "Black Glazed Terracotta",
+      "category": "Glazed Terracotta",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/glazed_terracotta/black_glazed_terracotta.png"
+    },
+    "brown_glazed_terracotta": {
+      "name": "Brown Glazed Terracotta",
+      "category": "Glazed Terracotta",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/glazed_terracotta/brown_glazed_terracotta.png"
+    },
+    "red_glazed_terracotta": {
+      "name": "Red Glazed Terracotta",
+      "category": "Glazed Terracotta",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/glazed_terracotta/red_glazed_terracotta.png"
+    },
+    "orange_glazed_terracotta": {
+      "name": "Orange Glazed Terracotta",
+      "category": "Glazed Terracotta",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/glazed_terracotta/orange_glazed_terracotta.png"
+    },
+    "yellow_glazed_terracotta": {
+      "name": "Yellow Glazed Terracotta",
+      "category": "Glazed Terracotta",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/glazed_terracotta/yellow_glazed_terracotta.png"
+    },
+    "lime_glazed_terracotta": {
+      "name": "Lime Glazed Terracotta",
+      "category": "Glazed Terracotta",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/glazed_terracotta/lime_glazed_terracotta.png"
+    },
+    "green_glazed_terracotta": {
+      "name": "Green Glazed Terracotta",
+      "category": "Glazed Terracotta",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/glazed_terracotta/green_glazed_terracotta.png"
+    },
+    "cyan_glazed_terracotta": {
+      "name": "Cyan Glazed Terracotta",
+      "category": "Glazed Terracotta",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/glazed_terracotta/cyan_glazed_terracotta.png"
+    },
+    "light_blue_glazed_terracotta": {
+      "name": "Light Blue Glazed Terracotta",
+      "category": "Glazed Terracotta",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/glazed_terracotta/light_blue_glazed_terracotta.png"
+    },
+    "blue_glazed_terracotta": {
+      "name": "Blue Glazed Terracotta",
+      "category": "Glazed Terracotta",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/glazed_terracotta/blue_glazed_terracotta.png"
+    },
+    "purple_glazed_terracotta": {
+      "name": "Purple Glazed Terracotta",
+      "category": "Glazed Terracotta",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/glazed_terracotta/purple_glazed_terracotta.png"
+    },
+    "magenta_glazed_terracotta": {
+      "name": "Magenta Glazed Terracotta",
+      "category": "Glazed Terracotta",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/glazed_terracotta/magenta_glazed_terracotta.png"
+    },
+    "pink_glazed_terracotta": {
+      "name": "Pink Glazed Terracotta",
+      "category": "Glazed Terracotta",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/glazed_terracotta/pink_glazed_terracotta.png"
+    },
+    "dirt": {
+      "name": "Dirt",
+      "category": "Dirt",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/dirt/dirt.png"
+    },
+    "coarse_dirt": {
+      "name": "Coarse Dirt",
+      "category": "Dirt",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/dirt/coarse_dirt.png"
+    },
+    "rooted_dirt": {
+      "name": "Rooted Dirt",
+      "category": "Dirt",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/dirt/rooted_dirt.png"
+    },
+    "farmland": {
+      "name": "Farmland",
+      "category": "Dirt",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/dirt/farmland.png"
+    },
+    "moist_farmland": {
+      "name": "Moist Farmland",
+      "category": "Dirt",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/dirt/moist_farmland.png"
+    },
+    "gravel": {
+      "name": "Gravel",
+      "category": "Gravel",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/gravel.png"
+    },
+    "sand": {
+      "name": "Sand",
+      "category": "Sand",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/sand/sand.png"
+    },
+    "sandstone": {
+      "name": "Sandstone",
+      "category": "Sand",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/sand/sandstone.png"
+    },
+    "sandstone_top": {
+      "name": "Sandstone Top",
+      "category": "Sand",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/sand/sandstone_top.png"
+    },
+    "red_sand": {
+      "name": "Red Sand",
+      "category": "Sand",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/sand/red_sand.png"
+    },
+    "red_sandstone": {
+      "name": "Red Sandstone",
+      "category": "Sand",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/sand/red_sandstone.png"
+    },
+    "red_sandstone_top": {
+      "name": "Red Sandstone Top",
+      "category": "Sand",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/sand/red_sandstone_top.png"
+    },
+    "soul_sand": {
+      "name": "Soul Sand",
+      "category": "Sand",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/sand/soul_sand.png"
+    },
+    "soul_soil": {
+      "name": "Soul Soil",
+      "category": "Sand",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/sand/soul_soil.png"
+    },
+    "amethyst": {
+      "name": "Amethyst",
+      "category": "Amethyst",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/amethyst.png"
+    },
+    "melon": {
+      "name": "Melon",
+      "category": "Melon",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/melon.png"
+    },
+    "ancient_debris": {
+      "name": "Ancient Debris",
+      "category": "Ancient Debris",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/ancient_debris.png"
+    },
+    "bricks": {
+      "name": "Bricks",
+      "category": "Bricks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/bricks/bricks.png"
+    },
+    "stone_bricks": {
+      "name": "Stone Bricks",
+      "category": "Bricks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/bricks/stone_bricks.png"
+    },
+    "cracked_stone_bricks": {
+      "name": "Cracked Stone Bricks",
+      "category": "Bricks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/bricks/cracked_stone_bricks.png"
+    },
+    "mossy_stone_bricks": {
+      "name": "Mossy Stone Bricks",
+      "category": "Bricks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/bricks/mossy_stone_bricks.png"
+    },
+    "deepslate_bricks": {
+      "name": "Deepslate Bricks",
+      "category": "Bricks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/bricks/deepslate_bricks.png"
+    },
+    "cracked_deepslate_bricks": {
+      "name": "Cracked Deepslate Bricks",
+      "category": "Bricks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/bricks/cracked_deepslate_bricks.png"
+    },
+    "tuff_bricks": {
+      "name": "Tuff Bricks",
+      "category": "Bricks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/bricks/tuff_bricks.png"
+    },
+    "quartz_bricks": {
+      "name": "Quartz Bricks",
+      "category": "Bricks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/bricks/quartz_bricks.png"
+    },
+    "mud_bricks": {
+      "name": "Mud Bricks",
+      "category": "Bricks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/bricks/mud_bricks.png"
+    },
+    "nether_bricks": {
+      "name": "Nether Bricks",
+      "category": "Bricks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/bricks/nether_bricks.png"
+    },
+    "cracked_nether_bricks": {
+      "name": "Cracked Nether Bricks",
+      "category": "Bricks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/bricks/cracked_nether_bricks.png"
+    },
+    "red_nether_bricks": {
+      "name": "Red Nether Bricks",
+      "category": "Bricks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/bricks/red_nether_bricks.png"
+    },
+    "polished_blackstone_bricks": {
+      "name": "Polished Blackstone Bricks",
+      "category": "Bricks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/bricks/polished_blackstone_bricks.png"
+    },
+    "cracked_polished_blackstone_bricks": {
+      "name": "Cracked Polished Blackstone Bricks",
+      "category": "Bricks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/bricks/cracked_polished_blackstone_bricks.png"
+    },
+    "end_stone_bricks": {
+      "name": "End Stone Bricks",
+      "category": "Bricks",
+      "author": "Mojang",
+      "asset": "tileables/minecraft/bricks/end_stone_bricks.png"
+    },
+    "poisonous_potato": {
+      "name": "Poisonous Potato",
+      "category": "Poisonous Potato Update",
+      "author": "Mojang",
+      "asset": "tileables/poisonous_potato/poisonous_potato.png"
+    },
+    "terre_de_pomme": {
+      "name": "Terre De Pomme",
+      "category": "Poisonous Potato Update",
+      "author": "Mojang",
+      "asset": "tileables/poisonous_potato/terre_de_pomme.png"
+    },
+    "potato_peels_block": {
+      "name": "Potato Peels Block",
+      "category": "Poisonous Potato Update",
+      "author": "Mojang",
+      "asset": "tileables/poisonous_potato/potato_peels_block.png"
+    },
+    "peelgrass": {
+      "name": "Peelgrass",
+      "category": "Poisonous Potato Update",
+      "author": "Mojang",
+      "asset": "tileables/poisonous_potato/peelgrass.png"
+    },
+    "corrupted_peelgrass": {
+      "name": "Corrupted Peelgrass",
+      "category": "Poisonous Potato Update",
+      "author": "Mojang",
+      "asset": "tileables/poisonous_potato/corrupted_peelgrass.png"
+    },
+    "poison_path": {
+      "name": "Poison Path",
+      "category": "Poisonous Potato Update",
+      "author": "Mojang",
+      "asset": "tileables/poisonous_potato/poison_path.png"
+    },
+    "potato_stem": {
+      "name": "Potato Stem",
+      "category": "Poisonous Potato Update",
+      "author": "Mojang",
+      "asset": "tileables/poisonous_potato/potato_stem.png"
+    },
+    "potato_planks": {
+      "name": "Potato Planks",
+      "category": "Poisonous Potato Update",
+      "author": "Mojang",
+      "asset": "tileables/poisonous_potato/potato_planks.png"
+    },
+    "potone": {
+      "name": "Potone",
+      "category": "Poisonous Potato Update",
+      "author": "Mojang",
+      "asset": "tileables/poisonous_potato/potone.png"
+    },
+    "taterstone": {
+      "name": "Taterstone",
+      "category": "Poisonous Potato Update",
+      "author": "Mojang",
+      "asset": "tileables/poisonous_potato/taterstone.png"
+    },
+    "gravtater": {
+      "name": "Gravtater",
+      "category": "Poisonous Potato Update",
+      "author": "Mojang",
+      "asset": "tileables/poisonous_potato/gravtater.png"
+    },
+    "baked_potato_bricks": {
+      "name": "Baked Potato Bricks",
+      "category": "Poisonous Potato Update",
+      "author": "Mojang",
+      "asset": "tileables/poisonous_potato/baked_potato_bricks.png"
+    },
+    "charred_baked_potato_bricks": {
+      "name": "Charred Baked Potato Bricks",
+      "category": "Poisonous Potato Update",
+      "author": "Mojang",
+      "asset": "tileables/poisonous_potato/charred_baked_potato_bricks.png"
+    },
+    "expired_baked_potato_bricks": {
+      "name": "Expired Baked Potato Bricks",
+      "category": "Poisonous Potato Update",
+      "author": "Mojang",
+      "asset": "tileables/poisonous_potato/expired_baked_potato_bricks.png"
+    },
+    "floatato": {
+      "name": "Floatato",
+      "category": "Poisonous Potato Update",
+      "author": "Mojang",
+      "asset": "tileables/poisonous_potato/floatato.png"
+    },
+    "diagonal_up": {
+      "name": "Diagonal Up",
+      "category": "Diagonal",
+      "author": "Mojang",
+      "asset": "tileables/patterns/diagonal_up.png"
+    },
+    "diagonal_down": {
+      "name": "Diagonal Down",
+      "category": "Diagonal",
+      "author": "Mojang",
+      "asset": "tileables/patterns/diagonal_down.png"
+    },
+    "white_concrete": {
+      "name": "White Concrete",
+      "category": "Concrete",
+      "author": "29bburkle",
+      "asset": "tileables/minecraft/concrete/white_concrete.png"
+    },
+    "light_gray_concrete": {
+      "name": "Light Gray Concrete",
+      "category": "Concrete",
+      "author": "29bburkle",
+      "asset": "tileables/minecraft/concrete/light_gray_concrete.png"
+    },
+    "gray_concrete": {
+      "name": "Gray Concrete",
+      "category": "Concrete",
+      "author": "29bburkle",
+      "asset": "tileables/minecraft/concrete/gray_concrete.png"
+    },
+    "black_concrete": {
+      "name": "Black Concrete",
+      "category": "Concrete",
+      "author": "29bburkle",
+      "asset": "tileables/minecraft/concrete/black_concrete.png"
+    },
+    "brown_concrete": {
+      "name": "Brown Concrete",
+      "category": "Concrete",
+      "author": "29bburkle",
+      "asset": "tileables/minecraft/concrete/brown_concrete.png"
+    },
+    "red_concrete": {
+      "name": "Red Concrete",
+      "category": "Concrete",
+      "author": "29bburkle",
+      "asset": "tileables/minecraft/concrete/red_concrete.png"
+    },
+    "orange_concrete": {
+      "name": "Orange Concrete",
+      "category": "Concrete",
+      "author": "29bburkle",
+      "asset": "tileables/minecraft/concrete/orange_concrete.png"
+    },
+    "yellow_concrete": {
+      "name": "Yellow Concrete",
+      "category": "Concrete",
+      "author": "29bburkle",
+      "asset": "tileables/minecraft/concrete/yellow_concrete.png"
+    },
+    "lime_concrete": {
+      "name": "Lime Concrete",
+      "category": "Concrete",
+      "author": "29bburkle",
+      "asset": "tileables/minecraft/concrete/lime_concrete.png"
+    },
+    "green_concrete": {
+      "name": "Green Concrete",
+      "category": "Concrete",
+      "author": "29bburkle",
+      "asset": "tileables/minecraft/concrete/green_concrete.png"
+    },
+    "cyan_concrete": {
+      "name": "Cyan Concrete",
+      "category": "Concrete",
+      "author": "29bburkle",
+      "asset": "tileables/minecraft/concrete/cyan_concrete.png"
+    },
+    "light_blue_concrete": {
+      "name": "Light Blue Concrete",
+      "category": "Concrete",
+      "author": "29bburkle",
+      "asset": "tileables/minecraft/concrete/light_blue_concrete.png"
+    },
+    "blue_concrete": {
+      "name": "Blue Concrete",
+      "category": "Concrete",
+      "author": "29bburkle",
+      "asset": "tileables/minecraft/concrete/blue_concrete.png"
+    },
+    "purple_concrete": {
+      "name": "Purple Concrete",
+      "category": "Concrete",
+      "author": "29bburkle",
+      "asset": "tileables/minecraft/concrete/purple_concrete.png"
+    },
+    "magenta_concrete": {
+      "name": "Magenta Concrete",
+      "category": "Concrete",
+      "author": "29bburkle",
+      "asset": "tileables/minecraft/concrete/magenta_concrete.png"
+    },
+    "pink_concrete": {
+      "name": "Pink Concrete",
+      "category": "Concrete",
+      "author": "29bburkle",
+      "asset": "tileables/minecraft/concrete/pink_concrete.png"
+    }
+  }
+}

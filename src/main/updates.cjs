@@ -5,21 +5,25 @@ const {atomicWrite, createQueue} = require('./storage.cjs');
 const security = require('./update-security.cjs');
 const {requestBuffer} = require('./update-network.cjs');
 const {abortable,requestWithRetry,errorCode} = require('./update-operations.cjs');
+const {updateTarget}=require('./update-targets.cjs');
 
 const CHECK_INTERVAL = 6 * 60 * 60 * 1000;
+const RETRY_INTERVAL = 15 * 60 * 1000;
 class UpdateService {
     constructor({app, windows, testMode = false, platform = process.platform, arch = process.arch,
-        portable = Boolean(process.env.PORTABLE_EXECUTABLE_FILE), engineFactory = () => require('electron-updater').autoUpdater,
+        portable = Boolean(process.env.PORTABLE_EXECUTABLE_FILE),appImage=process.env.APPIMAGE,macSigned=false, engineFactory = () => require('electron-updater').autoUpdater,
         request = requestBuffer, publicKey = security.PUBLIC_KEY, now = Date.now,
         checkTimeout = 60000, downloadIdleTimeout = 120000, retryDelays = [0,500,1500]}) {
         Object.assign(this, {app, windows, engineFactory, request, publicKey, now,checkTimeout,downloadIdleTimeout,retryDelays});
-        this.supported = !testMode && app.isPackaged && platform === 'win32' && arch === 'x64' && !portable;
+        this.target=updateTarget(platform,arch);
+        this.supported = !testMode && app.isPackaged && !!this.target && !portable && (platform==='win32'||platform==='linux'&&!!appImage||platform==='darwin'&&macSigned);
+        const unavailableReason=testMode||!app.isPackaged?'development':portable?'portable':!this.target?'platform':platform==='darwin'&&!macSigned?'mac-signing':platform==='linux'&&!appImage?'linuxNative':'';
         this.preferencesFile = path.join(app.getPath('userData'), 'update-preferences.json');
         this.writePreferences = createQueue();
         this.configureQueue = createQueue();
         this.preferences = {autoCheck: true, autoDownload: false, lastChecked: 0};
         this.state = {status: 'idle', currentVersion: app.getVersion(), version: '', notes: '', percent: 0,
-            downloaded: 0, total: 0, error: '', supported: this.supported, releaseUrl: security.RELEASES_URL, ...this.preferences};
+            downloaded: 0, total: 0, error: '', supported: this.supported,unavailableReason, releaseUrl: security.RELEASES_URL, ...this.preferences};
         this.ready = this.load();
     }
     async load() {
@@ -53,14 +57,19 @@ class UpdateService {
             return this.status();
         });
     }
-    async start() {
-        await this.ready;
-        this.schedule(12000);
+    start() {
+        // Begin in the background as soon as preferences are loaded. Repeated
+        // startup calls share one check and cannot create competing timers.
+        if (!this.starting) this.starting = this.ready.then(() => {
+            if (this.disposed || !this.supported || !this.preferences.autoCheck) return this.status();
+            return this.check().finally(() => this.schedule(this.state.status === 'error' ? RETRY_INTERVAL : CHECK_INTERVAL));
+        });
+        return this.starting;
     }
     schedule(delay = CHECK_INTERVAL) {
         clearTimeout(this.timer);
         if (!this.supported || !this.preferences.autoCheck || this.disposed) return;
-        this.timer = setTimeout(() => { void this.check().catch(() => {}).finally(() => this.schedule(this.state.status==='error'?15*60*1000:CHECK_INTERVAL)); }, Math.min(CHECK_INTERVAL, Math.max(0, delay)));
+        this.timer = setTimeout(() => { void this.check().catch(() => {}).finally(() => this.schedule(this.state.status==='error'?RETRY_INTERVAL:CHECK_INTERVAL)); }, Math.min(CHECK_INTERVAL, Math.max(0, delay)));
         this.timer.unref?.();
     }
     fail(error) {
@@ -119,15 +128,15 @@ class UpdateService {
                 await this.savePreferences().catch(()=>{}); return this.status();
             }
             const base = security.downloadBase(version);
-            const names = [...security.releaseNames(version), 'release-manifest.json'];
+            const names = [...security.releaseNames(version,this.target), this.target.manifest];
             if (!Array.isArray(release.assets) || names.some(name => release.assets.filter(asset => asset.name === name && asset.browser_download_url === base + name).length !== 1)) throw Error('UPDATE_UNSIGNED_RELEASE');
-            const manifest = security.readManifest((await read(base+'release-manifest.json',64*1024)).toString('utf8'),version,this.publicKey);
-            const yaml = await read(base+'latest.yml',64*1024);
+            const manifest = security.readManifest((await read(base+this.target.manifest,64*1024)).toString('utf8'),version,this.publicKey,this.target);
+            const yaml = await read(base+this.target.metadata,64*1024);
             const {createHash} = require('node:crypto');
-            if (createHash('sha256').update(yaml).digest('hex') !== manifest.files[2].sha256) throw Error('UPDATE_UNTRUSTED_METADATA');
+            if (createHash('sha256').update(yaml).digest('hex') !== manifest.files.at(-1).sha256) throw Error('UPDATE_UNTRUSTED_METADATA');
             for (const file of manifest.files) if (release.assets.find(asset => asset.name === file.name).size !== file.size) throw Error('UPDATE_INVALID_MANIFEST');
             const engine = this.getEngine();
-            engine.setFeedURL({provider: 'generic', url: base, useMultipleRangeRequest: false});
+            engine.setFeedURL({provider: 'generic', url: base,channel:this.target.channel, useMultipleRangeRequest: false});
             const result = await abortable(engine.checkForUpdates(),signal);
             if(signal.aborted||this.disposed)throw signal.reason || Error('UPDATE_STOPPED');
             if (!result?.isUpdateAvailable) throw Error('UPDATE_INVALID_VERSION');
@@ -203,7 +212,7 @@ class UpdateService {
             void security.verifyFile(this.installer, this.manifest.files[0]).then(() => {
                 cleanup();
                 this.engine.quitAndInstall(true, true);
-                if (!this.engine.quitAndInstallCalled) throw Error('UPDATE_INSTALL_FAILED');
+                if ('quitAndInstallCalled' in this.engine && !this.engine.quitAndInstallCalled) throw Error('UPDATE_INSTALL_FAILED');
             }).catch(error => { cleanup(); this.fail(error); this.windows.create('main'); });
         };
         main.once('molly-close-cancelled', cancelled);
@@ -216,4 +225,4 @@ class UpdateService {
         this.disposed = true; clearTimeout(this.timer); this.checkAbort?.abort(Error('UPDATE_STOPPED')); this.downloadToken?.cancel();
     }
 }
-module.exports = {UpdateService, CHECK_INTERVAL};
+module.exports = {UpdateService, CHECK_INTERVAL, RETRY_INTERVAL};

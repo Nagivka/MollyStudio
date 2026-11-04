@@ -7,7 +7,7 @@ const {EventEmitter, once} = require('node:events');
 const {generateKeyPairSync, createHash, sign} = require('node:crypto');
 const security = require('../../src/main/update-security.cjs');
 const {allowedURL} = require('../../src/main/update-network.cjs');
-const {UpdateService} = require('../../src/main/updates.cjs');
+const {UpdateService,CHECK_INTERVAL,RETRY_INTERVAL} = require('../../src/main/updates.cjs');
 const {prepareRelease} = require('../../scripts/release/sign.cjs');
 const {abortable,requestWithRetry,errorCode}=require('../../src/main/update-operations.cjs');
 
@@ -45,7 +45,7 @@ async function fixture(t, options = {}) {
     const request=async url=>{requested.push(url);if(url.endsWith('/releases/latest'))return Buffer.from(JSON.stringify(release));if(url.endsWith('release-manifest.json'))return Buffer.from(envelope);if(url.endsWith('latest.yml'))return metadata;throw Error('Unexpected request');};
     const service = new UpdateService({app,windows,platform:'win32',arch:'x64',portable:false,request,publicKey,engineFactory:()=>engine,now:()=>time,...options});
     t.after(()=>service.dispose());await service.ready;
-    return {root,name,version,privateKey,publicKey,envelope,manifest,files,bytes,engine,info,release,service,main,app,windows,states,requested,advance:()=>time+=31000};
+    return {root,name,version,privateKey,publicKey,envelope,manifest,files,bytes,engine,info,release,service,main,app,windows,states,requested,advance:(ms=31000)=>time+=ms};
 }
 
 test('stable version comparison rejects prereleases and prevents downgrade',()=>{
@@ -109,6 +109,42 @@ test('installation waits for confirmed closure and rechecks installer bytes befo
 });
 test('unsupported development and portable sessions perform no automatic network checks',async t=>{
     const f=await fixture(t,{portable:true});await f.service.start();await f.service.check();assert.equal(f.requested.length,0);assert.equal(f.service.timer,undefined);
+});
+
+test('startup checks immediately despite a recent check, runs once, and then follows the six-hour interval',async t=>{
+    const f=await fixture(t);
+    f.service.preferences.lastChecked=1_000_000;
+    t.mock.timers.enable({apis:['setTimeout']});
+    const startup=f.service.start();assert.equal(f.service.start(),startup);
+    await startup;
+    assert.equal(f.requested.length,3);assert.equal(f.service.state.status,'available');
+    f.advance();await f.service.start();assert.equal(f.requested.length,3);
+    t.mock.timers.tick(CHECK_INTERVAL-1);assert.equal(f.requested.length,3);
+    f.advance(CHECK_INTERVAL);t.mock.timers.tick(1);
+    await new Promise(resolve=>setImmediate(resolve));await f.service.checking;
+    assert.equal(f.requested.length,6);assert.equal(f.service.state.status,'available');
+});
+
+test('a startup network failure schedules another check after fifteen minutes',async t=>{
+    let attempts=0;
+    const f=await fixture(t,{request:async()=>{attempts++;throw Error('UPDATE_NETWORK');},retryDelays:[0]});
+    t.mock.timers.enable({apis:['setTimeout']});
+    await f.service.start();assert.equal(attempts,1);assert.equal(f.service.state.error,'UPDATE_NETWORK');
+    t.mock.timers.tick(RETRY_INTERVAL-1);assert.equal(attempts,1);
+    f.advance(RETRY_INTERVAL);t.mock.timers.tick(1);
+    await new Promise(resolve=>setImmediate(resolve));await f.service.checking;
+    assert.equal(attempts,2);
+});
+
+test('disabled automatic checks remain offline at startup but manual checks still work',async t=>{
+    const f=await fixture(t);await f.service.configure({autoCheck:false});await f.service.start();
+    assert.equal(f.requested.length,0);assert.equal(f.service.timer,undefined);
+    await f.service.check();assert.equal(f.service.state.status,'available');assert.equal(f.requested.length,3);
+});
+
+test('a disposed updater never starts a check or schedules a timer',async t=>{
+    const f=await fixture(t);f.service.dispose();await f.service.start();
+    assert.equal(f.requested.length,0);assert.equal(f.service.timer,undefined);
 });
 test('update preferences are validated and persist independently of projects',async t=>{
     const f=await fixture(t);await f.service.configure({autoCheck:false,autoDownload:true});

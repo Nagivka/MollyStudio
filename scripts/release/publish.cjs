@@ -2,14 +2,14 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const {createHash} = require('node:crypto');
 const {releaseInfo} = require('./validate.cjs');
-const {prepareRelease} = require('./sign.cjs');
+const {prepareReleaseBundle} = require('./bundle.cjs');
 const {PUBLIC_KEY, signingKey} = require('../../src/main/update-security.cjs');
 
 const SOURCE = 'Nagivka/MollyStudio';
 const TARGET = 'Nagivka/MollyStudio-Releases';
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 
-const artifacts = prepareRelease;
+const artifacts = prepareReleaseBundle;
 
 async function publish({root, env = process.env, fetchImpl = fetch, checkAccessOnly = false, publicKey = PUBLIC_KEY}) {
     if (env.GITHUB_REPOSITORY !== SOURCE) throw Error('Publishing must run from the private source repository.');
@@ -46,7 +46,7 @@ async function publish({root, env = process.env, fetchImpl = fetch, checkAccessO
     const existing = await api(`${releasesPath}/tags/${info.tag}`, {allow404: true});
     if (existing) throw Error(`Release ${info.tag} already exists; published files will not be overwritten.`);
     const release = await api(releasesPath, {method: 'POST', body: {tag_name: info.tag,
-        name: `MollyStudio ${info.buildVersion} — Установщик для Windows`, body: notes, draft: true, prerelease: false}});
+        name: `MollyStudio ${info.buildVersion}`, body: notes, draft: true, prerelease: false}});
     const uploadBase = release.upload_url?.replace(/\{.*$/, '');
     if (!Number.isSafeInteger(release.id) || uploadBase !== `https://uploads.github.com/repos/${TARGET}/releases/${release.id}/assets`) {
         throw Error('Unexpected upload destination. Release remains a draft.');

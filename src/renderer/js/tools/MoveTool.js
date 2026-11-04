@@ -1,4 +1,5 @@
 import { isControlFocused } from '../ui/ControlFocus.js';
+import {primaryModifier} from '../core/Platform.mjs';
 import Tool from './Tool.js';
 import { DrawCommand, TextDataCommand, CompoundCommand } from '../core/Commands.js';
 import {captureTextState,restoreTextState} from '../graphics/TextEdit.mjs';
@@ -987,8 +988,8 @@ export default class MoveTool extends Tool {
         if (this.activeHandle.id === 'move') {
             const rawX = this.boxStart.x + (shiftKey&&Math.abs(dy)>Math.abs(dx)?0:dx);
             const rawY = this.boxStart.y + (shiftKey&&Math.abs(dx)>=Math.abs(dy)?0:dy);
-            const snapped = e?.ctrlKey?{x:rawX,y:rawY}:this.computeSnapping(rawX, rawY, this.boxStart.w, this.boxStart.h);
-            if(e?.ctrlKey){this.activeSnapLines=[];this.activeGapGuides=[];}
+            const snapped = primaryModifier(e||{})?{x:rawX,y:rawY}:this.computeSnapping(rawX, rawY, this.boxStart.w, this.boxStart.h);
+            if(primaryModifier(e||{})){this.activeSnapLines=[];this.activeGapGuides=[];}
             if(shiftKey){
                 const lockedAxis=Math.abs(dx)>=Math.abs(dy)?'y':'x';
                 snapped[lockedAxis]=this.boxStart[lockedAxis];
@@ -1223,7 +1224,7 @@ export default class MoveTool extends Tool {
         }
 
         // Holding Ctrl snaps to clean integer pixel multiples (1x, 2x, 3x, 4x, etc.)
-        const ctrlKey = Boolean(e?.ctrlKey);
+        const ctrlKey = primaryModifier(e||{});
         if (ctrlKey && this.activeSourceCanvas) {
             const origW = this.activeSourceCanvas.width;
             const origH = this.activeSourceCanvas.height;

@@ -22,8 +22,9 @@ import { normalizePrefixDocument } from './PrefixDocument.mjs';
 import { safeFileStem } from './FileNames.mjs';
 import {uiLabel} from './Locale.mjs';
 import {normalizeSavedGuiTemplatePath} from './ProjectFactory.mjs';
+import {projectPathKey} from './Platform.mjs';
 
-const fileKey = path => String(path || '').replaceAll('\\', '/').toLowerCase();
+const fileKey = projectPathKey;
 const deferredOpenError = () => Object.assign(new Error('Завершите или отмените незавершённый ввод. Открытие проекта отложено.'), { code: 'PROJECT_OPEN_DEFERRED' });
 
 export default class ProjectManager {
@@ -493,7 +494,7 @@ export default class ProjectManager {
         try {
             const fallbackName = filePath ? filePath.split(/[\\/]/).pop().replace(/\.mlst$/i, '') : 'Проект';
             const name = String(data.name || fallbackName);
-            const type = ['canvas', 'prefix'].includes(data.type) ? data.type : 'gui';
+            const type = ['canvas', 'prefix', 'title'].includes(data.type) ? data.type : 'gui';
             const bg = ['white', 'black', 'transparent'].includes(data.bg) ? data.bg : null;
             this.app.addProject(name, 'none', dimensions.width, dimensions.height, false, type, bg);
             const project = this.app.projects.find(item => item.id === this.app.activeProjectId);
@@ -506,6 +507,7 @@ export default class ProjectManager {
             Object.assign(project, {
                 filePath, fileRevision, type, bg,
                 ...(type === 'prefix' ? { prefixData: structuredClone(data.prefixData) } : {}),
+                ...(type === 'title'?{titleData:structuredClone(data.titleData)}:{}),
                 draftId: importedDraftId && !duplicateDraft ? importedDraftId : project.draftId,
                 templateName: String(data.templateName || 'container_54'),
                 templatePath: normalizeSavedGuiTemplatePath(data.templatePath),
@@ -648,8 +650,8 @@ export default class ProjectManager {
         if (!project) return '';
         const layers = projectId === this.app.activeProjectId ? this.app.layerManager.getLayers() : project.layers || [];
         const config = projectId === this.app.activeProjectId ? this.app.config : project.config;
-        return JSON.stringify([config, project.name, project.bg, project.templatePath, project.templateName, project.hasFrame, project.prefixData, readWorkspaceState(this.app, project), layers.map(layer =>
-            [layer.id, layer.type === 'text' && layer.textData || project.type === 'prefix' && layer.objectType === 'prefix' ? null : (layer.contentIdentity ?? layer.contentRevision ?? 0), layer.width, layer.height, layer.name, layer.visible, layer.locked, layer.alphaLocked,
+        return JSON.stringify([config, project.name, project.bg, project.templatePath, project.templateName, project.hasFrame, project.prefixData, project.titleData, readWorkspaceState(this.app, project), layers.map(layer =>
+            [layer.id, layer.type === 'text' && layer.textData || ((project.type === 'prefix' && layer.objectType === 'prefix')||(project.type==='title'&&layer.objectType==='title')) ? null : (layer.contentIdentity ?? layer.contentRevision ?? 0), layer.width, layer.height, layer.name, layer.visible, layer.locked, layer.alphaLocked,
                 layer.opacity, layer.blendMode, layer.groupId, layer.textData, layer.shapeData, layer.buttonData, layer.fx, layer.colorLabel])]);
     }
 

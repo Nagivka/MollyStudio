@@ -1,4 +1,5 @@
 import english from '../../locales/en.json' with {type: 'json'};
+import {shortcutLabel} from './Platform.mjs';
 Object.freeze(english);
 
 export const LANGUAGES = Object.freeze([{id: 'ru', name: 'Русский'}, {id: 'en', name: 'English'}]);
@@ -42,7 +43,7 @@ export function translate(source, values = {}) {
     const text = language === 'en'
         ? Object.hasOwn(english, source) ? english[source] : source.replace(/^(\s*)([\s\S]*?)(\s*)$/, (_, before, core, after) => before + (Object.hasOwn(english, core) ? english[core] : translateMessage(core)) + after)
         : source;
-    return String(text).replace(/\{(\w+)\}/g, (match, key) => Object.hasOwn(values, key) ? formatValue(values[key]) : match);
+    return shortcutLabel(text).replace(/\{(\w+)\}/g, (match, key) => Object.hasOwn(values, key) ? formatValue(values[key]) : match);
 }
 
 // Bind only developer-owned labels. Never scan arbitrary project or input text.

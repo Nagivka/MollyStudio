@@ -1,5 +1,5 @@
 const fs=require('node:fs/promises'),path=require('node:path');
-const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
+const {app,root,ready,makeWindow,settle,evaluateMain}=require('./lib/electron-harness.cjs');
 (async()=>{let editor,settings;const checks=[];const expect=(ok,message)=>{if(!ok)throw Error(message);checks.push(message);};
 try{
  await ready();editor=makeWindow(1280,900);
@@ -55,7 +55,28 @@ try{
  await editor.cdp.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-contrast',value:'more'},{name:'prefers-reduced-transparency',value:'no-preference'}]});
  expect(await editor.page.locator('.menu-dropdown').first().evaluate(node=>getComputedStyle(node).backdropFilter)==='none','Higher contrast suppresses glass blur');
  await editor.cdp.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-transparency',value:'no-preference'},{name:'prefers-contrast',value:'no-preference'}]});
- await editor.showInactive();
+ settings.destroy();settings=null;
+ await evaluateMain(()=>{const win=globalThis.__mollyTestRuntime.windows.get('main');win.show();win.focus();});await editor.page.bringToFront();
+ await editor.page.evaluate(()=>mollyEditor.settingsManager.set('animationsEnabled',true));await settle(editor);
+ const glassControl=editor.page.locator('.md-btn:visible').first();
+ const controlBox=await glassControl.boundingBox();
+ const lighting=()=>glassControl.evaluate(node=>({x:node.style.getPropertyValue('--glass-light-x'),image:getComputedStyle(node).backgroundImage}));
+ await editor.page.mouse.move(controlBox.x+controlBox.width*.25,controlBox.y+controlBox.height/2);await settle(editor);
+ const near=await lighting();
+ await editor.page.mouse.move(controlBox.x+controlBox.width*.75,controlBox.y+controlBox.height/2);await settle(editor);
+ const far=await lighting();
+ expect(near.x!==''&&far.x!==near.x&&near.image!==far.image,'Specular light follows the cursor on the actual control '+JSON.stringify({near,far,controlBox}));
+ await editor.cdp.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});await settle(editor);
+ expect((await lighting()).x==='','Reduced motion clears pending light and element overrides');
+ await editor.cdp.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]});
+ await editor.page.mouse.move(controlBox.x+controlBox.width*.4,controlBox.y+controlBox.height/2);await settle(editor);
+ await editor.page.evaluate(()=>mollyEditor.settingsManager.set('animationsEnabled',false));await settle(editor);
+ expect((await lighting()).x==='','Animation preference clears specular motion');
+ await editor.page.evaluate(()=>mollyEditor.settingsManager.set('animationsEnabled',true));await settle(editor);
+ await editor.page.mouse.move(controlBox.x+controlBox.width*.6,controlBox.y+controlBox.height/2);await settle(editor);
+ await editor.page.evaluate(()=>mollyEditor.settingsManager.set('liquidGlassEnabled',false));await settle(editor);
+ expect((await lighting()).x==='','Disabling glass clears moving highlights');
+ await editor.page.evaluate(()=>mollyEditor.settingsManager.set('liquidGlassEnabled',true));
  await settle(editor);await fs.mkdir(path.join(root,'.test-output/liquid-glass'),{recursive:true});
  await fs.writeFile(path.join(root,'.test-output/liquid-glass/editor-dark.png'),(await editor.webContents.capturePage()).toPNG());
  expect(await editor.page.locator('canvas').count()>0,'Editor canvas stays present');

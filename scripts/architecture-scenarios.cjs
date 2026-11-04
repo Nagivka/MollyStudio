@@ -14,7 +14,9 @@ const {app,root,ready,makeWindow,settle,command}=require('./lib/electron-harness
         return checks;
     });
     settings=makeWindow(1000,760,{label:'settings'});await settings.loadFile(path.join(root,'src/renderer/settings.html'),{query:{tab:'about'}});await settle(settings);
-    await settings.page.click('[data-about-action=diagnostics]');await settings.page.waitForFunction(()=>document.querySelector('.diagnostics-dialog textarea')?.value.includes('MollyStudio diagnostics'));
+    for(let i=0;i<7;i++)await settings.page.locator('[data-about-version]').click();
+    await settings.page.locator('[data-tab="developer"]').click();
+    await settings.page.click('[data-developer-action="report"]');await settings.page.waitForFunction(()=>document.querySelector('.diagnostics-dialog textarea')?.value.includes('MollyStudio diagnostics'));
     const report=await settings.page.locator('.diagnostics-dialog textarea').inputValue();if(!JSON.parse(report).windows.some(w=>w.window==='editor.html'))throw Error('Settings report did not include the running editor');checks.push('Settings previews a report with measurements from the open editor');
     await settings.page.click('[data-diagnostics=save]');await settings.page.waitForFunction(()=>document.querySelector('.diagnostics-dialog output').textContent.includes('сохранён'));checks.push('The previewed diagnostic report saves through the native file dialog');
     await fs.writeFile(path.join(root,'.test-output/diagnostics-preview.png'),(await settings.webContents.capturePage()).toPNG());

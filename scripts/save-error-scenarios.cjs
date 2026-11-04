@@ -63,7 +63,15 @@ const {app, root, ready, makeWindow, settle, evaluateMain} = require('./lib/elec
         await win.page.click('.toast-actions button:first-child');
         await win.page.waitForFunction(()=>!window.mollyEditor.projectManager.pendingSaves.size&&!window.mollyEditor.projectManager.hasUnsavedChanges(window.saveFailureProject));
         checks.push('Retry writes the pending changes to the original file after permission recovery');
-        const unexpected = win.__testErrors.filter(message => !/ENOSPC-fixture|EACCES-fixture/.test(message));
+        const beforeDisconnect=await fs.readFile(result.file,'utf8');
+        await evaluateMain(()=>{const r=globalThis.__mollyTestRuntime;r.__originalWrite=r.files.write;r.files.write=async()=>{throw Error('ENODEV-fixture');};});
+        const disconnected=await win.page.evaluate(async()=>{const a=mollyEditor,layer=a.layerManager.addLayer('Disconnected drive edit');layer.ctx.fillRect(3,3,2,2);layer.invalidateSource();a.bus.emit('CANVAS_UPDATED');const before=JSON.stringify(a.projectManager.serializeProject().layers),saved=await a.projectManager.saveProject();return {saved,intact:JSON.stringify(a.projectManager.serializeProject().layers)===before,message:document.querySelector('.toast-with-actions')?.textContent};});
+        if(disconnected.saved||!disconnected.intact||!disconnected.message?.includes('disconnected')||await fs.readFile(result.file,'utf8')!==beforeDisconnect)throw Error('Disconnected drive lost pixels, changed the disk file or lacked a useful error');
+        checks.push('Disconnecting a drive preserves unsaved pixels and the previous disk file with a localized recovery message');
+        await evaluateMain(()=>{const r=globalThis.__mollyTestRuntime;r.files.write=r.__originalWrite;delete r.__originalWrite;});
+        await win.page.click('.toast-actions button:first-child');await win.page.waitForFunction(()=>!mollyEditor.projectManager.pendingSaves.size&&!mollyEditor.projectManager.hasUnsavedChanges(window.saveFailureProject));
+        checks.push('Reconnecting the drive permits an ordinary retry without losing the pending edit');
+        const unexpected = win.__testErrors.filter(message => !/ENOSPC-fixture|EACCES-fixture|ENODEV-fixture/.test(message));
         if (unexpected.length) throw Error(unexpected.join('\n'));
         await fs.writeFile(path.join(root, '.test-output/save-error-scenarios.json'), JSON.stringify({passed: checks.length, checks}, null, 2));
         console.log(JSON.stringify({passed: checks.length, checks}, null, 2));

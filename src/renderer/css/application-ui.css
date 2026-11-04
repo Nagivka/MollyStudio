@@ -901,6 +901,12 @@ input[type="color"]::-webkit-color-swatch {
 [data-texture-preview]{display:block;max-width:100%;height:auto;margin:16px auto;image-rendering:pixelated;background:repeating-conic-gradient(#8882 0% 25%,transparent 0% 50%) 0 0/16px 16px;}
 @media(max-width:520px){.texture-fields{grid-template-columns:1fr;}.asset-picker-dialog>header,.asset-picker-dialog footer,.asset-picker-body{padding:12px;}}
 /* Electron handles dragging and double-clicking the native frameless titlebar. */
+html[data-platform="darwin"] :is(.custom-titlebar,.settings-win-titlebar,.buttons-win-titlebar,.new-win-titlebar) {
+    padding-left: 84px !important;
+}
+html[data-platform="darwin"] :is(.titlebar-controls,.settings-win-titlebar-controls,.buttons-win-titlebar-controls,.new-win-titlebar-controls) {
+    display: none !important;
+}
 .custom-titlebar, .buttons-win-titlebar, .settings-win-titlebar, .new-win-titlebar {
     -webkit-app-region: drag;
 }
@@ -991,7 +997,8 @@ input[type="color"]::-webkit-color-swatch {
 .liquid-glass-setting{margin-block-start:16px;padding-block-start:16px;border-top:1px solid var(--md-outline-variant);}
 .liquid-glass-setting>.md-switch{display:flex;}
 .liquid-glass-setting>.settings-group-desc{margin-block:8px 0;}
-.seasonal-decoration{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;width:32px;height:32px;margin-inline-start:8px;overflow:hidden;pointer-events:none;user-select:none;line-height:1;}
+.launcher-home .launcher-hero-title{display:flex;align-items:center;gap:8px;}
+.seasonal-decoration{display:inline-flex;align-items:center;justify-content:center;flex:0 0 32px;width:32px;height:32px;overflow:hidden;pointer-events:auto;user-select:none;line-height:1;cursor:help;}
 .seasonal-decoration :is(svg,img){display:block;flex-shrink:0;width:28px;height:28px;max-width:none;object-fit:contain;}
 :root[data-theme*="minecraft"] .seasonal-decoration img{width:32px;height:32px;image-rendering:pixelated;}
 /* The sunflower occupies only the middle 8×8 pixels of a 16×16 texture.
@@ -999,25 +1006,30 @@ input[type="color"]::-webkit-color-swatch {
 :root[data-theme*="minecraft"] .seasonal-decoration[data-season="summer"] img{width:64px;height:64px;}
 @supports (backdrop-filter:blur(1px)) {
     :root[data-liquid-glass]:not([data-theme*="minecraft"]) {
-        --glass-edge:color-mix(in srgb,var(--md-on-surface) 28%,transparent);
-        --glass-sheen:linear-gradient(145deg,#ffffff30 0%,#ffffff0d 30%,transparent 52%,#ffffff0a 78%,#ffffff1a 100%);
+        --glass-edge:color-mix(in srgb,var(--md-on-surface) 22%,transparent);
+        --glass-density:74%;
+        --glass-highlight:#ffffff20;
+        --glass-blur:blur(18px) saturate(1.35);
+        --glass-depth:inset 0 1px 0 #ffffff38,inset 1px 0 0 #ffffff15,inset 0 -1px 0 #00000028,0 6px 18px #00000018;
+        &[data-theme^="light"]{--glass-density:82%;--glass-highlight:#ffffff70;--glass-edge:#ffffffa6;--glass-depth:inset 0 1px 0 #ffffffd9,inset 1px 0 0 #ffffff70,inset 0 -1px 0 #00000012,0 6px 18px #23304716;}
+        --glass-sheen:radial-gradient(ellipse at var(--glass-light-x,25%) var(--glass-light-y,0%),var(--glass-highlight),transparent 72%),linear-gradient(155deg,#ffffff12,transparent 38%,transparent 72%,#ffffff08);
         & .launcher-home {
             background-image:radial-gradient(ellipse at 12% 5%,color-mix(in srgb,var(--md-primary) 22%,transparent),transparent 60%),radial-gradient(ellipse at 92% 80%,color-mix(in srgb,var(--md-tertiary) 17%,transparent),transparent 60%);
         }
-        & :is(.top-bar,.options-bar,.toolbar,.bottom-status-bar,.settings-win-sidebar,.settings-win-footer,.modal-content,.menu-dropdown,.buttons-sidebar,#prefix-editor) {
-            background-color:color-mix(in srgb,var(--md-surface-container) 76%,transparent);
+        & :is(.top-bar,.options-bar,.toolbar,.bottom-status-bar,.settings-win-sidebar,.settings-win-footer,.modal-content,.menu-dropdown,.buttons-sidebar,#prefix-editor,#title-editor) {
+            background-color:color-mix(in srgb,var(--md-surface-container) var(--glass-density),transparent);
             background-image:var(--glass-sheen);
-            box-shadow:inset 0 1px 0 var(--glass-edge),inset 0 -1px 0 #00000012,0 8px 28px #00000018;
+            box-shadow:var(--glass-depth);
         }
         /* Filters create a containing block for fixed descendants. Keep them off
            toolbars, inspectors and dialogs containing viewport-positioned menus. */
         & :is(.menu-dropdown,.settings-win-sidebar,.settings-win-footer) {
-            backdrop-filter:blur(12px) saturate(1.2);
+            backdrop-filter:var(--glass-blur);
         }
         & :is(.md-panel,.settings-group,.m3-recent-card,.m3-card,dialog,.modal) {
             background-color:color-mix(in srgb,var(--md-surface-container) 80%,transparent);
             background-image:var(--glass-sheen);
-            box-shadow:inset 0 1px 0 var(--glass-edge),inset 0 0 0 1px #ffffff04,0 4px 16px #00000010;
+            box-shadow:var(--glass-depth);
         }
         & .launcher-home .m3-recent-card {
             /* Recovery cards have a legacy !important background shorthand. */
@@ -1035,22 +1047,36 @@ input[type="color"]::-webkit-color-swatch {
             box-shadow:inset 0 1px 0 var(--glass-edge),inset 0 -1px 0 #00000015;
         }
         & :is(.md-btn,.m3-btn,.md-icon-btn):hover:not(:disabled) {
-            background-image:linear-gradient(145deg,#ffffff48,#ffffff12 36%,transparent 60%,#ffffff18);
+            background-image:var(--glass-sheen);
         }
+    }
+    :root[data-liquid-glass]:not([data-theme*="minecraft"]) {
+        & :is(.md-btn.outlined,.md-btn.flat,.md-icon-btn,.doc-tab:not(.active),.settings-tab-btn:not(.active)) {
+            background-color:color-mix(in srgb,var(--md-surface-container) var(--glass-density),transparent);
+        }
+        /* Blur bounded, floating surfaces only. Ancestors of fixed menus and
+           the document canvas never become filter containing blocks. */
+        & .launcher-home .m3-recent-card{backdrop-filter:blur(10px) saturate(1.25);}
+        & :is(.md-btn,.md-icon-btn,.doc-tab,.settings-tab-btn){box-shadow:var(--glass-depth);}
+        & :is(.md-btn,.md-icon-btn,.doc-tab,.settings-tab-btn):disabled{backdrop-filter:none;background-image:none;box-shadow:none;}
+        & .studio-basement,& .studio-basement *{backdrop-filter:none;}
     }
     @media (prefers-reduced-transparency:reduce), (prefers-contrast:more) {
         :root[data-liquid-glass]:not([data-theme*="minecraft"]) {
-            & :is(.top-bar,.options-bar,.toolbar,.bottom-status-bar,.settings-win-sidebar,.settings-win-footer,.modal-content,.menu-dropdown,.buttons-sidebar,#prefix-editor,.md-panel,.settings-group,.m3-recent-card,.m3-card,dialog,.modal) {
+            & :is(.top-bar,.options-bar,.toolbar,.bottom-status-bar,.settings-win-sidebar,.settings-win-footer,.modal-content,.menu-dropdown,.buttons-sidebar,#prefix-editor,#title-editor,.md-panel,.settings-group,.m3-recent-card,.m3-card,dialog,.modal) {
                 backdrop-filter:none;background-color:var(--md-surface-container);
             }
             & .launcher-home .m3-recent-card {background-color:var(--md-surface-container)!important;}
+            & :is(.md-btn,.m3-btn,.md-icon-btn,.doc-tab,.settings-tab-btn){backdrop-filter:none;}
+            & :is(.md-btn.outlined,.md-btn.flat,.md-icon-btn,.doc-tab:not(.active),.settings-tab-btn:not(.active)){background-color:var(--md-surface-container);}
+
         }
     }
     @media (prefers-contrast:more) {
         :root[data-liquid-glass]:not([data-theme*="minecraft"]) {
             --glass-sheen:none;
             & .launcher-home {background-image:none;}
-            & :is(.md-btn,.m3-btn,.md-icon-btn,.doc-tab,.settings-tab-btn):is(:hover,:focus-visible) {background-image:none;}
+            & :is(.md-btn,.m3-btn,.md-icon-btn,.doc-tab,.settings-tab-btn) {background-image:none;box-shadow:none;}
         }
     }
     /* The recent-project section is a layout grid, never one large glass sheet. */
@@ -1059,6 +1085,7 @@ input[type="color"]::-webkit-color-swatch {
     }
     @media (forced-colors:active) {
         :root[data-liquid-glass]{--glass-sheen:none;}
+        :root[data-liquid-glass] *{backdrop-filter:none !important;}
         :root[data-liquid-glass] :is(.md-btn,.m3-btn,.md-icon-btn,.doc-tab,.settings-tab-btn,.md-panel,.settings-group,.m3-card) {background-image:none;box-shadow:none;}
     }
 }
@@ -1075,3 +1102,145 @@ input[type="color"]::-webkit-color-swatch {
 .update-notes { max-height: 160px; overflow-y: auto; white-space: pre-wrap; font-size: 12px; line-height: 1.6; }
 .update-preferences { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; margin-top: 16px; }
 [data-theme="minecraft"] .update-panel, [data-theme="light-minecraft"] .update-panel { border-radius: 0; border-width: 2px; }
+:root :is(.custom-titlebar,.settings-win-titlebar,.buttons-win-titlebar,.new-win-titlebar) button.titlebar-btn {
+    width:48px;
+    min-width:48px;
+    min-height:32px;
+    height:auto;
+    align-self:stretch;
+    flex:0 0 48px;
+    margin:0;
+    padding:0;
+    border:0;
+    border-radius:0;
+}
+:root :is(.custom-titlebar,.settings-win-titlebar,.buttons-win-titlebar,.new-win-titlebar) {
+    padding-right:0;
+    padding-block:0;
+}
+:root :is(.titlebar-controls,.settings-win-titlebar-controls,.buttons-win-titlebar-controls,.new-win-titlebar-controls) {
+    align-self:stretch;
+    align-items:stretch;
+    height:auto;
+    gap:0;
+    margin:0;
+    padding:0;
+}
+.developer-layout-bounds :is(button,input,select,textarea,.md-panel,.settings-group,.m3-recent-card){outline:1px dashed #ff5ec4 !important;outline-offset:-1px;}
+[data-about-version]{cursor:text;}
+[data-about-version]:focus-visible{outline:2px solid var(--md-primary);outline-offset:3px;}
+[data-developer-setting]{accent-color:var(--md-primary);}
+.developer-performance{position:fixed;right:12px;bottom:12px;z-index:2147483000;pointer-events:none;padding:6px 10px;background:#111e;color:#8fffc8;border:1px solid #53796b;border-radius:4px;font:12px/1.5 monospace;}
+.studio-basement{position:fixed;inset:0;margin:auto;width:min(760px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;box-sizing:border-box;padding:20px;border:3px solid #a6836a;border-radius:0;background:#252535;color:#f1dab5;font-family:'Minecraft UI',sans-serif;box-shadow:0 16px 64px #0008;}
+.studio-basement::backdrop{background:#080b15d9;}
+.studio-basement header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px;}
+.studio-basement small{font:10px/1.5 monospace;color:#bda7bf;letter-spacing:1px;}
+.studio-basement h2{font:24px/1.4 'Minecraft UI',sans-serif;margin:4px 0 0;}
+.basement-room{position:relative;border:2px solid #151a27;aspect-ratio:16/9;}
+.basement-room canvas{display:block;width:100%;height:100%;image-rendering:pixelated;}
+.studio-basement .basement-hotspot{position:absolute;min-width:0;min-height:0;padding:0;background:transparent !important;background-image:none !important;border:0 !important;border-radius:0;box-shadow:none !important;cursor:help;}
+.studio-basement .basement-hotspot:hover,.studio-basement .basement-hotspot:focus-visible{outline:2px dashed #f5cb62;outline-offset:2px;}
+.basement-note{left:29%;top:50%;width:10%;height:15%;}
+.basement-sketch{left:74%;top:29%;width:17%;height:23%;}
+.basement-chest{left:76%;top:60%;width:17%;height:23%;}
+.basement-message{padding:12px 0;min-height:94px;}
+.basement-message h3{font:18px/1.5 'Minecraft UI',sans-serif;margin:0 0 8px;color:#f4d896;}
+.basement-message p{font:14px/1.7 'Minecraft UI',sans-serif;margin:0;}
+.basement-reward[hidden]{display:none;}
+.basement-swatches{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px;}
+.studio-basement .basement-swatches button{width:40px;height:40px;min-width:40px;border:2px solid #dfc5ac;box-shadow:none;border-radius:0;padding:0;background-image:none !important;}
+.studio-basement small{font-family:'Minecraft UI',sans-serif;font-size:12px;letter-spacing:0;}
+.studio-basement .md-btn{--basement-face:#d0d1d4;--basement-rim:#ececee;--basement-shadow:#88898c;display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:6px 12px 10px;font:16px/1.3 'Minecraft UI',sans-serif !important;color:#202020 !important;border:2px solid #151a27 !important;border-radius:0 !important;background:var(--basement-face) !important;box-shadow:inset 2px 2px 0 var(--basement-rim),inset -2px -6px 0 var(--basement-shadow) !important;transform:none !important;scale:1 !important;transition:background-color 100ms linear;}
+.studio-basement .md-btn.primary{--basement-face:#43842b;--basement-rim:#6ca353;--basement-shadow:#28551c;color:#fff !important;}
+.studio-basement .md-btn:hover:not(:disabled){--basement-face:#b0b1b4;}
+.studio-basement .md-btn.primary:hover:not(:disabled){--basement-face:#326821;}
+.studio-basement .md-btn:disabled{--basement-face:#77777e;--basement-rim:#93939b;--basement-shadow:#50505a;color:#dedee1 !important;cursor:default;opacity:1;}
+.studio-basement .md-btn:focus-visible,.studio-basement .basement-swatches button:focus-visible{outline:2px solid #f5cb62;outline-offset:2px;}
+
+.title-inspector[hidden]{display:none!important;}
+.title-viewport.is-loading .title-viewport-stage>:is(canvas,svg,.title-output-frame,.title-drag-readout){visibility:hidden;}
+.title-inspector{flex:0 0 352px;width:352px;min-width:272px;min-height:0;overflow:hidden;box-sizing:border-box;display:flex;flex-direction:column;background:var(--md-surface-container);border-left:1px solid var(--md-outline-variant);}
+.title-inspector-header{display:flex;flex-direction:column;gap:12px;flex:none;padding:16px;border-bottom:1px solid var(--md-outline-variant);}
+.title-inspector-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:16px;scrollbar-gutter:stable;}
+.title-scope{display:flex;flex-direction:column;gap:8px;min-width:0;}.title-scope .field-hint{margin:0;overflow-wrap:anywhere;}.title-scope [data-title-row-reset]{min-height:32px;}
+.title-viewport-actions{display:flex;align-items:center;gap:8px;min-width:0;}
+.title-control-group{display:flex;flex-direction:column;gap:12px;min-width:0;padding:0 0 16px;border-bottom:1px solid var(--md-outline-variant);}.title-control-group:last-child{border-bottom:0;padding-bottom:0;}
+.title-control-group>h4{display:flex;align-items:center;gap:8px;font-size:13px;}.title-control-group>h4>.material-symbols-rounded{font-size:18px;color:var(--md-primary);}
+.title-warning{margin:0;}.title-warning:empty{display:none;}
+.title-visual-choice{display:flex;align-items:center;justify-content:flex-start;gap:12px;min-width:0;white-space:normal;text-align:left;}
+.title-visual-choice img{display:block;width:88px;height:56px;flex:0 0 88px;object-fit:contain;image-rendering:auto;background:var(--md-surface-container-low,var(--md-surface));border-radius:var(--radius-sm,8px);}
+.title-visual-choice>span{display:flex;flex-direction:column;gap:4px;min-width:0;}.title-visual-choice small{color:var(--md-on-surface-variant);font-weight:400;overflow-wrap:anywhere;}
+.title-inspector .title-visual-choice{height:auto;min-height:80px;padding:8px 12px;}
+:is([data-theme="minecraft"],[data-theme="light-minecraft"]) .title-visual-choice img{border-radius:0;}
+:is([data-theme="minecraft"],[data-theme="light-minecraft"]) .title-visual-choice small{color:inherit;}
+.title-inspector h3,.title-inspector h4{margin:0;}.title-inspector label{display:flex;flex-direction:column;gap:8px;font-size:12px;min-width:0;}.title-inspector label.md-switch{flex-direction:row;align-items:center;}.title-inspector input,.title-inspector select,.title-inspector textarea{box-sizing:border-box;max-width:100%;width:100%;}.title-inspector input[type=checkbox]{width:auto;}.title-inspector input[type=color]{height:36px;cursor:pointer;}.title-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 8px;}.title-presets{display:flex;flex-wrap:wrap;gap:8px;}.title-warning{color:var(--md-error);overflow-wrap:anywhere;}.title-project #main-toolbar,.title-project .right-panel,.title-project #right-panel-resizer,.title-project .options-bar{display:none!important;}
+@media(max-width:1100px){.title-inspector{flex-basis:304px;width:304px;}.title-inspector-header,.title-inspector-body{padding:12px;}}
+
+.title-project #grid-screen-canvas,.title-project .ruler-top,.title-project .ruler-left{display:none!important;}
+.title-project #workspace canvas{image-rendering:auto!important;}
+.title-fields>label{justify-content:space-between;}
+
+.title-inspector [hidden]{display:none!important;}
+.title-project #canvas-wrapper{cursor:grab;}
+.title-project #canvas-wrapper:active{cursor:grabbing;}
+
+/* Dedicated live WebGL scene; ordinary pixel documents retain their canvas layout. */
+.title-viewport[hidden]{display:none!important;}
+.title-project #canvas-wrapper,.title-project #ruler-corner{visibility:hidden;pointer-events:none;}
+.title-viewport{position:absolute;inset:40px 0 36px;display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-width:0;min-height:0;overflow:hidden;background:var(--md-surface);}
+.title-viewport-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px;border-bottom:1px solid var(--md-outline-variant);}
+.title-mode-buttons,.title-view-buttons{display:flex;align-items:center;gap:4px;}
+.title-viewport-toolbar .md-btn{min-height:32px;padding:4px 12px;}
+.title-viewport-stage{position:relative;min-height:0;min-width:0;overflow:hidden;touch-action:none;outline-offset:-2px;background:var(--md-surface-container-low,var(--md-surface));}
+.title-webgl-canvas{display:block;width:100%;height:100%;position:absolute;inset:0;}
+.title-navigation-hint{margin:0;padding:8px;font-size:11px;line-height:1.5;color:var(--md-on-surface-variant);border-top:1px solid var(--md-outline-variant);pointer-events:none;}
+.title-gizmo{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;pointer-events:none;}
+.title-gizmo g{pointer-events:all;cursor:grab;}
+.title-gizmo line{stroke:currentColor;stroke-width:2;pointer-events:none;}
+.title-gizmo :is(circle,rect){fill:currentColor;stroke:var(--md-surface);stroke-width:1;}
+.title-gizmo text{font:11px sans-serif;fill:currentColor;pointer-events:none;}
+.title-gizmo .title-axis-hit{fill:transparent;stroke:none;}
+.title-settings-panel,.title-material-panel,.title-scene-panel{display:flex;flex-direction:column;gap:16px;min-width:0;}
+.title-inspector-tabs{display:flex;gap:4px;}
+.title-inspector-tabs>button{flex:1 1 auto;min-width:0;}
+#title-editor .title-inspector-tabs>.md-btn{padding-inline:4px;}
+.title-inspector [data-title-source],.title-tile-options,.title-procedural-options,.title-overlay-options{display:flex;flex-direction:column;gap:12px;min-width:0;}
+.title-gradient-stops{display:flex;flex-direction:column;gap:8px;}
+.title-gradient-stop{display:grid;grid-template-columns:40px minmax(64px,1fr) 32px;align-items:center;gap:8px;}
+.title-gradient-stop input[type=color]{padding:0;border-radius:var(--md-shape-corner-small,8px);}
+.title-material-library{position:fixed;inset:0;margin:auto;height:fit-content;width:min(960px,calc(100vw - 32px));max-height:calc(100vh - 32px);box-sizing:border-box;padding:24px;border:1px solid var(--md-outline-variant);border-radius:var(--md-shape-corner-large,24px);background:var(--md-surface-container);color:var(--md-on-surface);}
+.title-material-library[open]{display:flex;flex-direction:column;gap:16px;}
+.title-material-library h2,.title-material-library p{margin:0;}
+.title-material-library::backdrop{background:rgb(0 0 0 / .5);}
+.title-material-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(144px,1fr));gap:12px;min-height:0;overflow:auto;overscroll-behavior:contain;}
+.title-material-card{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0;padding:12px;border:1px solid var(--md-outline-variant);border-radius:var(--md-shape-corner-medium,12px);background:var(--md-surface-container-high);color:var(--md-on-surface);cursor:pointer;font:inherit;}
+.title-material-card:hover,.title-material-card.active{border-color:var(--md-primary);background:var(--md-secondary-container);}
+.title-material-card img{width:100%;height:72px;object-fit:contain;}
+.title-material-card img.title-tile-preview{image-rendering:pixelated;}
+.title-material-panel{display:flex;flex-direction:column;gap:16px;min-width:0;}
+.title-warning:empty{display:none;}
+.title-row-languages{display:flex;flex-direction:column;gap:8px;min-width:0;}
+.title-row-languages>label{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);align-items:center;gap:8px;}
+.title-material-card span{font-size:12px;overflow-wrap:anywhere;}
+.title-outliner{display:flex;flex-direction:column;max-height:320px;min-height:120px;overflow:auto;border:1px solid var(--md-outline-variant);border-radius:var(--radius-sm,8px);padding:4px;}
+.title-scene-node{display:flex;align-items:center;gap:4px;min-width:0;min-height:32px;flex-shrink:0;padding-left:calc(var(--tree-depth)*12px);}
+.title-scene-node[aria-selected=true]{background:var(--md-secondary-container);color:var(--md-on-secondary-container);}
+.title-scene-node.is-hidden>.title-node-label{opacity:.5;}
+.title-node-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;padding:4px 0;border:0;background:none;color:inherit;font:inherit;cursor:pointer;}
+.title-scene-node>.material-symbols-rounded{font-size:16px;flex:0 0 16px;}
+.title-tree-spacer{width:24px;flex:0 0 24px;}
+.title-scene-node .md-icon-btn-micro{flex:0 0 24px;width:24px;min-width:24px;}
+.title-transform-fields{display:flex;flex-direction:column;gap:16px;min-width:0;margin:0;padding:12px 0;border:0;}
+.title-transform-fields:disabled{opacity:.5;}
+.title-transform-group{display:flex;flex-direction:column;gap:8px;}
+.title-transform-group>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.title-transform-group input{min-width:0;}
+.title-project .bottom-status-bar :is(.zoom-controls,.status-right,#cursor-pos,#btn-toggle-grid,#btn-toggle-rulers,#btn-toggle-guides,#btn-toggle-tiling){display:none!important;}
+
+.title-viewport [hidden]{display:none!important;}
+.title-output-frame{position:absolute;box-sizing:border-box;border:1px solid var(--md-outline-variant);pointer-events:none;}
+.title-drag-readout{position:absolute;inset:8px auto auto 8px;padding:8px 12px;background:var(--md-surface-container);color:var(--md-on-surface);border:1px solid var(--md-outline-variant);border-radius:var(--radius-sm,8px);pointer-events:none;font-variant-numeric:tabular-nums;}
+.title-gizmo .title-axis-hit-line{stroke:transparent;stroke-width:14;pointer-events:stroke;}
+.title-gizmo .title-axis-handle{fill:currentColor;stroke:var(--md-surface);stroke-width:1;}
+.title-gizmo g:hover>:first-child,.title-gizmo g.is-dragging>:first-child{stroke-width:3;}
+.title-export .export-preview canvas{image-rendering:auto;}

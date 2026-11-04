@@ -15,7 +15,7 @@ export function loadImportImage(url) {
 /** Prepare both the raster and original master before publishing a layer. */
 export function insertDecodedImage(app, image, {name = 'Изображение', position = 'center', x = null, y = null, fx = null} = {}) {
     const project = app.getActiveProject();
-    if (!project || project.type === 'prefix') throw new Error('Для импорта изображения откройте GUI-проект или обычный холст.');
+    if (!project || ['prefix','title'].includes(project.type)) throw new Error('Для импорта изображения откройте GUI-проект или обычный холст.');
     if (app.tools.finishDocument({preserveSelection: true}) === false) return false;
     const w = image.naturalWidth || image.width, h = image.naturalHeight || image.height;
     if (!Number.isInteger(w) || !Number.isInteger(h) || w < 1 || h < 1 || w > 4096 || h > 4096) throw new Error('Размер изображения должен быть от 1 до 4096 пикселей.');
@@ -79,7 +79,7 @@ export function insertDecodedImage(app, image, {name = 'Изображение',
 
 export async function importImage(app, source, options) {
     const project = app.getActiveProject();
-    if (!project || project.type === 'prefix') throw new Error('Для импорта изображения откройте GUI-проект или обычный холст.');
+    if (!project || ['prefix','title'].includes(project.type)) throw new Error('Для импорта изображения откройте GUI-проект или обычный холст.');
     if (app.tools.finishDocument({preserveSelection: true}) === false) return false;
     let url, image, ownedUrl = false;
     try {

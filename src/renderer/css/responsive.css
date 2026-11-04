@@ -4,6 +4,7 @@
     --layout-splitter-width: 6px;
     --layout-canvas-min: min(200px, 25vw);
     --layout-prefix-width: clamp(340px, 32vw, 440px);
+    --layout-title-width: clamp(304px, 28vw, 384px);
     --layout-generator-width: 420px;
     --layout-dialog-gutter: var(--space-4);
     --settings-nav-width: clamp(152px, 22vw, 210px);
@@ -21,9 +22,10 @@
 .workspace-layout>.canvas-area{grid-column:2;grid-row:1;min-inline-size:0;}
 .workspace-layout>.panel-resizer-v{grid-column:3;grid-row:1;inline-size:var(--layout-splitter-width);margin:0;}
 .workspace-layout>.right-panel{grid-column:4;grid-row:1;inline-size:100%;min-inline-size:0;max-inline-size:none;}
-.workspace-layout:has(>#prefix-editor:not([hidden])){grid-template-columns:minmax(var(--layout-canvas-min),1fr) minmax(0,min(var(--layout-prefix-width),55%));}
-.workspace-layout:has(>#prefix-editor:not([hidden]))>.canvas-area{grid-column:1;}
-.workspace-layout>#prefix-editor{grid-column:2;grid-row:1;inline-size:100%;min-inline-size:0;}
+.workspace-layout:has(>:is(#prefix-editor,#title-editor):not([hidden])){grid-template-columns:minmax(var(--layout-canvas-min),1fr) minmax(0,min(var(--layout-prefix-width),55%));}
+.workspace-layout:has(>#title-editor:not([hidden])){grid-template-columns:minmax(var(--layout-canvas-min),1fr) minmax(0,var(--layout-title-width));}
+.workspace-layout:has(>:is(#prefix-editor,#title-editor):not([hidden]))>.canvas-area{grid-column:1;}
+.workspace-layout>:is(#prefix-editor,#title-editor){grid-column:2;grid-row:1;inline-size:100%;min-inline-size:0;}
 .settings-win-shell,.buttons-win-shell{display:grid;grid-template-rows:auto minmax(0,1fr);}
 .new-win-shell{display:grid;grid-template-rows:auto minmax(0,1fr) auto;}
 .settings-win-body{display:grid;grid-template-columns:var(--settings-nav-width) minmax(0,1fr);gap:var(--space-2);}
@@ -43,9 +45,13 @@ dialog{max-inline-size:calc(100vw - 2 * var(--layout-dialog-gutter));max-block-s
     :root{--layout-gap:var(--space-2);--layout-dialog-gutter:var(--space-2);}
 }
 @media(max-width:600px){
-    .workspace-layout:has(>#prefix-editor:not([hidden])){grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(120px,40%) minmax(0,1fr);}
-    .workspace-layout:has(>#prefix-editor:not([hidden]))>.canvas-area{grid-column:1;grid-row:1;}
-    .workspace-layout>#prefix-editor{grid-column:1;grid-row:2;}
+    .workspace-layout:has(>:is(#prefix-editor,#title-editor):not([hidden])){grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(120px,40%) minmax(0,1fr);}
+    .workspace-layout:has(>:is(#prefix-editor,#title-editor):not([hidden]))>.canvas-area{grid-column:1;grid-row:1;}
+    .workspace-layout>:is(#prefix-editor,#title-editor){grid-column:1;grid-row:2;}
+    #title-editor{overflow-y:auto;}
+    #title-editor .title-inspector-header{padding:8px;gap:8px;}
+    #title-editor .title-inspector-header h3,#title-editor [data-title-scope-description]{display:none;}
+    #title-editor .title-inspector-body{flex:none;overflow:visible;}
 }
 :root:is([data-theme="minecraft"],[data-theme="light-minecraft"]) {
     --settings-nav-width: clamp(176px, 24vw, 240px);

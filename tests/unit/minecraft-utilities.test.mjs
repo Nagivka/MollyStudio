@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import { smallCaps, gradientCharacters, formatGradient, normalizeColors } from '../../src/renderer/js/utils/MinecraftUtilities.mjs';
 import { MINECRAFT_BLOCKS } from '../../src/renderer/js/utils/MinecraftBlocks.js';
+import { MINECRAFT_ENTITIES } from '../../src/renderer/js/utils/MinecraftEntities.js';
 
 test('small caps converts Russian and English while preserving emoji', () => {
     assert.equal(smallCaps('Admin Привет 🚀'), 'ᴀᴅᴍɪɴ пᴘиʙᴇт 🚀');
@@ -62,4 +63,17 @@ test('generated block catalog has unique IDs, translated names and valid transpa
         assert.ok(item.name);assert.equal(item.category,'block_renders');
     }
     assert.equal(MINECRAFT_BLOCKS.find(item=>item.minecraftId==='stone').name,'Камень');
+});
+
+test('entity catalog preserves its namespace and uses correctly sized RGBA resources', async () => {
+    assert.ok(MINECRAFT_ENTITIES.length>=18);
+    const ids=new Set();
+    for(const item of MINECRAFT_ENTITIES){
+        assert.ok(!ids.has(item.id));ids.add(item.id);
+        assert.equal(item.id,'entity_render:'+item.minecraftId);
+        assert.equal(item.folder,'entities_minecraft');assert.equal(item.category,'entity_renders');
+        assert.ok(item.name&&item.en);assert.match(item.file,/^[a-z0-9_]+\.png$/);
+        const data=await fs.readFile(new URL('../../src/renderer/assets/entities_minecraft/'+item.file,import.meta.url));
+        assert.equal(data.readUInt32BE(16),96);assert.equal(data.readUInt32BE(20),96);assert.equal(data[25],6);
+    }
 });

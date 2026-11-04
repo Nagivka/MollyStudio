@@ -1,5 +1,6 @@
 const {createHash, createPublicKey, verify} = require('node:crypto');
 const fs = require('node:fs');
+const {updateTarget,targetReleaseNames}=require('./update-targets.cjs');
 
 const REPOSITORY = 'Nagivka/MollyStudio-Releases';
 const RELEASES_URL = `https://github.com/${REPOSITORY}/releases/latest`;
@@ -11,13 +12,12 @@ function compareVersions(a, b) {
     for (let i = 0; i < 3; i++) if (aa[i] !== bb[i]) return aa[i] > bb[i] ? 1 : -1;
     return 0;
 }
-function releaseNames(version) {
+function releaseNames(version,target=updateTarget('win32','x64')) {
     if (!stableVersion(version)) throw Error('UPDATE_INVALID_VERSION');
-    const installer = `MollyStudio-${version}.0-x64-setup.exe`;
-    return [installer, installer + '.blockmap', 'latest.yml'];
+    return targetReleaseNames(version,target);
 }
 const downloadBase = version => `https://github.com/${REPOSITORY}/releases/download/v${version}/`;
-function readManifest(source, expectedVersion, publicKey = PUBLIC_KEY) {
+function readManifest(source, expectedVersion, publicKey = PUBLIC_KEY,target=updateTarget('win32','x64')) {
     if (Buffer.byteLength(source) > 64 * 1024) throw Error('UPDATE_INVALID_MANIFEST');
     let envelope, payload;
     try {
@@ -28,13 +28,13 @@ function readManifest(source, expectedVersion, publicKey = PUBLIC_KEY) {
             signature.toString('base64') !== envelope.signature || !verify(null, bytes, publicKey, signature)) throw Error();
         payload = JSON.parse(bytes.toString('utf8'));
     } catch { throw Error('UPDATE_INVALID_SIGNATURE'); }
-    const names = releaseNames(expectedVersion);
-    if (payload.version !== expectedVersion || payload.platform !== 'win32' || payload.arch !== 'x64' ||
-        payload.format !== 'nsis' || !Array.isArray(payload.files) || payload.files.length !== 3 ||
+    const names = releaseNames(expectedVersion,target);
+    if (payload.version !== expectedVersion || payload.platform !== target.platform || payload.arch !== target.arch ||
+        payload.format !== target.format || !Array.isArray(payload.files) || payload.files.length !== names.length ||
         typeof payload.notes !== 'string' || payload.notes.length > 8000) throw Error('UPDATE_INVALID_MANIFEST');
     for (let i = 0; i < names.length; i++) {
         const file = payload.files[i];
-        const max = i === 0 ? 300_000_000 : i === 1 ? 10_000_000 : 64 * 1024;
+        const max = i === 0 ? target.platform==='win32'?300_000_000:1_000_000_000 : i===names.length-1?64*1024:10_000_000;
         if (file?.name !== names[i] || !Number.isSafeInteger(file.size) || file.size < (i === 0 ? 1_000_000 : 1) || file.size > max ||
             typeof file.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(file.sha256) ||
             typeof file.sha512 !== 'string' || !/^[A-Za-z0-9+/]{86}==$/.test(file.sha512)) throw Error('UPDATE_INVALID_MANIFEST');
@@ -56,6 +56,8 @@ async function verifyFile(filename, expected) {
         let bytes = 0;
         for await (const chunk of handle.createReadStream({autoClose: false})) {
             if (!bytes && expected.name.endsWith('.exe') && (chunk[0] !== 0x4d || chunk[1] !== 0x5a)) throw Error('UPDATE_INVALID_DOWNLOAD');
+            if(!bytes&&expected.name.endsWith('.zip')&&(chunk[0]!==0x50||chunk[1]!==0x4b||chunk[2]!==3||chunk[3]!==4))throw Error('UPDATE_INVALID_DOWNLOAD');
+            if(!bytes&&expected.name.endsWith('.AppImage')&&(chunk[0]!==0x7f||chunk.toString('ascii',1,4)!=='ELF'))throw Error('UPDATE_INVALID_DOWNLOAD');
             bytes += chunk.length;
             if (bytes > expected.size) throw Error('UPDATE_INVALID_DOWNLOAD');
             h256.update(chunk); h512.update(chunk);

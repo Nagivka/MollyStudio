@@ -27,6 +27,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
             e.settingsManager.set('animatedAccentsEnabled',false);
             const tab=document.querySelector('.doc-tab.active');tab.classList.remove('active');void tab.offsetWidth;tab.classList.add('active');
             expect(tab.getAnimations().some(a=>a.animationName==='ui-tab-select')&&!tab.getAnimations().some(a=>a.animationName==='ui-accent-breathe'),'Turning accents off preserves tab-selection animation');
+            expect(getComputedStyle(tab).outlineStyle==='none'||parseFloat(getComputedStyle(tab).outlineWidth)===0,'Turning accents off removes the decorative accent outline');
             e.settingsManager.set('animatedAccentsEnabled',true);
             const {animateUI}=await import(new URL('js/ui/Motion.mjs',location.href));
             const scripted=animateUI(button,[{opacity:.3},{opacity:1}],{duration:10000});

@@ -48,13 +48,15 @@ class SettingsWindowApp {
         });
 
         // 3. Render Initial Tab
+        this.modalHelper.ensureDeveloperTab();
         this.switchTab(new URLSearchParams(location.search).get('tab') || 'appearance');
         window.desktopAPI?.onSettingsTabRequested?.(tab => this.switchTab(tab));
 
     }
 
     switchTab(tabId) {
-        if (!['appearance', 'effects', 'canvas', 'tools', 'export', 'discord', 'backup', 'hotkeys', 'about'].includes(tabId)) tabId = 'appearance';
+        if (!['appearance', 'effects', 'canvas', 'tools', 'export', 'discord', 'backup', 'hotkeys', 'about','developer'].includes(tabId)) tabId = 'appearance';
+        if(tabId==='developer'&&!this.settings.get('developerUnlocked'))tabId='about';
         this.activeTab = tabId;
         this.modalHelper.disposeTab();
 
@@ -75,6 +77,7 @@ class SettingsWindowApp {
         this.modalHelper.activeTab = tabId;
 
         switch (tabId) {
+            case 'developer':this.modalHelper.renderDeveloperTab(contentArea);break;
             case 'effects':this.modalHelper.renderEffectsTab(contentArea);break;
             case 'appearance':
                 this.modalHelper.renderAppearanceTab(contentArea);

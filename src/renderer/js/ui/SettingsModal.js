@@ -207,6 +207,7 @@ export default class SettingsModal {
                 this.switchTab(btn.dataset.tab);
             });
         });
+        this.ensureDeveloperTab();
     }
 
     open() {
@@ -244,6 +245,7 @@ export default class SettingsModal {
     }
 
     switchTab(tabId) {
+        if(tabId==='developer'&&!this.settings.get('developerUnlocked'))tabId='about';
         this.activeTab = tabId;
         if (!this.modalEl) {
             this.onTabRequested?.(tabId);
@@ -266,6 +268,7 @@ export default class SettingsModal {
 
         contentArea.innerHTML = '';
         switch (tabId) {
+            case 'developer':this.renderDeveloperTab(contentArea);break;
             case 'effects':this.renderEffectsTab(contentArea);break;
             case 'appearance':
                 this.renderAppearanceTab(contentArea);
@@ -300,11 +303,19 @@ export default class SettingsModal {
             <div class="about-brand"><span class="molly-logo" aria-hidden="true"></span><div><h2>MollyStudio</h2><p><!--i18n-->Редактор GUI, текстур и префиксов для Minecraft</p></div></div>
             <dl class="about-info"><div><dt><!--i18n-->Версия</dt><dd data-about-version>…</dd></div><div><dt><!--i18n-->Автор</dt><dd data-about-author>nagivka</dd></div><div><dt><!--i18n-->Лицензия</dt><dd data-about-license>MIT</dd></div><div><dt><!--i18n-->Вариант приложения</dt><dd data-about-distribution>…</dd></div></dl>
             ${iconDisclosure({ label: 'Техническая информация', icon: 'memory', className: 'about-technical', content: "<p data-about-technical></p><button class=\"md-btn outlined\" type=\"button\" data-copy-app-info><i class=\"material-symbols-rounded\" aria-hidden=\"true\">content_copy</i><!--i18n-->Скопировать информацию</button>" })}
-            ${actionButtonHTML({action:"diagnostics",label:"Отчёт диагностики",icon:"memory",attribute:"data-about-action"})}<p class="about-copyright" data-about-copyright></p></div>`;
+            <p class="about-copyright" data-about-copyright></p></div>`;
         const section = container.firstElementChild;
+        const version=section.querySelector('[data-about-version]');
+        version.tabIndex=0;
+        let taps=0;
+        const tap=()=>{
+            if(this.settings.get('developerUnlocked')){this.showToast('Вкладка разработчика уже доступна');return;}
+            if(++taps===7){this.settings.set('developerUnlocked',true);this.ensureDeveloperTab();this.showToast('Вкладка разработчика открыта');}
+        };
+        version.addEventListener('click',tap);
+        version.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();tap();}});
         this.disposeUpdates?.();
         this.disposeUpdates = mountUpdatePanel(section);
-        section.querySelector('[data-about-action=diagnostics]').addEventListener('click',()=>openDiagnostics());
         void getApplicationInfo().then(info => {
             if (!section.isConnected) return;
             const labels = { installed: 'Установленная версия', portable: 'Portable', development: 'Запуск из исходников', unsupported: 'Другая платформа', browser: 'Веб-предпросмотр' };
@@ -326,6 +337,39 @@ export default class SettingsModal {
     // Tab 1: Appearance (Внешний вид)
     // =========================================================================
     renderEffectsTab(container){this.renderAppearanceTab(container,true);}
+
+    ensureDeveloperTab(){
+        if(!this.settings.get('developerUnlocked'))return;
+        const root=this.modalEl||document,about=root.querySelector('[data-tab="about"]');
+        if(!about||root.querySelector('[data-tab="developer"]'))return;
+        const button=document.createElement('button');button.type='button';button.className='settings-tab-btn m3-bubble-action';
+        button.dataset.tab='developer';button.id=this.modalEl?'settings-modal-tab-developer':'settings-tab-developer';
+        button.setAttribute('role','tab');button.setAttribute('aria-selected','false');button.setAttribute('aria-controls','settings-content-area');button.tabIndex=-1;
+        button.innerHTML='<i class="material-symbols-rounded">memory</i><span>'+labelHTML('Разработчик')+'</span>';
+        button.addEventListener('click',()=>this.switchTab('developer'));about.after(button);
+    }
+
+    renderDeveloperTab(container){
+        if(!this.settings.get('developerUnlocked'))return;
+        container.innerHTML=`<div class="settings-section"><h3>${labelHTML('Разработчик')}</h3>
+        <div class="settings-group"><h4>${labelHTML('Проверка интерфейса')}</h4>
+        ${[['developerLayoutBounds','Показывать границы элементов'],['developerWeatherBounds','Показать защитные области погоды'],['developerPerformance','Монитор кадров интерфейса']].map(([key,label])=>`<label class="md-switch"><input type="checkbox" data-developer-setting="${key}" ${this.settings.get(key)?'checked':''}><span class="md-switch-track"><span class="md-switch-thumb"></span></span><span>${labelHTML(label)}</span></label>`).join('')}
+        <p>${labelHTML('Голубые контуры показывают области, в которых скрываются частицы погоды.')}</p>
+        <p>${labelHTML('Монитор показывает частоту кадров интерфейса, максимальный интервал и число кадров дольше 50 мс.')}</p>
+        <label>${labelHTML('Предпросмотр праздника')}<select class="md-select" data-developer-holiday>${[['auto','Текущая дата'],['newyear','Новый год'],['christmas','Рождество'],['halloween','Хэллоуин'],['studioBirthday','День рождения MollyStudio'],['authorBirthday','День рождения Nagivka']].map(([value,label])=>`<option value="${value}">${labelHTML(label)}</option>`).join('')}</select></label>
+        <p>${labelHTML('Меняет только украшение главного меню. Системная дата остаётся прежней.')}</p></div>
+        <div class="settings-group"><h4>${labelHTML('Диагностика')}</h4><p data-developer-environment></p>
+        ${actionButtonHTML({action:'report',label:'Отчёт диагностики',icon:'memory',attribute:'data-developer-action'})}
+        ${actionButtonHTML({action:'hide',label:'Скрыть вкладку разработчика',icon:'close',attribute:'data-developer-action'})}</div></div>`;
+        for(const input of container.querySelectorAll('[data-developer-setting]'))input.addEventListener('change',()=>this.settings.set(input.dataset.developerSetting,input.checked));
+        const holiday=container.querySelector('[data-developer-holiday]');holiday.value=this.settings.get('developerHoliday');holiday.addEventListener('change',()=>this.settings.set('developerHoliday',holiday.value));
+        container.querySelector('[data-developer-environment]').textContent=`${innerWidth} × ${innerHeight} · DPR ${devicePixelRatio} · ${this.settings.get('theme')}`;
+        container.querySelector('[data-developer-action="report"]').addEventListener('click',()=>openDiagnostics());
+        container.querySelector('[data-developer-action="hide"]').addEventListener('click',()=>{
+            for(const key of ['developerLayoutBounds','developerWeatherBounds','developerPerformance'])this.settings.set(key,false);this.settings.set('developerHoliday','auto');this.settings.set('developerUnlocked',false);
+            (this.modalEl||document).querySelector('[data-tab="developer"]')?.remove();this.switchTab('about');
+        });
+    }
 
     renderAppearanceTab(container,effects=false) {
         const currentTheme = this.settings.get('theme') || 'dark';

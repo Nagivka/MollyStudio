@@ -1,11 +1,11 @@
 /* New editors share the existing application controls, rather than redefining them. */
-.prefix-project .top-menu .menu-item:has([data-action="image-canvas-size"]),
-.prefix-project .top-menu .menu-item:has([data-action="layer-new"]),
-.prefix-project .top-menu .menu-item:has([data-action="select-all"]),
-.prefix-project .menu-dropdown :is([data-action="tools-button-generator"], [data-action="file-export-layer"], [data-action="file-template"]),
-.prefix-project .menu-dropdown :is([data-action="select-cut"], [data-action="select-copy"], [data-action="select-paste"], [data-action="edit-clear-layer"]) { display: none; }
+:is(.prefix-project,.title-project) .top-menu .menu-item:has([data-action="image-canvas-size"]),
+:is(.prefix-project,.title-project) .top-menu .menu-item:has([data-action="layer-new"]),
+:is(.prefix-project,.title-project) .top-menu .menu-item:has([data-action="select-all"]),
+:is(.prefix-project,.title-project) .menu-dropdown :is([data-action="tools-button-generator"], [data-action="file-export-layer"], [data-action="file-template"]),
+:is(.prefix-project,.title-project) .menu-dropdown :is([data-action="select-cut"], [data-action="select-copy"], [data-action="select-paste"], [data-action="edit-clear-layer"]) { display: none; }
 .canvas-area { container-type: inline-size; }
-.prefix-project [data-action="file-export-selected"] { display: none; }
+:is(.prefix-project,.title-project) [data-action="file-export-selected"] { display: none; }
 @container (max-width: 600px) {
     .bottom-status-bar { height: auto; min-height: 30px; flex-wrap: wrap; justify-content: center; gap: 4px; padding: 4px; }
     .status-left { flex: 0 0 auto; gap: 4px; }

@@ -1229,7 +1229,7 @@ export default class MarqueeTool extends Tool {
         }
 
         // Clipboard
-        if (e.ctrlKey && !e.shiftKey && !e.altKey) {
+        if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey) {
             if (e.code === 'KeyC') {
                 e.preventDefault();
                 this.copy();
@@ -1246,7 +1246,7 @@ export default class MarqueeTool extends Tool {
                 e.preventDefault();
                 this.clearSelection();
             }
-        } else if (e.ctrlKey && e.shiftKey && e.code === 'KeyI') {
+        } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.code === 'KeyI') {
             e.preventDefault();
             this.invertSelection();
         } else if (e.key === 'Escape') {

@@ -1,3 +1,4 @@
+import {normalizeTitleDocument} from './TitleDocument.mjs';
 import {migrateProjectDocument} from './ProjectMigrations.mjs';
 import { validatePrefixDocument } from './PrefixDocument.mjs';
 
@@ -19,13 +20,14 @@ export function validateProjectDocument(project) {
     if (!Array.isArray(project.layers) || project.layers.length > MAX_PROJECT_LAYERS) {
         throw new Error(`Файл проекта должен содержать не более ${MAX_PROJECT_LAYERS} слоёв.`);
     }
-    if(project.type!=null&&!['gui','canvas','prefix'].includes(project.type))throw new Error('Этот тип проекта больше не поддерживается.');
+    if(project.type!=null&&!['gui','canvas','prefix','title'].includes(project.type))throw new Error('Этот тип проекта больше не поддерживается.');
     if (Number(project.mollyVersion) > 2) {
         throw new Error('Этот файл создан в более новой версии MollyStudio. Обновите приложение.');
     }
 
 
     const width = readDimension(project.config?.width, 256);
+    if(project.type==='title'){if(!project.titleData||typeof project.titleData!=='object'||Array.isArray(project.titleData))throw Error('Повреждены параметры надписи.');normalizeTitleDocument(project.titleData);}
     if (project.type === 'prefix') validatePrefixDocument(project.prefixData);
     const height = readDimension(project.config?.height, 256);
     const seenIds = new Set();

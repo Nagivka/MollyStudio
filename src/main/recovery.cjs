@@ -7,7 +7,7 @@ const validId = id => typeof id === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(id
 const validDraft = (draft, id) => draft?.draftId === id && Array.isArray(draft?.project?.layers);
 const timestampOf = value => Number.isFinite(Number(value)) ? Number(value) : 0;
 const validSummary = item => item?.cacheVersion === 1 && typeof item.project?.name === 'string' && item.project.name.trim().length > 0
-    && ['gui', 'canvas', 'prefix'].includes(item.project.type) && Number.isFinite(item.timestamp);
+    && ['gui', 'canvas', 'prefix', 'title'].includes(item.project.type) && Number.isFinite(item.timestamp);
 
 class RecoveryStore {
     constructor(directory) { this.root = directory; this.run = createQueue(); }

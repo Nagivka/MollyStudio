@@ -1,6 +1,7 @@
 import {bindAttribute, bindText, translate, getLanguage, uiLabel, localeValue} from '../core/Locale.mjs';
 import { MINECRAFT_ITEMS, ITEM_CATEGORIES } from '../utils/MinecraftItems.js';
 import { MINECRAFT_BLOCKS } from '../utils/MinecraftBlocks.js';
+import { MINECRAFT_ENTITIES } from '../utils/MinecraftEntities.js';
 
 export default class ItemsPanel {
     constructor(bus, layerManager, tools, history = null) {
@@ -10,14 +11,14 @@ export default class ItemsPanel {
         this.history = history;
 
         // Pre-compute search keys for instant zero-allocation search
-        this.items = [...MINECRAFT_ITEMS, ...MINECRAFT_BLOCKS].map(item => ({
+        this.items = [...MINECRAFT_ITEMS, ...MINECRAFT_BLOCKS, ...MINECRAFT_ENTITIES].map(item => ({
             ...item, _searchKey: `${item.name || ''} ${item.en || ''} ${item.id || ''} ${item.pack || ''}`.toLowerCase()
         }));
         this.itemsById = new Map(this.items.map(item => [item.id, item]));
 
         this.favorites=new Set(this.readSavedItems('molly-items-favorites-v1'));
         this.recent=this.readSavedItems('molly-items-recent-v1');
-        this.categories = [ITEM_CATEGORIES[0], {id:'favorites',name:'Избранное',icon:'star'}, {id:'recent',name:'Недавние',icon:'history'}, { id: 'block_renders', name: 'Объёмные блоки', icon: 'deployed_code' }, ...ITEM_CATEGORIES.slice(1)];
+        this.categories = [ITEM_CATEGORIES[0], {id:'favorites',name:'Избранное',icon:'star'}, {id:'recent',name:'Недавние',icon:'history'}, { id: 'block_renders', name: 'Объёмные блоки', icon: 'deployed_code' }, {id:'entity_renders',name:'Сущности',icon:'egg'}, ...ITEM_CATEGORIES.slice(1)];
         this.activeCategory = 'all';
         this.searchQuery = '';
         this.searchDebounceTimer = null;

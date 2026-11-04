@@ -15,6 +15,7 @@ import { LEGACY_DRAFT_KEY, PROJECT_DRAFT_PREFIX } from './core/ProjectDraftStore
 import { deleteRecoveryDraft, listRecoveryDrafts, readRecoveryDraft } from './core/RecoveryDraftStore.mjs';
 import { parseProjectJSON } from './core/ProjectValidation.mjs';
 import {mountUpdatePanel} from './ui/UpdatePanel.js';
+import {installStudioBasement} from './ui/StudioBasement.js';
 
 /**
  * MollyStudio - Material Design 3 Launcher Logic with Settings synchronization
@@ -33,6 +34,7 @@ function startLauncher() {
     installKeyboardNavigation();
     const bus = new EventBus();
     const settingsManager = new SettingsManager(bus);
+    installStudioBasement(settingsManager);
     const settingsModal = new SettingsModal(bus, settingsManager);
 
     const showLauncherToast = (message, icon = 'info') => {
@@ -253,7 +255,7 @@ function startLauncher() {
                 const image = document.createElement('img'); image.alt = ''; image.className = 'launcher-project-image'; image.src = preview.dataUrl; image.decoding = 'async';
                 card.querySelector('.launcher-project-preview').prepend(image);
                 card.querySelector('.launcher-preview-placeholder').hidden = true;
-                bindText(card.querySelector('.launcher-preview-type'), '{0} · {1} × {2}', {0:uiLabel(entry.type === 'prefix'?'Префиксы':entry.type === 'canvas'?'Холст':'GUI'),1:preview.width,2:preview.height});
+                bindText(card.querySelector('.launcher-preview-type'), '{0} · {1} × {2}', {0:uiLabel(entry.type === 'title'?'Генератор надписей':entry.type === 'prefix'?'Префиксы':entry.type === 'canvas'?'Холст':'GUI'),1:preview.width,2:preview.height});
                 card.dataset.preview = 'ready';
             } catch (_) {
                 if (card.isConnected) bindText(card.querySelector('.launcher-preview-message'), 'Предпросмотр недоступен');
@@ -273,7 +275,7 @@ function startLauncher() {
         const entries = [
             ...drafts.map(item => ({ ...item, name: item.draft.project.name || 'Несохранённый проект', type: item.draft.project.type, order: item.timestamp || 0 })),
             ...recent.map((item, index) => ({ ...item, order: item.modifiedAt || recent.length - index }))
-        ].filter(item => (!item.type || ['gui', 'canvas', 'prefix'].includes(item.type))).filter(item => !query || (item.name + ' ' + (item.path || '')).toLocaleLowerCase('ru').includes(query));
+        ].filter(item => (!item.type || ['gui', 'canvas', 'prefix', 'title'].includes(item.type))).filter(item => !query || (item.name + ' ' + (item.path || '')).toLocaleLowerCase('ru').includes(query));
         entries.sort((a, b) => sort?.value === 'name' ? String(a.name).localeCompare(String(b.name), 'ru') : b.order - a.order);
         bindText(recentCountChip,'{0} {1}',{0:entries.length,1:localeValue(getNounPlural(entries.length,'проект','проекта','проектов'),entries.length===1?'project':'projects')});
         btnClearRecent.disabled = !recent.length;
@@ -286,7 +288,7 @@ function startLauncher() {
         for (const entry of entries) {
             const draft = Boolean(entry.draft);
             const name = entry.name || 'Без названия';
-            const type = entry.type === 'prefix' ? 'Префиксы' : entry.type === 'canvas' ? 'Холст' : 'GUI';
+            const type = entry.type === 'title' ? 'Генератор надписей' : entry.type === 'prefix' ? 'Префиксы' : entry.type === 'canvas' ? 'Холст' : 'GUI';
             const date = draft || entry.modifiedAt ? (draft ? translate('Автокопия') + ' · ' : '') + new Date(entry.timestamp || entry.modifiedAt || Date.now()).toLocaleString(getLocale(), {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : translate(entry.updatedAt || 'Локальный проект');
             const card = document.createElement('article'); card.className = 'm3-recent-card' + (draft ? ' unsaved-draft-card' : '');card.setAttribute('role', 'group');card.setAttribute('aria-label', name);card.dataset.name = name;
             card.innerHTML = '<button class="m3-recent-open" type="button" aria-label="' + (draft ? 'Восстановить ' : 'Открыть ') + escapeHtml(name) + '"><span class="launcher-project-preview"><span class="launcher-preview-placeholder"><i class="material-symbols-rounded" aria-hidden="true">' + (draft ? 'history' : 'image') + "</i><span class=\"launcher-preview-message\"><!--i18n-->Загрузка превью…</span></span><span class=\"launcher-preview-type\">" + labelHTML(type) + '</span></span><span class="m3-recent-info"><span class="m3-recent-title-row"><span class="m3-recent-name">' + escapeHtml(name) + '</span>' + (draft ? "<span class=\"m3-type-badge unsaved\"><!--i18n-->Автокопия</span>" : '') + '</span><span class="launcher-project-date">' + escapeHtml(date) + '</span><span class="m3-recent-path" title="' + escapeHtml(entry.path || '') + '">' + (entry.path ? escapeHtml(entry.path) : labelHTML('Несохранённый проект')) + '</span></span></button><div class="m3-recent-actions">' + (!draft ? "<button class=\"m3-icon-action-btn open-folder\" type=\"button\" title=\"Показать в проводнике\" data-i18n-title=\"%D0%9F%D0%BE%D0%BA%D0%B0%D0%B7%D0%B0%D1%82%D1%8C%20%D0%B2%20%D0%BF%D1%80%D0%BE%D0%B2%D0%BE%D0%B4%D0%BD%D0%B8%D0%BA%D0%B5\" aria-label=\"Показать проект в проводнике\" data-i18n-aria-label=\"%D0%9F%D0%BE%D0%BA%D0%B0%D0%B7%D0%B0%D1%82%D1%8C%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%20%D0%B2%20%D0%BF%D1%80%D0%BE%D0%B2%D0%BE%D0%B4%D0%BD%D0%B8%D0%BA%D0%B5\"><i class=\"material-symbols-rounded\" aria-hidden=\"true\">folder_open</i></button>" : '') + '<button class="m3-icon-action-btn ' + (draft ? 'delete-draft' : 'delete-proj') + '" type="button" title="' + (draft ? 'Удалить автокопию' : 'Убрать из недавних') + '" aria-label="' + (draft ? 'Удалить автокопию ' : 'Убрать из недавних ') + escapeHtml(name) + '"><i class="material-symbols-rounded" aria-hidden="true">close</i></button></div>';
@@ -507,14 +509,14 @@ function startLauncher() {
             });
             if (secGui) secGui.style.display = type === 'gui' ? 'block' : 'none';
             if (secCanvas) secCanvas.style.display = type === 'canvas' ? 'block' : 'none';
-            for (const [projectType, section] of [['prefix','new-proj-section-prefix']]) {
+            for (const [projectType, section] of [['prefix','new-proj-section-prefix'],['title','new-proj-section-title']]) {
                 const element = document.getElementById(section);
                 if (element) element.style.display = type === projectType ? 'block' : 'none';
             }
             if (type === 'gui') {
                 newProjName?.focus();
             } else {
-                if (['prefix'].includes(type)) document.getElementById(`new-${type}-name`)?.focus();
+                if (['prefix','title'].includes(type)) document.getElementById(`new-${type}-name`)?.focus();
                     else newCanvasName?.focus();
             }
         });
@@ -586,7 +588,7 @@ function startLauncher() {
         });
     });
 
-    const newInputs = [newProjName, newCanvasName, newCanvasW, newCanvasH, document.getElementById('new-prefix-name')];
+    const newInputs = [newProjName, newCanvasName, newCanvasW, newCanvasH, document.getElementById('new-prefix-name'),document.getElementById('new-title-name')];
     newInputs.forEach(input => {
         input?.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {

@@ -1,8 +1,8 @@
 const fs=require('node:fs/promises'),path=require('node:path');
 const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
-const pages=[['launcher','index.html'],['canvas','editor.html','canvas'],['gui','editor.html','gui'],['prefix','editor.html','prefix'],['settings','settings.html'],['create','new-project.html'],['buttons','buttons.html'],['utilities','editor.html','canvas']];
+const pages=[['launcher','index.html'],['canvas','editor.html','canvas'],['gui','editor.html','gui'],['prefix','editor.html','prefix'],['title','editor.html','title'],['settings','settings.html'],['create','new-project.html'],['buttons','buttons.html'],['utilities','editor.html','canvas']];
 const themes=['dark','light','minecraft','light-minecraft'];
-const minimum={launcher:[900,600],canvas:[900,600],gui:[900,600],prefix:[900,600],utilities:[900,600],settings:[760,560],create:[480,440],buttons:[880,580]};
+const minimum={launcher:[900,600],canvas:[900,600],gui:[900,600],prefix:[900,600],title:[1000,700],utilities:[900,600],settings:[760,560],create:[480,440],buttons:[880,580]};
 (async()=>{
     let win;const results=[],timer=setTimeout(()=>app.exit(1),240000),output=path.join(root,'.test-output/responsive');
     try{
@@ -11,6 +11,7 @@ const minimum={launcher:[900,600],canvas:[900,600],gui:[900,600],prefix:[900,600
             win.setContentSize(1440,900);win.webContents.setZoomFactor(1);
             await win.loadFile(path.join(root,'src/renderer',file),{query:type?{new:'true',type,width:'64',height:'64',size:'54',name:'Layout QA'}:{}});await settle(win);
             await win.page.evaluate(async name=>{
+                if(name==='title')await mollyEditor.getActiveProject().prefixLoadPromise;
                 const {default:Settings}=await import(new URL('js/core/SettingsManager.js',location.href));
                 window.layoutSettings=window.mollyEditor?.settingsManager||new Settings();layoutSettings.set('animationsEnabled',false);layoutSettings.set('language','en');
                 if(name==='canvas'){
@@ -18,7 +19,7 @@ const minimum={launcher:[900,600],canvas:[900,600],gui:[900,600],prefix:[900,600
                 }
                 if(name==='utilities')mollyEditor.menuBar.handleAction('utility-gradient');
             },name);
-            const sizes=[[1440,900,1],[1000,700,1.25],[800,600,1.5],[...minimum[name],1],[1920,1080,1]];
+            const sizes=[[1440,900,1],[1000,700,1.25],[800,600,1.5],[...minimum[name],1],[1920,1080,1],[1600,1000,2]];
             for(const theme of themes)for(const [width,height,zoom]of sizes){
                 win.setContentSize(width,height);win.webContents.setZoomFactor(zoom);await win.page.evaluate(theme=>layoutSettings.set('theme',theme),theme);await settle(win);
                 const report=await win.page.evaluate(inspectInterfaceGeometry),errors=[];
@@ -27,15 +28,29 @@ const minimum={launcher:[900,600],canvas:[900,600],gui:[900,600],prefix:[900,600
                     const tools=[...document.querySelectorAll('#main-toolbar .tools-group>.tool-btn')].filter(shown).map(element=>element.getBoundingClientRect().left);
                     const panels=[...document.querySelectorAll('#main-right-panel>.md-panel')].filter(shown).map(element=>element.getBoundingClientRect().left);
                     const workspace=document.querySelector('#workspace'),box=workspace?.getBoundingClientRect();
-                    const prefix=document.querySelector('#prefix-editor'),prefixBox=prefix?.getBoundingClientRect();
+                    const prefix=document.querySelector(':is(#prefix-editor,#title-editor):not([hidden])'),prefixBox=prefix?.getBoundingClientRect();
                     const prefixPlaced=!prefix||!shown(prefix)||!box||(innerWidth<=600?box.bottom<=prefixBox.top+2&&Math.abs(box.left-prefixBox.left)<2:box.right<=prefixBox.left+2&&Math.abs(box.top-prefixBox.top)<2);
-                    return {singleToolColumn:!tools.length||Math.max(...tools)-Math.min(...tools)<2,singleInspectorColumn:!panels.length||Math.max(...panels)-Math.min(...panels)<2,canvasUsable:!box||!shown(workspace)||box.width>=Math.min(innerWidth*.25,200),prefixPlaced,navNamed:[...document.querySelectorAll('.settings-win-sidebar .settings-tab-btn')].every(button=>button.textContent.trim()&&button.title)};
+                    const title=document.querySelector('#title-editor:not([hidden])'),body=title?.querySelector('.title-inspector-body'),titleUsable=!title||body.clientHeight>=64||(/auto|scroll/.test(getComputedStyle(title).overflowY)&&title.scrollHeight>title.clientHeight);
+                    return {singleToolColumn:!tools.length||Math.max(...tools)-Math.min(...tools)<2,singleInspectorColumn:!panels.length||Math.max(...panels)-Math.min(...panels)<2,canvasUsable:!box||!shown(workspace)||box.width>=Math.min(innerWidth*.25,200),prefixPlaced,titleUsable,navNamed:[...document.querySelectorAll('.settings-win-sidebar .settings-tab-btn')].every(button=>button.textContent.trim()&&button.title)};
                 });
                 if(report.rootOverflow>2)errors.push('root overflow');if(report.overlaps.length)errors.push('overlapping controls');if(report.overflow.length)errors.push('horizontal overflow');if(report.clipped.length)errors.push('clipped labels');if(report.dialogsOutside.length)errors.push('dialog outside window');
                 if(!structure.singleToolColumn)errors.push('tool strip formed multiple columns');if(!structure.singleInspectorColumn)errors.push('inspector formed multiple columns');if(!structure.canvasUsable)errors.push('canvas width was crushed');if(!structure.navNamed)errors.push('compact navigation lost its labels');
                 if(!structure.prefixPlaced)errors.push('prefix inspector did not follow the window layout');
+                if(!structure.titleUsable)errors.push('title settings cannot be reached');
                 results.push({name,theme,width,height,zoom,errors,report});
                 if(errors.length||theme==='minecraft'&&zoom===1.5||width===1920&&theme==='dark')await fs.writeFile(path.join(output,`${name}-${theme}-${width}-${zoom}.png`),(await win.webContents.capturePage()).toPNG());
+            }
+            if(name==='title'){
+                // Exercise both sides of the stacked-layout breakpoint, including
+                // the long Russian/English appearance tab in the pixel font.
+                for(const theme of themes)for(const language of ['ru','en'])for(const width of [600,601,640,700]){
+                    win.setContentSize(width,800);win.webContents.setZoomFactor(1);
+                    await win.page.evaluate(({theme,language})=>{layoutSettings.set('theme',theme);layoutSettings.set('language',language);},{theme,language});await settle(win);
+                    const report=await win.page.evaluate(inspectInterfaceGeometry),errors=[];
+                    if(report.rootOverflow>2)errors.push('root overflow');if(report.overlaps.length)errors.push('overlapping controls');if(report.clipped.length)errors.push('clipped labels');if(report.overflow.length)errors.push('horizontal overflow');
+                    results.push({name,theme,language,width,height:800,zoom:1,errors,report});
+                    if(errors.length)await fs.writeFile(path.join(output,`${name}-${theme}-${language}-${width}.png`),(await win.webContents.capturePage()).toPNG());
+                }
             }
             if(name==='settings'){
                 await win.page.getByRole('tab',{name:'Tools',exact:true}).click();

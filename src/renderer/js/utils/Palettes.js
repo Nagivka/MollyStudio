@@ -1,4 +1,5 @@
 import {labelHTML} from '../core/Locale.mjs';
+export const BASEMENT_COLORS=Object.freeze(['#202332','#37314D','#65507A','#A878A7','#E5ACC4','#F6DCBE','#8FC5C9','#517C96']);
 /** Task-oriented swatches shared by all application color selectors. */
 export const PaletteOptions = [
     ['minecraft', 'Minecraft — цвета чата'],
@@ -29,6 +30,24 @@ export const Palettes = {
     earth: ['#26180F','#3D291B','#543825','#6B4931','#85603F','#A17D56','#BF9D75','#DDC6A0','#242629','#373A3E','#4D5155','#65696C','#7E8285','#989C9E','#B4B7B8','#D0D2D3']
 };
 
+export function syncBasementPalette(unlocked){
+    const index=PaletteOptions.findIndex(([id])=>id==='basement');
+    if(unlocked){
+        Palettes.basement=BASEMENT_COLORS;
+        if(index<0)PaletteOptions.push(['basement','Полуночная мастерская']);
+    }else{
+        delete Palettes.basement;if(index>=0)PaletteOptions.splice(index,1);
+    }
+    if(typeof document==='undefined')return;
+    // Refresh already open selectors without replacing their nodes or selection.
+    for(const select of document.querySelectorAll('select')){
+        if(!select.querySelector('option[value="minecraft"]')||!select.querySelector('option[value="earth"]'))continue;
+        const option=select.querySelector('option[value="basement"]');
+        if(unlocked&&!option){select.insertAdjacentHTML('beforeend',`<option value="basement">${labelHTML('Полуночная мастерская')}</option>`);}
+        else if(!unlocked&&option){const selected=select.value==='basement';option.remove();if(selected){select.value='minecraft';select.dispatchEvent(new Event('change',{bubbles:true}));}}
+    }
+}
+
 export function paletteOptionsMarkup(custom = false) {
     return [...PaletteOptions,...(custom ? [['custom','Моя палитра']] : [])]
         .map(([id,label])=>`<option value="${id}">${labelHTML(label)}</option>`).join('');
@@ -38,4 +57,19 @@ export function populatePaletteSelect(select, {custom = false, selected = select
     if (!select) return;
     select.innerHTML = paletteOptionsMarkup(custom);
     select.value = (selected === 'custom' && custom) || Object.hasOwn(Palettes,selected) ? selected : 'minecraft';
+}
+
+// Standalone generators use the lightweight theme bootstrap rather than a
+// SettingsManager, so they must also receive palette unlocks directly.
+if(typeof window!=='undefined'){
+    try{syncBasementPalette(JSON.parse(localStorage.getItem('molly_settings_m3')||'{}').basementPaletteUnlocked===true);}catch{}
+    window.addEventListener('storage',event=>{
+        if(event.key!=='molly_settings_m3')return;
+        try{syncBasementPalette(JSON.parse(event.newValue||'{}').basementPaletteUnlocked===true);}catch{}
+    });
+    const stop=window.desktopAPI?.onSettingsUpdated?.(data=>{
+        if(data?.key==='basementPaletteUnlocked')syncBasementPalette(data.value===true);
+        else if(data?.key==='all')syncBasementPalette(data.settings?.basementPaletteUnlocked===true);
+    });
+    window.addEventListener('pagehide',()=>stop?.(),{once:true});
 }

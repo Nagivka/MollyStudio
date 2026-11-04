@@ -52,14 +52,14 @@ class NewProjectWindowApp {
                 });
                 if (secGui) secGui.style.display = type === 'gui' ? 'block' : 'none';
                 if (secCanvas) secCanvas.style.display = type === 'canvas' ? 'block' : 'none';
-                for (const [projectType, section] of [['prefix','new-proj-section-prefix']]) {
+                for (const [projectType, section] of [['prefix','new-proj-section-prefix'],['title','new-proj-section-title']]) {
                     const element = document.getElementById(section);
                     if (element) element.style.display = type === projectType ? 'block' : 'none';
                 }
                 if (type === 'gui') {
                     newProjName?.focus();
                 } else {
-                    if (['prefix'].includes(type)) document.getElementById(`new-${type}-name`)?.focus();
+                    if (['prefix','title'].includes(type)) document.getElementById(`new-${type}-name`)?.focus();
                     else newCanvasName?.focus();
                 }
             });

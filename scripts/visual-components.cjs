@@ -4,9 +4,9 @@ const themes=['dark','oled','midnight','forest','amethyst','light','light-nord',
 (async()=>{let win;const results=[],timer=setTimeout(()=>app.exit(1),600000);try{
     const {inspectInterfaceGeometry}=await import('./lib/interface-geometry.mjs');await ready();win=makeWindow(1440,900);
     const output=path.join(root,'.test-output/visual-components');await fs.mkdir(output,{recursive:true});
-    for(const page of ['canvas','prefix','diagnostics']){
-        await win.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:page==='diagnostics'?'canvas':page,width:'64',height:'64',name:'QA'}});
-        await win.page.evaluate(async page=>{const app=window.mollyEditor;app.settingsManager.set('animationsEnabled',false);if(page==='canvas'){const layer=app.layerManager.addTextLayer('QA',{text:'QA',fontId:'minecraft',color:'#FFFFFF',x:2,y:2});app.tools.setTool('text');app.tools.tools.text.renderTextLayer(layer);}if(page==='diagnostics'){const {openDiagnostics}=await import(new URL('js/ui/DiagnosticsDialog.js',location.href));await openDiagnostics();}},page);
+    for(const page of ['canvas','prefix','title','title-material','title-scene','diagnostics']){
+        await win.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:page==='diagnostics'?'canvas':page.startsWith('title')?'title':page,width:'64',height:'64',name:'QA'}});
+        await win.page.evaluate(async page=>{const app=window.mollyEditor;app.settingsManager.set('animationsEnabled',false);if(page==='canvas'){const layer=app.layerManager.addTextLayer('QA',{text:'QA',fontId:'minecraft',color:'#FFFFFF',x:2,y:2});app.tools.setTool('text');app.tools.tools.text.renderTextLayer(layer);}if(page.startsWith('title')){await app.getActiveProject().prefixLoadPromise;const e=app.titleEditor,id=e.renderer.mesh.nodes.find(node=>node.type==='glyph').id;if(page==='title-scene')e.viewport.select(id);else e.setTab(page==='title-material'?'material':'settings');}if(page==='diagnostics'){const {openDiagnostics}=await import(new URL('js/ui/DiagnosticsDialog.js',location.href));await openDiagnostics();}},page);
         for(const theme of themes){
             await win.page.evaluate(theme=>window.mollyEditor.settingsManager.set('theme',theme),theme);
             for(const zoom of [1,1.25,1.5]){

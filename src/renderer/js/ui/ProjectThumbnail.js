@@ -30,7 +30,8 @@ export async function createProjectThumbnail(project) {
     );
     const offsetX = (PREVIEW_WIDTH - dimensions.width * scale) / 2;
     const offsetY = (PREVIEW_HEIGHT - dimensions.height * scale) / 2;
-    context.imageSmoothingEnabled = false;
+    context.imageSmoothingEnabled = project.type==='title';
+    if(project.type==='title')context.imageSmoothingQuality='high';
     context.save();
     context.translate(offsetX, offsetY);
     context.scale(scale, scale);

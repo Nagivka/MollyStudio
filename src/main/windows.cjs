@@ -10,11 +10,12 @@ const definitions = {
 };
 
 class Windows {
-    constructor(electron, {testMode = false, showOnReady = !testMode, beforeClose = () => Promise.resolve()} = {}) {
+    constructor(electron, {testMode = false, showOnReady = !testMode, beforeClose = () => Promise.resolve(),platform=process.platform} = {}) {
         this.electron = electron;
         this.testMode = testMode;
         this.showOnReady = showOnReady;
         this.beforeClose = beforeClose;
+        this.platform=platform;
         this.items = new Map();
         this.closing = new Map();
     }
@@ -39,10 +40,11 @@ class Windows {
         const definition = definitions[label], parent = label !== 'main' ? this.get('main') : null;
         const {page: defaultPage, ...windowOptions} = definition;
         const window = new BrowserWindow({
-            ...windowOptions, frame: false, show: false, backgroundColor: '#131314',
+            ...windowOptions, frame: this.platform==='darwin', show: false, backgroundColor: '#131314',
+            ...(this.platform==='darwin'?{titleBarStyle:'hiddenInset',trafficLightPosition:{x:12,y:12}}:{}),
             ...(this.testMode ? {minWidth: 100, minHeight: 100} : {}),
             ...(parent ? {parent, modal: label === 'new-project' && !this.testMode} : {}),
-            icon: path.join(__dirname, '../renderer/assets/images/icon/app.ico'),
+            icon: path.join(__dirname, '../renderer/assets/images/icon/',this.platform==='win32'?'app.ico':'icon256.png'),
             webPreferences: {preload: path.join(__dirname, '../preload/index.cjs'), contextIsolation: true,
                 nodeIntegration: false, sandbox: true, webSecurity: true, allowRunningInsecureContent: false,
                 spellcheck: false, backgroundThrottling: false}

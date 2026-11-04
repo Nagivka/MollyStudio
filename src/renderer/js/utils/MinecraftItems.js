@@ -5517,8 +5517,7 @@ export const MINECRAFT_ITEMS = [
         "name": "Картина: Иссушитель",
         "en": "Painting: Wither",
         "category": "paintings"
-    }
-,
+    },
     {
         "id": "abandoned_camp_map",
         "file": "abandoned_camp_map.png",
@@ -5774,6 +5773,142 @@ export const MINECRAFT_ITEMS = [
         "name": "Карта лесного особняка",
         "en": "Woodland Mansion Map",
         "category": "tools"
+    },
+    {
+        "id": "black_cushion",
+        "file": "black_cushion.png",
+        "folder": "items_minecraft",
+        "name": "Чёрная подушка",
+        "en": "Black Cushion",
+        "category": "materials"
+    },
+    {
+        "id": "blue_cushion",
+        "file": "blue_cushion.png",
+        "folder": "items_minecraft",
+        "name": "Синяя подушка",
+        "en": "Blue Cushion",
+        "category": "materials"
+    },
+    {
+        "id": "brown_cushion",
+        "file": "brown_cushion.png",
+        "folder": "items_minecraft",
+        "name": "Коричневая подушка",
+        "en": "Brown Cushion",
+        "category": "materials"
+    },
+    {
+        "id": "cyan_cushion",
+        "file": "cyan_cushion.png",
+        "folder": "items_minecraft",
+        "name": "Бирюзовая подушка",
+        "en": "Cyan Cushion",
+        "category": "materials"
+    },
+    {
+        "id": "gray_cushion",
+        "file": "gray_cushion.png",
+        "folder": "items_minecraft",
+        "name": "Серая подушка",
+        "en": "Gray Cushion",
+        "category": "materials"
+    },
+    {
+        "id": "green_cushion",
+        "file": "green_cushion.png",
+        "folder": "items_minecraft",
+        "name": "Зелёная подушка",
+        "en": "Green Cushion",
+        "category": "materials"
+    },
+    {
+        "id": "light_blue_cushion",
+        "file": "light_blue_cushion.png",
+        "folder": "items_minecraft",
+        "name": "Голубая подушка",
+        "en": "Light Blue Cushion",
+        "category": "materials"
+    },
+    {
+        "id": "light_gray_cushion",
+        "file": "light_gray_cushion.png",
+        "folder": "items_minecraft",
+        "name": "Светло-серая подушка",
+        "en": "Light Gray Cushion",
+        "category": "materials"
+    },
+    {
+        "id": "lime_cushion",
+        "file": "lime_cushion.png",
+        "folder": "items_minecraft",
+        "name": "Лаймовая подушка",
+        "en": "Lime Cushion",
+        "category": "materials"
+    },
+    {
+        "id": "magenta_cushion",
+        "file": "magenta_cushion.png",
+        "folder": "items_minecraft",
+        "name": "Пурпурная подушка",
+        "en": "Magenta Cushion",
+        "category": "materials"
+    },
+    {
+        "id": "orange_cushion",
+        "file": "orange_cushion.png",
+        "folder": "items_minecraft",
+        "name": "Оранжевая подушка",
+        "en": "Orange Cushion",
+        "category": "materials"
+    },
+    {
+        "id": "pink_cushion",
+        "file": "pink_cushion.png",
+        "folder": "items_minecraft",
+        "name": "Розовая подушка",
+        "en": "Pink Cushion",
+        "category": "materials"
+    },
+    {
+        "id": "purple_cushion",
+        "file": "purple_cushion.png",
+        "folder": "items_minecraft",
+        "name": "Фиолетовая подушка",
+        "en": "Purple Cushion",
+        "category": "materials"
+    },
+    {
+        "id": "red_cushion",
+        "file": "red_cushion.png",
+        "folder": "items_minecraft",
+        "name": "Красная подушка",
+        "en": "Red Cushion",
+        "category": "materials"
+    },
+    {
+        "id": "white_cushion",
+        "file": "white_cushion.png",
+        "folder": "items_minecraft",
+        "name": "Белая подушка",
+        "en": "White Cushion",
+        "category": "materials"
+    },
+    {
+        "id": "yellow_cushion",
+        "file": "yellow_cushion.png",
+        "folder": "items_minecraft",
+        "name": "Жёлтая подушка",
+        "en": "Yellow Cushion",
+        "category": "materials"
+    },
+    {
+        "id": "effect_freezing",
+        "file": "freezing.png",
+        "folder": "mob_effect",
+        "name": "Эффект: Замерзание",
+        "en": "Freezing Effect",
+        "category": "effects"
     }
 ];
 

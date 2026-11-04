@@ -4,6 +4,34 @@ import {WeatherParticles} from '../../src/renderer/js/core/WeatherParticles.mjs'
 import SettingsManager from '../../src/renderer/js/core/SettingsManager.js';
 import {WeatherFrameBudget} from '../../src/renderer/js/core/WeatherFrameBudget.mjs';
 
+test('gusts, leaf tumbling and wind response agree at 30 and 60 FPS',()=>{
+    for(const effect of ['rain','snow','leaves']){
+        const create=()=>{
+            let seed=19;const random=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/2**32);
+            const field=new WeatherParticles(effect,'normal',3000,3000,random);
+            field.particles.forEach(p=>{p.x=1500;p.y=500;});field.configure({weatherWind:80});return field;
+        };
+        const a=create(),b=create();
+        for(let i=0;i<120;i++)a.step(1/60);
+        for(let i=0;i<60;i++)b.step(1/30);
+        for(let i=0;i<a.particles.length;i++)for(const key of ['x','y','rotation','vx','vy'])assert.ok(Math.abs(a.particles[i][key]-b.particles[i][key])<1e-7,effect+' '+key);
+    }
+});
+test('wind edits preserve momentum and converge smoothly without changing particle identities',()=>{
+    const field=new WeatherParticles('snow','normal',1000,3000,()=>.5),first=field.particles[0];
+    const before=field.currentWind;field.configure({weatherWind:100});assert.equal(field.currentWind,before);
+    field.step(1/60);assert.ok(field.currentWind>before&&field.currentWind<1);assert.equal(field.particles[0],first);
+    for(let i=0;i<120;i++)field.step(1/60);assert.ok(Math.abs(field.currentWind-1)<1e-6);
+});
+test('snow and leaves follow different rhythms while always falling forward',()=>{
+    for(const effect of ['snow','leaves']){
+        const field=new WeatherParticles(effect,'normal',3000,3000,()=>.5),a=field.particles[0],b=field.particles[1];
+        a.x=b.x=1500;a.y=b.y=500;a.variant=1;b.variant=6;
+        for(let i=0;i<120;i++){field.step(1/60);assert.ok(a.vy>0&&b.vy>0);}
+        assert.ok(Math.abs(a.x-b.x)>.1);assert.ok(Math.abs(a.y-b.y)>.1);
+    }
+});
+
 test('weather stays bounded at 8K and resets falling particles above the window', () => {
     for (const effect of ['rain', 'snow', 'leaves']) {
         const field = new WeatherParticles(effect, 'dense', 7680, 4320, () => .5);
@@ -123,15 +151,4 @@ test('automatic frame rate adapts with hysteresis and ignores isolated spikes', 
     for (let i = 0; i < 150; i++) budget.sample(1);
     assert.equal(budget.fps('auto'), 60);
     assert.equal(budget.fps('economy'), 30);
-});
-
-test('scroll parallax preserves particles, varies with depth and wraps large jumps',()=>{
-    let seed=19;const random=()=>((seed=(seed*1664525+1013904223)>>>0)/2**32);
-    const field=new WeatherParticles('leaves','dense',1200,800,random),particles=[...field.particles];
-    for(const p of particles){p.x=600;p.y=400;}
-    field.scrollBy(20,100);
-    for(const p of particles){assert.ok(field.particles.includes(p));assert.ok(Math.abs(p.y-(400-100*(.2+p.depth*.55)))<1e-9);}
-    field.scrollBy(-1e6,1e6);
-    for(const p of field.particles){assert.ok(p.x>=-48&&p.x<=1248);assert.ok(p.y>=-64&&p.y<=824);}
-    assert.ok(new Set(particles.map(p=>p.variant)).size>12);
 });

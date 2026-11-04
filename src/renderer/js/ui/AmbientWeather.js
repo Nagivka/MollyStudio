@@ -1,7 +1,7 @@
 import {WeatherParticles} from '../core/WeatherParticles.mjs';
 import {WeatherFrameBudget} from '../core/WeatherFrameBudget.mjs';
 import WeatherObstacles from './WeatherObstacles.js';
-import {naturalLeaf, naturalSnow, naturalRain} from './WeatherArtwork.js';
+import {naturalLeaf, naturalSnow, naturalRain,creeperSnowflake,isCreeperSnowflake} from './WeatherArtwork.js';
 import {leafSeason, summerLeafPixels, springLeafPixels} from '../core/WeatherLeaves.mjs';
 import {drawWeatherBitmap} from '../core/WeatherBitmap.mjs';
 
@@ -77,21 +77,6 @@ export class WeatherSurface {
         this.settings = {};
         this.disposed = false;
         this.obstacles=new WeatherObstacles(canvas,{preview});
-        this.scrollPositions=new WeakMap();
-        if(!preview)for(const element of document.querySelectorAll('.workspace-layout,.settings-win-content-scroll,.buttons-sidebar-scroll-area,.right-panel')){
-            this.scrollPositions.set(element,{x:element.scrollLeft||0,y:element.scrollTop||0});
-        }
-        this.onScroll=event=>{
-            const element=event.target===document?document.scrollingElement:event.target;
-            if(!element||this.preview)return;
-            const current={x:element.scrollLeft||0,y:element.scrollTop||0},previous=this.scrollPositions.get(element)||{x:0,y:0};
-            this.scrollPositions.set(element,current);
-            this.field?.scrollBy(current.x-previous.x,current.y-previous.y);
-            this.previousField?.scrollBy(current.x-previous.x,current.y-previous.y);
-        };
-        if(!preview){
-            document.addEventListener('scroll',this.onScroll,true);
-        }
         this.nativeVisible = !window.desktopAPI?.isVisible;
         let visibilityRevision = 0;
         this.stopVisibilityListener = window.desktopAPI?.onWindowVisibilityChange?.(visible => {
@@ -231,7 +216,7 @@ export class WeatherSurface {
             if (field.effect === 'rain') {
                 ctx.strokeStyle = ctx.fillStyle = this.light ? '#426886' : '#98BCD6';
                 const length = (8 + particle.depth * 14)*this.particleScale;
-                const dx = length * particle.vx / particle.speed;
+                const dx = length * particle.vx / (particle.vy||particle.speed);
                 if (this.pixelated) {
                     const tile=weatherTextures.rain[particle.variant%weatherTextures.rain.length];
                     if(tile){
@@ -248,6 +233,10 @@ export class WeatherSurface {
             } else if (field.effect === 'snow') {
                 ctx.fillStyle = this.light ? '#90AEC6' : '#E4EFF8';
                 if (this.pixelated) {
+                    if(isCreeperSnowflake(particle)){
+                        drawWeatherBitmap(ctx,creeperSnowflake(),x,y,Math.max(16,particle.size*2*this.particleScale),{scale:this.scale||1});
+                        continue;
+                    }
                     const tile=weatherTextures.snow[particle.variant%weatherTextures.snow.length];
                     if(tile){drawWeatherBitmap(ctx,tile.image,x,y,particle.size*2*this.particleScale,{scale:this.scale||1,source:tile});continue;}
                     const size = Math.max(1,Math.round(particle.size*this.particleScale));
@@ -255,7 +244,8 @@ export class WeatherSurface {
                     if (size >= 4) { ctx.fillStyle = '#F5FAFF';ctx.fillRect(x + 1, y + 1, size - 2, size - 2); }
                 } else {
                     const size=particle.size*this.particleScale*2;
-                    ctx.drawImage(naturalSnow(particle.variant,this.light),x-size/2,y-size/2,size,size);
+                    ctx.save();ctx.translate(x,y);ctx.rotate(particle.rotation*.25);
+                    ctx.drawImage(naturalSnow(particle.variant,this.light),-size/2,-size/2,size,size);ctx.restore();
                 }
             } else if (field.effect === 'leaves') {
                 const season=leafSeason(this.settings?.weatherLeaves,particle.variant);
@@ -287,7 +277,7 @@ export class WeatherSurface {
         this.stop();
         this.stopVisibilityListener?.();
         this.resizeObserver.disconnect();this.themeObserver.disconnect();this.intersectionObserver?.disconnect();
-        document.removeEventListener('scroll',this.onScroll,true);this.obstacles.dispose();
+        this.obstacles.dispose();
         this.reducedMotion.removeEventListener('change', this.refresh);
         document.removeEventListener('visibilitychange', this.refresh);
         window.removeEventListener('resize', this.refresh);

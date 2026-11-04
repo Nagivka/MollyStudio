@@ -1981,6 +1981,16 @@
     "block.minecraft.yellow_wool_slab": "Жёлтая шерстяная плита",
     "block.minecraft.yellow_wool_stairs": "Жёлтые шерстяные ступеньки",
     "block.minecraft.zombie_head": "Голова зомби",
-    "block.minecraft.zombie_wall_head": "Настенная голова зомби"
+    "block.minecraft.zombie_wall_head": "Настенная голова зомби",
+    "block.minecraft.brittle_ice": "Хрупкий лёд",
+    "block.minecraft.chiseled_packed_ice": "Резной плотный лёд",
+    "block.minecraft.packed_ice_bricks": "Кирпичи из плотного льда",
+    "block.minecraft.snow_bricks": "Снежные кирпичи",
+    "block.minecraft.packed_ice_brick_slab": "Плита из кирпичей из плотного льда",
+    "block.minecraft.packed_ice_brick_stairs": "Ступени из кирпичей из плотного льда",
+    "block.minecraft.packed_ice_brick_wall": "Ограда из кирпичей из плотного льда",
+    "block.minecraft.snow_brick_slab": "Плита из снежных кирпичей",
+    "block.minecraft.snow_brick_stairs": "Ступени из снежных кирпичей",
+    "block.minecraft.snow_brick_wall": "Ограда из снежных кирпичей"
   }
 }

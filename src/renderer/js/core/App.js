@@ -1,3 +1,4 @@
+import TitleEditor from '../ui/TitleEditor.js';
 import ProjectTabsController from '../controllers/ProjectTabsController.js';
 import WindowLayoutController from '../controllers/WindowLayoutController.js';
 import CanvasDocumentController from '../controllers/CanvasDocumentController.js';
@@ -74,6 +75,7 @@ export default class App {
         this.bus.on('DOCUMENT_STATUS_CHANGED',()=>this.updateDocumentStatus());
         this.historyPanel = new HistoryPanel(this);
         this.prefixEditor = new PrefixEditor(this);
+        this.titleEditor = new TitleEditor(this);
         this.exportPanel = new ExportPanel(this);
         this.designGallery = new DesignGallery(this);
         this.texturePanel = new TexturePanel(this);

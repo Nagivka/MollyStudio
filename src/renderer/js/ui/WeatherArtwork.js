@@ -1,6 +1,19 @@
 // Small, deterministic canvases, shared between live effects and previews.
 // No per-frame gradients, random texture generation or shadow filters.
 const leaves=new Map(),snow=new Map(),rain=new Map();
+let hiddenSnowflake;
+// Independent existing particle values give a stable 1/1024 chance per flake.
+export const isCreeperSnowflake=particle=>particle.variant===63&&particle.color===3&&particle.phase<Math.PI/2;
+export function creeperSnowflake(){
+    if(hiddenSnowflake)return hiddenSnowflake;
+    const sprite=document.createElement('canvas');sprite.width=sprite.height=16;
+    const ctx=sprite.getContext('2d');ctx.fillStyle='#e4eff8';
+    ctx.fillRect(4,4,8,8);
+    for(const [x,y,w,h] of [[7,0,2,4],[7,12,2,4],[0,7,4,2],[12,7,4,2],
+        [2,2,2,2],[12,2,2,2],[2,12,2,2],[12,12,2,2]])ctx.fillRect(x,y,w,h);
+    for(const [x,y,w,h] of [[5,6,2,2],[9,6,2,2],[7,8,2,1],[6,9,4,2],[6,11,1,1],[9,11,1,1]])ctx.clearRect(x,y,w,h);
+    hiddenSnowflake=sprite;return sprite;
+}
 const colors=[['#c58b3c','#9d532c','#e1ae59'],['#bb6744','#8e4631','#d18a5b'],['#c9a14b','#99732e','#e0bd6c'],['#a88049','#795630','#c4a26c']];
 const outlines=[
     [[0,-.64],[.18,-.3],[.48,-.4],[.4,-.12],[.68,.04],[.37,.18],[.36,.43],[.12,.36],[0,.55],[-.15,.35],[-.4,.41],[-.35,.15],[-.65,.02],[-.38,-.14],[-.49,-.4],[-.18,-.3]],
@@ -43,20 +56,37 @@ export function naturalLeaf(variant,color,season='autumn'){
     leaves.set(key,c);return c;
 }
 export function naturalSnow(variant,light){
-    const key=(variant%4)+(light?4:0);if(snow.has(key))return snow.get(key);
-    const c=canvas(),ctx=c.getContext('2d'),center=48;
-    // A diffuse cluster of ice crystals, never a hard outlined white bead.
-    const fill=ctx.createRadialGradient(center,center,0,center,center,38);
-    fill.addColorStop(0,light?'#7594a9bb':'#eff7ffe0');
-    fill.addColorStop(.32,light?'#8ba8bba0':'#e7f2ffb0');
-    fill.addColorStop(.7,light?'#8ba8bb35':'#dfedff40');fill.addColorStop(1,'#dcecff00');
-    ctx.fillStyle=fill;ctx.beginPath();
-    for(let i=0;i<=24;i++){
-        const angle=i*Math.PI/12,r=30+Math.sin(i*2.3+variant)*4;
-        const x=center+Math.cos(angle)*r,y=center+Math.sin(angle)*r;
-        if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);
+    const shape=((variant%6)+6)%6,key=shape+(light?6:0);
+    if(snow.has(key))return snow.get(key);
+    const c=canvas(),ctx=c.getContext('2d');
+    // Open sixfold crystals stay recognizable at the actual 4–20 px particle
+    // sizes. No blurred disc, glossy centre or per-frame texture generation.
+    ctx.translate(48,48);ctx.rotate(shape%2?Math.PI/6:0);
+    ctx.strokeStyle=light?'#60869f':'#edf7ff';
+    ctx.lineWidth=shape===3?3:4;ctx.lineCap='round';ctx.lineJoin='round';
+    const line=(x,y,a,b)=>{ctx.moveTo(x,y);ctx.lineTo(a,b);};
+    ctx.beginPath();
+    for(let arm=0;arm<6;arm++){
+        ctx.save();ctx.rotate(arm*Math.PI/3);
+        line(0,0,38,0);
+        const branches=shape===0?[20]:shape===1?[24]:shape===2?[16,27]:shape===3?[13,22,31]:shape===4?[27]:[18,29];
+        for(const distance of branches){
+            const length=shape===1?13:shape===3?7:10;
+            for(const sign of [-1,1])line(distance,0,distance+length*.55,sign*length*.84);
+        }
+        ctx.restore();
     }
-    ctx.closePath();ctx.fill();snow.set(key,c);return c;
+    ctx.stroke();
+    if(shape===1||shape===4){
+        const radius=shape===4?15:9;
+        ctx.lineWidth=3;ctx.beginPath();
+        for(let i=0;i<=6;i++){
+            const angle=i*Math.PI/3,x=Math.cos(angle)*radius,y=Math.sin(angle)*radius;
+            if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);
+        }
+        ctx.stroke();
+    }
+    snow.set(key,c);return c;
 }
 export function naturalRain(light){
     const key=Boolean(light);if(rain.has(key))return rain.get(key);

@@ -13,7 +13,7 @@ export default class ShortcutManager{
         for(const command of SHORTCUT_COMMANDS){
             for(const key of shortcutKeys(command,overrides))this.bindings.set(key,command.id);
             if(Object.hasOwn(overrides,command.id))for(const key of command.keys){this.retired.add(key);if(command.id.startsWith('tool:')&&!key.includes('+')&&!['KeyG','KeyU','KeyO','KeyC'].includes(key))this.retired.add('Shift+'+key);}
-            const label=shortcutKeys(command,overrides).map(displayChord).join(' / ');
+            const label=shortcutKeys(command,overrides).map(chord=>displayChord(chord)).join(' / ');
             for(const node of document.querySelectorAll('[data-action]'))if(node.dataset.action===command.id){
                 const hint=node.querySelector('.shortcut');if(hint)hint.textContent=label;
             }

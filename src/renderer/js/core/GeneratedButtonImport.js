@@ -19,7 +19,7 @@ function loadButtonImage(url, width, height) {
 /** Prepare all pixels before publishing layers or a history entry. */
 export async function importGeneratedButton(app, data) {
     const project = app.getActiveProject();
-    if (!project || project.type === 'prefix') {
+    if (!project || ['prefix','title'].includes(project.type)) {
         app.showToast('Откройте GUI-проект или обычный холст для вставки кнопки.', 'info');
         return false;
     }

@@ -1,0 +1,117 @@
+const fs=require('node:fs/promises'),path=require('node:path');
+const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
+(async()=>{let win,form;try{
+ await ready();win=makeWindow(1280,900);await win.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:'title',name:'Title QA'}});await settle(win);
+ const checks=await win.page.evaluate(async()=>{
+  const app=mollyEditor,editor=app.titleEditor,project=app.getActiveProject(),checks=[],expect=(value,label)=>{if(!value)throw Error(label);checks.push(label);};
+  await project.prefixLoadPromise;
+  const wait=async()=>{for(let i=0;editor.loading&&i<500;i++)await new Promise(resolve=>setTimeout(resolve,20));if(editor.loading)throw Error('Title material load timed out');};
+  const projection=editor.panel.querySelector('[data-title-field="projection"]');
+  expect(project.titleData.projection==='perspective'&&projection.value==='perspective'&&[...projection.options].map(o=>o.textContent).join('|')==='Перспективная|Ортогональная','The only camera modes are Perspective and Orthographic, with Perspective selected by default');
+  editor.change(data=>{data.projection='orthographic';});editor.viewport.draw();expect(!editor.renderer.lastPlan.perspective,'Orthographic mode changes the live scene projection');app.history.undo();editor.viewport.draw();expect(editor.renderer.lastPlan.perspective,'Undo restores Perspective mode');
+  expect(!!editor.renderer.gl&&editor.renderer.count>60,'The title is a real WebGL triangle mesh');
+  expect(editor.renderer.gl.getContextAttributes().antialias&&project.config.width===2048,'Smooth rendering and 2048-pixel output are enabled');
+  const front=editor.renderer.render({...project.titleData,yaw:0,pitch:0}),side=editor.renderer.render({...project.titleData,yaw:85,pitch:20}),back=editor.renderer.render({...project.titleData,yaw:180,pitch:0});
+  expect(front.canvas.toDataURL()!==side.canvas.toDataURL()&&front.canvas.toDataURL()!==back.canvas.toDataURL(),'Camera rotation exposes distinct front, side and back geometry');
+  for(const result of [front,side,back])result.canvas.width=result.canvas.height=1;
+  expect(project.type==='title'&&project.layers[0]?.objectType==='title','Title project has its own editable document');
+  expect(!editor.panel.hidden&&document.querySelector('.right-panel').getBoundingClientRect().width===0,'Dedicated inspector replaces generic properties');
+  editor.viewport.draw();
+  expect(editor.renderer.canvas.isConnected&&editor.renderer.canvas.closest('.title-viewport-stage')&&editor.renderer.canvas.getContext('webgl')===editor.renderer.gl,'The workspace mounts the live WebGL scene, not a 2D image');
+  const letters=editor.renderer.mesh.nodes.filter(n=>n.type==='glyph'),first=letters[0],second=letters[1],beforeSecond=JSON.stringify(second.bounds);
+  expect(letters.length===9&&letters.every(n=>editor.renderer.mesh.nodes.some(c=>c.parent===n.id&&c.type==='cube')),'Each letter has an independent group of source cuboids');
+  editor.viewport.select(first.id);expect(!editor.panel.querySelector('.title-scene-panel').hidden,'Selecting a letter opens the scene inspector');
+  const px=editor.panel.querySelector('[data-title-transform="position"][data-axis="0"]');px.value='3';px.dispatchEvent(new Event('input',{bubbles:true}));px.dispatchEvent(new Event('change',{bubbles:true}));
+  expect(project.titleData.transforms[first.id].position[0]===3&&JSON.stringify(editor.renderer.mesh.nodes.find(n=>n.id===second.id).bounds)===beforeSecond,'Moving one letter leaves the other models in place');
+  expect(app.history.undo()&&!project.titleData.transforms[first.id],'Undo restores the object transform');
+  expect(app.history.redo()&&project.titleData.transforms[first.id].position[0]===3,'Redo reapplies the independent letter transform');
+  expect(await editor.exportModel(),'A self-contained editable Blockbench model exports through the native save dialog');
+  editor.change(data=>{data.transforms[first.id]={...data.transforms[first.id],locked:true};});
+  expect(editor.viewport.isLocked(editor.viewport.node()),'Object locking disables scene manipulation');app.history.undo();
+  editor.change(data=>{data.transforms[first.id]={...data.transforms[first.id],visible:false};});
+  expect(editor.renderer.mesh.batches.every(batch=>batch.triangles.every(t=>t.glyphId!==first.id)),'Hiding a letter removes its geometry from the visible scene');app.history.undo();
+  editor.viewport.select(null);editor.setTab('settings');
+  const pixels=()=>project.layers[0].canvas.toDataURL(),before=pixels();
+  const input=editor.panel.querySelector('[data-title-field="text"]');input.value='MINECRAFT\nПРИВЕТ';input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));
+  await wait();
+  expect(project.titleData.text===input.value&&pixels()!==before,'Multiline Cyrillic and Latin text render live');
+  const undone=app.history.undo();await wait();expect(undone&&pixels()===before,'Undo restores title pixels');
+  const redone=app.history.redo();await wait();expect(redone&&project.titleData.text.includes('ПРИВЕТ'),'Redo restores editable title parameters');
+  app.tools.setTool('brush');expect(app.tools.currentToolId==='hand','Generated artwork cannot be painted accidentally');
+  expect(await app.projectManager.saveProjectAs(),'Title saves through native MLST flow');
+  const saved=JSON.parse(await window.desktopAPI.readFile(project.filePath));
+  expect(saved.type==='title'&&saved.titleData.text===project.titleData.text&&JSON.stringify(saved.titleData.transforms)===JSON.stringify(project.titleData.transforms)&&saved.titleData.projection===project.titleData.projection,'MLST preserves the new type and parameters');
+  const layer=project.layers[0],previous=layer.ctx.getImageData(0,0,layer.width,layer.height).data;await app.projectManager.deserializeProject(saved,project.filePath);await app.getActiveProject().prefixLoadPromise;
+  const restored=app.getActiveProject().layers[0],actual=restored.ctx.getImageData(0,0,restored.width,restored.height).data;let maxRGB=0,maxAlpha=0;
+  for(let i=0;i<previous.length;i++)if(i%4===3)maxAlpha=Math.max(maxAlpha,Math.abs(previous[i]-actual[i]));else maxRGB=Math.max(maxRGB,Math.abs(previous[i]-actual[i]));
+  expect(JSON.stringify(app.getActiveProject().titleData)===JSON.stringify(saved.titleData)&&actual.length===previous.length&&maxRGB<=1&&maxAlpha===0,'Reopen preserves exact settings and alpha with at most one RGB level of GPU rounding');
+  const activeTitle=app.getActiveProject();
+  const invalid=editor.panel.querySelector('[data-title-field="depth"]');invalid.value='999';invalid.dispatchEvent(new Event('input',{bubbles:true}));
+  expect(editor.commitPendingEdit()===false&&activeTitle.titleData.depth===saved.titleData.depth,'Invalid numeric input cannot change or save title settings');invalid.value=String(saved.titleData.depth);invalid.dispatchEvent(new Event('input',{bubbles:true}));invalid.dispatchEvent(new Event('change',{bubbles:true}));
+  editor.panel.querySelector('[data-title-preset="1"]').click();expect(activeTitle.titleData.texture==='gold'&&activeTitle.titleData.originalColors,'Gold preset selects the original material');app.history.undo();
+  app.menuBar.performAction('layer-new');expect(activeTitle.layers.length===1,'Generic layer actions cannot alter the generated scene');
+  const renderer=editor.renderer;
+  for(const font of ['minecraft-ten','minecraft-five-bold','minecraft-dungeons']){
+   const value={font,text:'МОЛЛИ\nSTUDIO',layout:'stacked',resolution:1024};await renderer.loadFor(value);const output=renderer.render(value);
+   const ctx=output.canvas.getContext('2d'),alpha=ctx.getImageData(0,0,output.canvas.width,output.canvas.height).data.filter((_,i)=>i%4===3);
+   expect(!output.missing.length&&alpha.some(a=>a>0)&&alpha[0]===0,'Model font '+font+' renders Latin/Cyrillic with a transparent background');output.canvas.width=output.canvas.height=1;
+  }
+  const high=renderer.render({text:'TITLE',resolution:4096,output:'square'});
+  expect(high.canvas.width===4096&&high.canvas.height===4096,'4096px square export renders correctly');high.canvas.width=high.canvas.height=1;
+  const buffers=[...renderer.exportRenderer.batches].map(batch=>batch.buffer);renderer.render({text:'TITLE',resolution:4096,output:'square',yaw:30});
+  expect(buffers.every((buffer,i)=>renderer.exportRenderer.batches[i].buffer===buffer),'Camera changes reuse GPU mesh buffers');
+  const empty=renderer.render({text:'',resolution:1024});expect(!empty.canvas.getContext('2d').getImageData(0,0,empty.canvas.width,empty.canvas.height).data.some(value=>value),'Empty text produces a transparent result');empty.canvas.width=empty.canvas.height=1;
+  await app.exportPanel.open('project');app.exportPanel.get('scale').value='1';app.exportPanel.get('trim').checked=false;
+  const exported=await app.exportPanel.run();expect(exported?.count===1&&exported.manifest.images[0].width===app.config.width,'Title exports through the existing PNG dialog at document resolution');app.exportPanel.dialog.close();
+  const active=app.getActiveProject();app.addProject('Other','none',32,32,false,'canvas');await app.getActiveProject().prefixLoadPromise;
+  expect(editor.panel.hidden&&!document.body.classList.contains('title-project'),'Switching to a canvas restores the ordinary editor');app.switchProject(active.id);await active.prefixLoadPromise;expect(!editor.panel.hidden&&active.titleData.text.includes('ПРИВЕТ'),'Returning to the title preserves model parameters');
+  for(const theme of ['dark','light','minecraft','light-minecraft']){app.settingsManager.set('theme',theme);expect(document.documentElement.dataset.theme===theme,theme+' theme applies');}
+  return checks;
+ });
+ await win.page.evaluate(()=>{const editor=mollyEditor.titleEditor;editor.viewport.resetCamera();editor.viewport.draw();});await settle(win);
+ const hitPoint=await win.page.evaluate(()=>{
+  const editor=mollyEditor.titleEditor,box=editor.viewport.stage.getBoundingClientRect();editor.viewport.draw();
+  for(let y=.25;y<.75;y+=.025)for(let x=.1;x<.9;x+=.025){const hit=editor.renderer.pick(x,y);if(hit)return {x:box.x+x*box.width,y:box.y+y*box.height,glyph:hit.glyphId,cube:hit.objectId};}throw Error('No visible model surface found');
+ });
+ await win.page.mouse.click(hitPoint.x,hitPoint.y);await settle(win);
+ if(await win.page.evaluate(()=>mollyEditor.titleEditor.viewport.state.selection)!==hitPoint.glyph)throw Error('Viewport did not select the letter');checks.push('Pointer selection chooses an actual letter model');
+ await win.page.keyboard.down('Control');await win.page.mouse.click(hitPoint.x,hitPoint.y);await win.page.keyboard.up('Control');await settle(win);
+ if(await win.page.evaluate(()=>mollyEditor.titleEditor.viewport.state.selection)!==hitPoint.cube)throw Error('Ctrl-click did not select the source cuboid');checks.push('Ctrl-click selects an individual source cuboid');
+ const transformBeforeDrag=await win.page.evaluate(()=>JSON.stringify(mollyEditor.getActiveProject().titleData.transforms));
+ await win.page.mouse.move(hitPoint.x,hitPoint.y);await win.page.mouse.down();await win.page.mouse.move(hitPoint.x+40,hitPoint.y-15,{steps:4});await win.page.mouse.up();await settle(win);
+ if(await win.page.evaluate(()=>JSON.stringify(mollyEditor.getActiveProject().titleData.transforms))!==transformBeforeDrag)throw Error('Dragging the letter body must not move it');checks.push('Dragging a letter body only selects it; transformations require an axis');
+ await win.page.evaluate(()=>{mollyEditor.titleEditor.viewport.resetCamera();mollyEditor.titleEditor.viewport.select(null);});await settle(win);
+ for(const mode of ['move','rotate','scale']){
+  const id=await win.page.evaluate(mode=>{const e=mollyEditor.titleEditor,v=e.viewport,node=e.renderer.mesh.nodes.find(n=>n.type==='glyph');v.select(node.id);v.state.mode=mode;v.draw();return node.id;},mode);
+  const axis=mode==='rotate'?'1':'0',handle=await win.page.locator('.title-gizmo [data-title-axis="'+axis+'"] .title-axis-hit').boundingBox();
+  if(!handle)throw Error('Missing '+mode+' axis handle');
+  await win.page.mouse.move(handle.x+handle.width/2,handle.y+handle.height/2);await win.page.mouse.down();await win.page.mouse.move(handle.x+handle.width/2+35,handle.y+handle.height/2-18,{steps:4});await win.page.mouse.up();await settle(win);
+  const changed=await win.page.evaluate(({id,mode})=>{const t=mollyEditor.getActiveProject().titleData.transforms[id];return !!t&&(mode==='move'?t.position.some(n=>n!==0):mode==='rotate'?t.rotation.some(n=>n!==0):t.scale.some(n=>n!==1));},{id,mode});
+  if(!changed)throw Error(mode+' handle did not change object geometry');checks.push('The '+mode+' axis handle edits the selected model');
+  await win.page.evaluate(()=>{mollyEditor.history.undo();mollyEditor.titleEditor.viewport.state.mode='move';mollyEditor.titleEditor.viewport.select(null);});await settle(win);
+ }
+ const cameraBefore=await win.page.evaluate(()=>mollyEditor.titleEditor.viewport.state.yaw);
+ const area=await win.page.locator('.title-viewport-stage').boundingBox();
+ await win.page.mouse.move(area.x+area.width/2,area.y+area.height/2);await win.page.mouse.down({button:'right'});await win.page.mouse.move(area.x+area.width/2+60,area.y+area.height/2+25,{steps:5});await win.page.mouse.up({button:'right'});await settle(win);
+ if(await win.page.evaluate(()=>mollyEditor.titleEditor.viewport.state.yaw)===cameraBefore)throw Error('Drag did not orbit the 3D camera');checks.push('Dragging the viewport orbits the model');
+ const zoom=await win.page.evaluate(()=>mollyEditor.titleEditor.viewport.state.zoom);await win.page.mouse.wheel(0,-100);await settle(win);
+ if(await win.page.evaluate(()=>mollyEditor.titleEditor.viewport.state.zoom)<=zoom)throw Error('Wheel did not zoom the 3D camera');checks.push('Wheel changes 3D camera zoom');
+ for(const size of [[1000,700],[1280,900],[1920,1080]]){win.setContentSize(...size);await settle(win);if(await win.page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('Title window overflows '+size);if(await win.page.evaluate(()=>{const p=document.querySelector('#title-editor').getBoundingClientRect(),w=document.querySelector('#workspace').getBoundingClientRect();return p.width<240||p.left<w.right-1||p.right>innerWidth+1;}))throw Error('Inspector overlaps the workspace');checks.push('Inspector fits beside the canvas at '+size.join('x'));}
+ const composed=await win.page.evaluate(()=>{const result=mollyEditor.titleEditor.renderer.render({text:'MINECRAFT\nMOLLY STUDIO',creeperA:true});const url=result.canvas.toDataURL('image/png');result.canvas.width=result.canvas.height=1;return url;});
+ await fs.writeFile(path.join(root,'.test-output/title-composed.png'),Buffer.from(composed.split(',')[1],'base64'));
+ await win.page.evaluate(()=>mollyEditor.settingsManager.set('theme','dark'));await settle(win);
+ const sample=await win.page.evaluate(()=>{const result=mollyEditor.titleEditor.renderer.render({text:'MINECRAFT',creeperA:true});const url=result.canvas.toDataURL('image/png');result.canvas.width=result.canvas.height=1;return url;});
+ await fs.writeFile(path.join(root,'.test-output/title-minecraft.png'),Buffer.from(sample.split(',')[1],'base64'));
+ await settle(win);
+ await fs.writeFile(path.join(root,'.test-output/title-editor.png'),(await win.webContents.capturePage()).toPNG());
+ if(win.__testErrors.length)throw Error(win.__testErrors.join('\n'));
+ form=makeWindow(1000,700,{label:'new-project'});await form.loadFile(path.join(root,'src/renderer/new-project.html'));await settle(form);
+ await form.page.locator('[data-type="title"]').click();
+ if(!await form.page.locator('#new-title-name').isVisible())throw Error('Title form remains hidden');
+ const created=await form.page.evaluate(async()=>{const {createProjectFromForm}=await import(new URL('js/core/ProjectFactory.mjs',location.href));return createProjectFromForm(document,'title');});
+ if(created.type!=='title'||await form.page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('New-project form is incorrect');checks.push('Native new-project dialog creates title documents without overflow');
+ if(form.__testErrors.length)throw Error(form.__testErrors.join('\n'));
+ await fs.writeFile(path.join(root,'.test-output/title-report.json'),JSON.stringify({passed:true,checks},null,2));
+ console.log(JSON.stringify({passed:checks.length,checks}));
+}catch(error){console.error(error);process.exitCode=1;}finally{form?.destroy();win?.destroy();app.exit(process.exitCode||0);}})();
+

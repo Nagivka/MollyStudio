@@ -226,14 +226,14 @@ export default class WindowLayoutController {
                 });
                 if (secGui) secGui.style.display = type === 'gui' ? 'block' : 'none';
                 if (secCanvas) secCanvas.style.display = type === 'canvas' ? 'block' : 'none';
-                for (const [projectType, section] of [['prefix','new-proj-section-prefix']]) {
+                for (const [projectType, section] of [['prefix','new-proj-section-prefix'],['title','new-proj-section-title']]) {
                     const element = document.getElementById(section);
                     if (element) element.style.display = type === projectType ? 'block' : 'none';
                 }
                 if (type === 'gui') {
                     newProjName?.focus();
                 } else {
-                    if (['prefix'].includes(type)) document.getElementById(`new-${type}-name`)?.focus();
+                    if (['prefix','title'].includes(type)) document.getElementById(`new-${type}-name`)?.focus();
                     else newCanvasName?.focus();
                 }
             });
@@ -318,7 +318,7 @@ export default class WindowLayoutController {
             });
         });
 
-        const newProjInputs = [newProjName, newCanvasName, newCanvasW, newCanvasH, document.getElementById('new-prefix-name')];
+        const newProjInputs = [newProjName, newCanvasName, newCanvasW, newCanvasH, document.getElementById('new-prefix-name'),document.getElementById('new-title-name')];
         newProjInputs.forEach(input => {
             input?.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
@@ -473,7 +473,8 @@ export default class WindowLayoutController {
 
     openCanvasSizeModal() {
         const projectType = this.getActiveProject()?.type;
-        if (projectType === 'prefix') { this.showToast('Размер префикса определяется текстом и отступами.', 'info'); return; }
+        if(projectType==='title'){this.showToast('Размер надписи задаётся в параметрах 3D-генератора.','info');return;}
+        if (projectType==='prefix') { this.showToast('Размер префикса определяется текстом и отступами.', 'info'); return; }
         const modal = document.getElementById('canvas-size-modal');
         if (!modal) return;
 

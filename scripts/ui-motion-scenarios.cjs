@@ -59,7 +59,7 @@ const { app, root, ready, makeWindow, settle } = require('./lib/electron-harness
         await run(settings, `document.documentElement.dataset.theme = 'light'`);await settle(settings);
         await fs.writeFile(path.join(root, '.test-output/icon-disclosures-light.png'), (await settings.webContents.capturePage()).toPNG());
         const launcher = makeWindow();windows.push(launcher);await launcher.loadFile(path.join(root, 'src/renderer/index.html'));await settle(launcher);
-        expect(await run(launcher, `Array.from(document.querySelectorAll('#new-proj-type-selector [data-type]')).map(button => button.dataset.type).sort().join(',') === 'canvas,gui,prefix'`), 'Launcher offers GUI, canvas and prefixes');
+        expect(await run(launcher, `Array.from(document.querySelectorAll('#new-proj-type-selector [data-type]')).map(button => button.dataset.type).sort().join(',') === 'canvas,gui,prefix,title'`), 'Launcher offers GUI, canvas, prefixes and 3D titles');
         await run(launcher, `localStorage.setItem('molly_recent', JSON.stringify([{ name: 'Unsupported', path: 'unsupported.mlst', type: 'retired-kind' }]));window.dispatchEvent(new StorageEvent('storage', { key: 'molly_recent' }));`);
         await wait(launcher, `!!document.querySelector('.m3-empty-recent')`);
         expect(await run(launcher, `!document.querySelector('.m3-recent-card') && JSON.parse(localStorage.getItem('molly_recent')).length === 1`), 'Unsupported recent entries are hidden without deleting their files or saved records');

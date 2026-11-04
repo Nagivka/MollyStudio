@@ -149,7 +149,7 @@ export default class ToolManager {
 
         const sizeBindings = [
             ['brush', 'tool-size', 'tool-size-num', 64],
-            ['pencil', 'pencil-size', 'pencil-size-num', 16],
+            ['pencil', 'pencil-size', 'pencil-size-num', 32],
             ['eraser', 'eraser-size', 'eraser-size-num', 64],
             ['line', 'line-size', 'line-size-num', 16],
             ['rect-empty', 'rect-stroke', 'rect-stroke-num', 16],
@@ -241,7 +241,7 @@ export default class ToolManager {
 
     setTool(toolId) {
         const projectType = globalThis.window?.mollyEditor?.getActiveProject?.()?.type;
-        if (projectType === 'prefix' && !['hand', 'pipette'].includes(toolId)) return;
+        if (['prefix','title'].includes(projectType) && !['hand', 'pipette'].includes(toolId)) return;
         const nextTool = this.tools[toolId];
         if (!nextTool) return;
 
@@ -419,6 +419,7 @@ export default class ToolManager {
     }
 
     finishDocument({ preserveSelection = false } = {}) {
+        if(globalThis.window?.mollyEditor?.titleEditor?.commitPendingEdit?.()===false)return false;
         if (globalThis.window?.mollyEditor?.prefixEditor?.commitPendingEdit?.() === false) return false;
         if (this.pointerSession && !this.finishPointer()) return false;
         if(this.tools.text?.commitPendingEdit?.()===false)return false;

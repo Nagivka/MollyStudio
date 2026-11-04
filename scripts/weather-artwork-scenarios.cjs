@@ -3,7 +3,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
 (async()=>{let win;const timer=setTimeout(()=>app.exit(1),60000);try{
     await ready();win=makeWindow(1440,1000);await win.loadFile(path.join(root,'src/renderer/index.html'));await win.showInactive();
     const checks=await win.page.evaluate(async()=>{
-        const {naturalLeaf,naturalSnow,naturalRain}=await import(new URL('js/ui/WeatherArtwork.js',location.href));
+        const {naturalLeaf,naturalSnow,naturalRain,creeperSnowflake,isCreeperSnowflake}=await import(new URL('js/ui/WeatherArtwork.js',location.href));
         const {WeatherSurface}=await import(new URL('js/ui/AmbientWeather.js',location.href));
         const {WeatherParticles}=await import(new URL('js/core/WeatherParticles.mjs',location.href));
         const {drawWeatherBitmap}=await import(new URL('js/core/WeatherBitmap.mjs',location.href));
@@ -40,6 +40,29 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
             expect(sources.length>0&&sources.every(image=>image instanceof HTMLCanvasElement&&image.width===96&&image.height===96),'Standard '+effect+' uses only natural artwork: '+season);
         }
         expect(naturalSnow(1,false)===naturalSnow(1,false),'Snow artwork is cached');
+        const rare={variant:63,color:3,phase:0};
+        expect(isCreeperSnowflake(rare)&&!isCreeperSnowflake({...rare,variant:62})&&!isCreeperSnowflake({...rare,color:2})&&!isCreeperSnowflake({...rare,phase:Math.PI}),'Rare snowflake requires all three independent conditions');
+        expect(creeperSnowflake()===creeperSnowflake(),'Secret snow artwork is cached');
+        const secret=creeperSnowflake().getContext('2d');
+        expect(secret.getImageData(5,6,1,1).data[3]===0&&secret.getImageData(4,4,1,1).data[3]===255,'Secret snow has a transparent creeper face cut into the ice');
+        for(const pixelated of [false,true]){
+            const canvas=document.createElement('canvas');canvas.width=canvas.height=128;
+            const ctx=canvas.getContext('2d'),draw=ctx.drawImage.bind(ctx),sources=[];
+            ctx.drawImage=(image,...args)=>{sources.push(image);draw(image,...args);};
+            const field=new WeatherParticles('snow','light',128,128,()=>.5);
+            field.particles=[{...field.particles[0],...rare,x:64,y:64}];
+            WeatherSurface.prototype.paintField.call({ctx,pixelated,opacity:1,particleScale:2,scale:1,light:false},field,1);
+            expect(sources.includes(creeperSnowflake())===pixelated,'Secret snow is drawn only in Minecraft themes: '+pixelated);
+        }
+        for(const light of [false,true]){
+            const variants=new Set();
+            for(let v=0;v<6;v++){
+                const sprite=naturalSnow(v,light),ctx=sprite.getContext('2d');variants.add(sprite.toDataURL());
+                const alpha=(x,y)=>ctx.getImageData(x,y,1,1).data[3];
+                expect(alpha(48,48)>0&&alpha(v%2?82:77,v%2?48:65)===0,'Snow crystal has a visible centre and open space between its rays: '+v+' / '+light);
+            }
+            expect(variants.size===6,'Six distinct snow crystal shapes: '+light);
+        }
         expect(naturalRain(true)===naturalRain(true),'Rain artwork is cached');
         for(const sprite of [naturalLeaf(0,0),naturalSnow(0,false),naturalSnow(0,true),naturalRain(true)]){
             const pixels=sprite.getContext('2d').getImageData(0,0,sprite.width,sprite.height).data;

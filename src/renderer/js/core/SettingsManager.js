@@ -2,6 +2,9 @@ import {installDiagnostics} from './Diagnostics.mjs';
 import {syncAmbientWeather} from '../ui/AmbientWeather.js';
 import {syncUISounds} from '../ui/UISounds.js';
 import {syncSeasonalDetails} from '../ui/SeasonalDetails.js';
+import {syncDeveloperMonitor} from '../ui/DeveloperMonitor.js';
+import {installLiquidGlassMotion} from '../ui/LiquidGlassMotion.js';
+import {syncBasementPalette} from '../utils/Palettes.js';
 /**
  * SettingsManager - Pure Material Design 3 Configuration and Dynamic Color Manager.
  * Manages standard themes and the experimental Minecraft dark/light pair,
@@ -37,6 +40,12 @@ export default class SettingsManager {
             saveFeedbackEnabled: true,
             liquidGlassEnabled: false,
             seasonalDetailsEnabled: true,
+            developerUnlocked: false,
+            basementPaletteUnlocked: false,
+            developerLayoutBounds: false,
+            developerWeatherBounds: false,
+            developerPerformance: false,
+            developerHoliday: 'auto',
             uiSoundProfile: 'auto',
             uiSoundsEnabled: false,
             uiSoundVolume: 35,
@@ -139,6 +148,7 @@ export default class SettingsManager {
             } else if (typeof values[key] === 'string') settings[key] = values[key];
         }
         const choices = {
+            developerHoliday:['auto','newyear','christmas','halloween','studioBirthday','authorBirthday'],
             uiSoundProfile: ['auto','soft','pixel'],
             language: LANGUAGES.map(language=>language.id),
             weatherEffect: ['none', 'rain', 'snow', 'leaves'],
@@ -320,10 +330,16 @@ export default class SettingsManager {
     }
 
     apply(key, value) {
+        if(key==='basementPaletteUnlocked')syncBasementPalette(value);
+        if(key==='developerUnlocked'||key==='developerWeatherBounds')document.documentElement.classList.toggle('developer-weather-bounds',this.settings.developerUnlocked&&this.settings.developerWeatherBounds);
+        if(key==='developerUnlocked'||key==='developerPerformance')syncDeveloperMonitor(this.settings.developerUnlocked&&this.settings.developerPerformance);
+        if((key==='developerHoliday'||key==='developerUnlocked')&&!this.applyingAll)syncSeasonalDetails(this.settings);
+        if(key==='developerUnlocked'||key==='developerLayoutBounds')document.documentElement.classList.toggle('developer-layout-bounds',this.settings.developerUnlocked&&this.settings.developerLayoutBounds);
         const root = document.documentElement;
         switch (key) {
             case 'seasonalDetailsEnabled':if(!this.applyingAll)syncSeasonalDetails(this.settings);break;
             case 'liquidGlassEnabled':
+                if(value===true)installLiquidGlassMotion();
                 root.toggleAttribute('data-liquid-glass',value===true&&!this.settings.theme.includes('minecraft'));
                 break;
             case 'clickEffectsEnabled':root.classList.toggle('no-click-effects',value===false);break;

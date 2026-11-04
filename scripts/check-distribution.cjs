@@ -2,16 +2,19 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const {createHash} = require('node:crypto');
+const {distributionLayout}=require('./lib/distribution-layout.cjs');
 const root = path.resolve(__dirname,'..');
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 
 (async()=>{
     const asar = await import('@electron/asar');
-    const directory=path.resolve(root,process.argv[2]||'dist/win-unpacked'),archive=path.join(directory,'resources/app.asar');
+    const platform=process.argv[3]||process.platform;
+    const defaultDirectory=platform==='darwin'?'dist/mac/MollyStudio.app':platform==='linux'?'dist/linux-unpacked':'dist/win-unpacked';
+    const directory=path.resolve(root,process.argv[2]||defaultDirectory),layout=distributionLayout(directory,platform),archive=layout.archive;
     const entries=asar.listPackage(archive).map(name=>name.replaceAll('\\','/').replace(/^\//,''));
     const names=new Set(entries),expectedFiles=new Set(),differences=[],missingRuntime=[];
-    for(const name of ['MollyStudio.exe','icudtl.dat','resources.pak','chrome_100_percent.pak','v8_context_snapshot.bin','d3dcompiler_47.dll','ffmpeg.dll']){
-        if(!await fs.stat(path.join(directory,name)).catch(()=>null))missingRuntime.push(name);
+    for(const name of layout.files){
+        if(!await fs.stat(path.join(layout.runtimeRoot,name)).catch(()=>null))missingRuntime.push(name);
     }
     async function inspect(relative){
         for(const entry of await fs.readdir(path.join(root,relative),{withFileTypes:true})){
@@ -34,7 +37,7 @@ const digest = bytes => createHash('sha256').update(bytes).digest('hex');
         if(!info.files)differences.push({file:name,reason:'obsolete'});
     }
     const unexpected=entries.filter(name=>/^(?:tests|scripts|docs|design|\.git|\.secrets)\//.test(name)||/\.(?:pfx|p12|pem|private-key)$/.test(name)||name==='src/main/test-mode.cjs');
-    const report={passed:!differences.length&&!missingRuntime.length&&!unexpected.length,checkedAt:new Date().toISOString(),directory,
+    const report={passed:!differences.length&&!missingRuntime.length&&!unexpected.length,checkedAt:new Date().toISOString(),directory,platform,
         expectedVersion:expectedPackage.version,packagedVersion:packagedPackage.version,
         chromiumRuntimePresent:!missingRuntime.length,missingRuntime,unexpected,differences,
         requiresNewBuild:!!differences.length,cleanWindowsVerified:false};

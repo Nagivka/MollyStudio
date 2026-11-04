@@ -1,6 +1,6 @@
-export type FileOperation = 'save' | 'open' | 'export';
+export type FileOperation = 'save' | 'open' | 'export' | 'model-export';
 export interface FileProblem {
-    kind: 'changed' | 'space' | 'permission' | 'busy' | 'missing' | 'unknown';
+    kind: 'changed' | 'space' | 'permission' | 'busy' | 'missing' | 'device' | 'unknown';
     message: string;
     action: 'save-copy' | 'choose-folder' | 'retry' | 'check-file';
 }
@@ -19,12 +19,16 @@ export function fileErrorInfo(error: unknown, operation: FileOperation = 'save')
         return { kind: 'permission', message: 'Нет доступа к файлу или папке. Выберите доступную папку.', action: 'choose-folder' };
     if (/EBUSY|sharing violation|другим процессом|os error 32\b/i.test(message))
         return { kind: 'busy', message: 'Файл занят другой программой. Закройте её или сохраните под другим именем.', action: 'retry' };
+    if (/ENODEV|ENXIO|EIO\b|device.*(?:not ready|disconnected|unavailable)|os error (?:21|1117|1167)\b/i.test(message))
+        return { kind: 'device', message: 'Диск недоступен или отключён. Подключите его снова либо выберите другую папку.', action: 'choose-folder' };
     if (/ENOENT|not found|не удается найти|не удаётся найти|os error [23]\b/i.test(message))
         return { kind: 'missing', message: 'Файл или папка больше не существует. Проверьте путь.', action: 'check-file' };
     if (operation === 'open')
         return { kind: 'unknown', message: 'Не удалось открыть проект. Проверьте формат и целостность .mlst; уже открытые проекты сохранены во вкладках.', action: 'check-file' };
     if (operation === 'export')
         return { kind: 'unknown', message: 'Не удалось записать изображение. Повторите экспорт или выберите другую папку.', action: 'choose-folder' };
+    if (operation === 'model-export')
+        return { kind: 'unknown', message: 'Не удалось записать 3D-модель. Повторите экспорт или выберите другую папку.', action: 'choose-folder' };
     return { kind: 'unknown', message: 'Не удалось записать проект. Данные остаются в открытой вкладке; попробуйте другую папку.', action: 'choose-folder' };
 }
 export function fileErrorMessage(error: unknown, operation: FileOperation = 'save'): string {

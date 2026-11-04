@@ -49,16 +49,17 @@ export default class ExportPanel {
         this.create();const project=this.app.getActiveProject();if(!project)return false;
         try{await this.app.projectManager.prepareProject(project);}catch(error){this.app.showToast(error.message,'error');return false;}
         if(this.app.getActiveProject()!==project)return false;
-        this.context={id:project.id,revision:this.app.projectManager.getRevision(project.id),name:project.name,type:project.type,layers:[...this.app.layerManager.getLayers()],config:{...this.app.config},prefixData:project.type==='prefix'?structuredClone(project.prefixData):null,selected:[...this.app.layerManager.selectedLayerIds],active:this.app.layerManager.activeLayerId};
+        this.context={id:project.id,revision:this.app.projectManager.getRevision(project.id),name:project.name,type:project.type,layers:[...this.app.layerManager.getLayers()],config:{...this.app.config},prefixData:project.type==='prefix'?structuredClone(project.prefixData):null,titleData:project.type==='title'?structuredClone(project.titleData):null,selected:[...this.app.layerManager.selectedLayerIds],active:this.app.layerManager.activeLayerId};
         const controls=this.get('source');controls.querySelector('[value="prefixes"]').hidden=project.type!=='prefix';
-        for(const key of ['active','selected'])controls.querySelector(`[value="${key}"]`).hidden=project.type==='prefix';
-        const defaults={source,scale:this.app.settingsManager.get('exportScale')||1,trim:this.app.settingsManager.get('exportTrim')===true,format:source==='selected'?'zip':'png',columns:4,gap:1,prefix:'',numbered:false,names:'',block:this.app.prefixEditor?.selected||0};
+        for(const key of ['active','selected'])controls.querySelector(`[value="${key}"]`).hidden=['prefix','title'].includes(project.type);
+        const defaults={source,scale:project.type==='title'?1:this.app.settingsManager.get('exportScale')||1,trim:this.app.settingsManager.get('exportTrim')===true,format:source==='selected'?'zip':'png',columns:4,gap:1,prefix:'',numbered:false,names:'',block:this.app.prefixEditor?.selected||0};
         const options=repeat&&this.last?{...defaults,...this.last}:defaults;
         if(project.type!=='prefix'&&options.source==='prefixes')options.source='project';
-        if(project.type==='prefix'&&['active','selected'].includes(options.source))options.source='project';
+        if(['prefix','title'].includes(project.type)&&['active','selected'].includes(options.source))options.source='project';
         const block=this.get('block');block.replaceChildren();
         project.prefixData?.blocks.forEach((item,index)=>{const option=document.createElement('option');option.value=String(index);option.textContent=`${index+1}. ${item.text||'Без текста'}`;block.append(option);});
         for(const [key,value] of Object.entries(options)){const control=this.get(key);if(control)control.type==='checkbox'?control.checked=value:control.value=String(value);}
+        this.dialog.classList.toggle('title-export',project.type==='title');
         this.returnFocus=document.activeElement;this.get('error').hidden=true;this.get('progress-panel').hidden=true;
         if(!this.dialog.open)this.dialog.showModal();this.get('source').focus();await this.preview();return true;
     }
@@ -86,9 +87,10 @@ export default class ExportPanel {
         if(!result.length)throw Error('Нет выбранных слоёв для экспорта.');return result;
     }
 
-    source(entry,options){
+    source(entry,options,fullResolution=false){
         this.assertContext();
         const c=this.context;
+        if(c.type==='title')return this.app.titleEditor.renderer.render(c.titleData,{scale:fullResolution?options.scale:1}).canvas;
         if(options.source==='prefixes'){
             const data=structuredClone(c.prefixData);data.blocks[options.block].text=entry.text;
             return this.app.prefixEditor.renderer.render(data).canvas;
@@ -121,9 +123,9 @@ export default class ExportPanel {
             this.get('prefix-fields').hidden=options.source!=='prefixes';
             this.get('sheet-fields').hidden=options.format!=='sheet';
             const entries=this.entries(options),multiple=entries.length>1||['selected','prefixes'].includes(options.source);
-            const diagnostics=inspectExportLayers(this.context.layers,this.context.config,
+            const diagnostics=this.context.type==='title'?[]:inspectExportLayers(this.context.layers,this.context.config,
                 ['active','selected'].includes(options.source)?entries.map(entry=>entry.id):null);
-            if(this.app.layerManager.isolatedLayerId)diagnostics.unshift('Включена изоляция. Экспорт учитывает обычную видимость всех слоёв проекта.');
+            if(this.context.type!=='title'&&this.app.layerManager.isolatedLayerId)diagnostics.unshift('Включена изоляция. Экспорт учитывает обычную видимость всех слоёв проекта.');
             this.warnings.replaceChildren(...diagnostics.map(message=>{const li=document.createElement('li');bindText(li,message);return li;}));
             this.warnings.hidden=!diagnostics.length;
             this.get('format').querySelector('[value="png"]').disabled=multiple;
@@ -134,8 +136,9 @@ export default class ExportPanel {
             if(width>16384||height>16384||width*height>64*1024*1024)throw Error('Результат слишком велик. Уменьшите масштаб.');
             const preview=this.get('canvas');preview.width=Math.min(640,width);preview.height=Math.max(1,Math.round(height*preview.width/width));
             if(preview.height>480){preview.width=Math.max(1,Math.round(preview.width*480/preview.height));preview.height=480;}
-            const ctx=preview.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.drawImage(source,region.x,region.y,region.width,region.height,0,0,preview.width,preview.height);source.width=source.height=1;
+            const ctx=preview.getContext('2d');ctx.imageSmoothingEnabled=this.context.type==='title';ctx.imageSmoothingQuality='high';ctx.drawImage(source,region.x,region.y,region.width,region.height,0,0,preview.width,preview.height);source.width=source.height=1;
             preview.style.width=`${Math.min(400,width*Math.min(8,Math.max(1,Math.floor(400/width))))}px`;
+            preview.style.height='auto';preview.style.aspectRatio=preview.width+'/'+preview.height;
             let resultWidth=width,resultHeight=height;
             if(options.format==='sheet'){
                 const sizes=[{width,height}];
@@ -175,9 +178,9 @@ export default class ExportPanel {
                 this.assertRunning();
                 bindText(this.get('status'), "Подготовка {0} из {1}: {2}", {0: index+1, 1: entries.length, 2: names[index]});this.get('progress').value=index/entries.length;await frame();
                 this.assertRunning();
-                const source=this.source(entries[index],options);let output;
+                const source=this.source(entries[index],options,true);let output;
                 try{
-                    const region=getExportRegion(source,options.trim);output=prepareExportCanvas(source,{scale:options.scale,region});
+                    const region=getExportRegion(source,options.trim);output=prepareExportCanvas(source,{scale:this.context.type==='title'?1:options.scale,region});
                     source.width=source.height=1;
                     const blob=await blobOf(output);this.assertRunning();payloadBytes+=blob.size;
                     if(payloadBytes>96*1024*1024)throw Error('Набор превышает 96 МБ. Экспортируйте меньшими частями.');

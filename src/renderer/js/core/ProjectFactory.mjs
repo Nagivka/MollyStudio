@@ -99,6 +99,7 @@ export function createCanvasProject({
 
 export function createProjectFromForm(source, type = 'gui') {
     assertProjectType(type);
+    if (type === 'title') return createTitleProject({name:readValue(source,'new-title-name','Надпись 1')});
     if (type === 'prefix') return createPrefixProject({ name: readValue(source, 'new-prefix-name', 'Префиксы 1') });
     if (type === 'canvas') {
         return createCanvasProject({
@@ -119,6 +120,7 @@ export function createProjectFromForm(source, type = 'gui') {
 
 export function normalizeProjectData(data = {}) {
     assertProjectType(data.type ?? 'gui');
+    if (data.type === 'title') return createTitleProject(data);
     if (data.type === 'prefix') return createPrefixProject(data);
     const type = data.type === 'canvas' ? 'canvas' : 'gui';
     if (type === 'canvas') {
@@ -175,5 +177,7 @@ export function buildEditorUrl(data, base = 'editor.html') {
 
 
 function assertProjectType(type) {
-    if (!['gui', 'canvas', 'prefix'].includes(type)) throw new Error('Этот тип проекта больше не поддерживается.');
+    if (!['gui', 'canvas', 'prefix', 'title'].includes(type)) throw new Error('Этот тип проекта больше не поддерживается.');
 }
+
+export function createTitleProject({name='Надпись 1'}={}) {return {name:String(name||'Надпись 1').trim()||'Надпись 1',type:'title',template:'none',width:512,height:128,bg:'transparent',hasFrame:false,isNew:true};}

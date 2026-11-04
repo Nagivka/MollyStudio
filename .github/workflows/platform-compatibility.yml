@@ -1,0 +1,105 @@
+name: Native platform compatibility
+on:
+  workflow_dispatch:
+  workflow_call:
+    secrets:
+      MAC_CSC_LINK:
+        required: false
+      MAC_CSC_KEY_PASSWORD:
+        required: false
+      APPLE_ID:
+        required: false
+      APPLE_APP_SPECIFIC_PASSWORD:
+        required: false
+      APPLE_TEAM_ID:
+        required: false
+  push:
+    branches: ['codex/cross-platform-compatibility']
+permissions:
+  contents: read
+concurrency:
+  group: native-platform-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native:
+    if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15-intel
+            platform: darwin
+            arch: x64
+          - os: macos-15
+            platform: darwin
+            arch: arm64
+          - os: ubuntu-24.04
+            platform: linux
+            arch: x64
+          - os: ubuntu-24.04-arm
+            platform: linux
+            arch: arm64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 55
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Linux desktop libraries and sandbox
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgtk-3-0 libnss3 libasound2t64 libgbm1 libfuse2t64
+          sudo chown root:root node_modules/electron/dist/chrome-sandbox
+          sudo chmod 4755 node_modules/electron/dist/chrome-sandbox
+      - run: npm run typecheck && npm run core:verify && npm test && npm run audit
+      - name: Native Electron checks
+        run: |
+          if [[ "$RUNNER_OS" == Linux ]]; then
+            xvfb-run -a sh -c 'npm run test:desktop && npm run test:lifecycle && npm run test:workflows && npm run test:titles:edges'
+          else
+            npm run test:desktop && npm run test:lifecycle && npm run test:workflows && npm run test:titles:edges
+          fi
+      - name: Build native distributions
+        run: npm run dist -- ${{ matrix.platform }} ${{ matrix.arch }}
+        env:
+          CSC_LINK: ${{ matrix.platform == 'darwin' && secrets.MAC_CSC_LINK || '' }}
+          CSC_KEY_PASSWORD: ${{ matrix.platform == 'darwin' && secrets.MAC_CSC_KEY_PASSWORD || '' }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      - name: Check packaged application
+        run: |
+          if [[ "$RUNNER_OS" == Linux ]]; then
+            sudo chown root:root "dist/linux${{ matrix.arch == 'arm64' && '-arm64' || '' }}-unpacked/chrome-sandbox"
+            sudo chmod 4755 "dist/linux${{ matrix.arch == 'arm64' && '-arm64' || '' }}-unpacked/chrome-sandbox"
+            xvfb-run -a node scripts/packaged-platform-smoke.cjs
+          else
+            codesign --verify --deep --strict "dist/${{ matrix.arch == 'arm64' && 'mac-arm64' || 'mac' }}/MollyStudio.app"
+            node scripts/packaged-platform-smoke.cjs
+          fi
+      - name: Retain private artifacts and diagnostics
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: MollyStudio-${{ matrix.platform }}-${{ matrix.arch }}-${{ github.sha }}
+          path: |
+            dist/*.dmg
+            dist/*mac.zip
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.tar.gz
+            dist/*.sha256
+            dist/latest*.yml
+            dist/build-*.json
+            .test-output/*.json
+            .test-output/*.log
+          retention-days: 7

@@ -44,7 +44,8 @@ export function mountUpdatePanel(container, {banner = false} = {}) {
         section.hidden = banner && !available;
         const labels = {idle:'Проверка ещё не выполнялась.',checking:'Проверяем обновления…','up-to-date':'Установлена последняя версия.',
             available:'Доступна версия {0}',downloading:'Загружается версия {0}',downloaded:'Версия {0} готова к установке',installing:'Завершаем работу и устанавливаем обновление…'};
-        bindText(status, !value.supported ? 'Автообновления доступны в установленной версии для Windows.' : state === 'error'
+        const unavailable=value.unavailableReason==='mac-signing'?'Для автообновлений macOS требуется подписанная сборка. Новые версии доступны на странице релиза.':value.unavailableReason==='linuxNative'?'Для автообновлений Linux используйте AppImage. Пакеты обновляются через установку новой версии.':'Автообновления доступны в установленной версии или AppImage.';
+        bindText(status, !value.supported ? unavailable : state === 'error'
             ? errorMessages[value.error] || 'Не удалось проверить или загрузить обновление. Проверьте подключение к интернету.' : labels[state] || labels.idle, {0:value.version});
         if(localError)bindText(status,localError);
         if (downloading) bindText(detail, 'Загружено {0}% · {1} МБ из {2} МБ', {0:Math.floor(value.percent || 0),1:((value.downloaded || 0)/1e6).toFixed(1),2:((value.total || 0)/1e6).toFixed(1)});

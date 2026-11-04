@@ -793,6 +793,15 @@ export const MINECRAFT_BLOCKS = [
     "category": "block_renders"
   },
   {
+    "id": "block_render:brittle_ice",
+    "minecraftId": "brittle_ice",
+    "file": "brittle_ice.png",
+    "folder": "blocks_minecraft",
+    "name": "Хрупкий лёд",
+    "en": "Brittle Ice",
+    "category": "block_renders"
+  },
+  {
     "id": "block_render:brown_carpet",
     "minecraftId": "brown_carpet",
     "file": "brown_carpet.png",
@@ -1132,6 +1141,15 @@ export const MINECRAFT_BLOCKS = [
     "folder": "blocks_minecraft",
     "name": "Резные незерские кирпичи",
     "en": "Chiseled Nether Bricks",
+    "category": "block_renders"
+  },
+  {
+    "id": "block_render:chiseled_packed_ice",
+    "minecraftId": "chiseled_packed_ice",
+    "file": "chiseled_packed_ice.png",
+    "folder": "blocks_minecraft",
+    "name": "Резной плотный лёд",
+    "en": "Chiseled Packed Ice",
     "category": "block_renders"
   },
   {
@@ -4303,6 +4321,42 @@ export const MINECRAFT_BLOCKS = [
     "category": "block_renders"
   },
   {
+    "id": "block_render:packed_ice_brick_slab",
+    "minecraftId": "packed_ice_brick_slab",
+    "file": "packed_ice_brick_slab.png",
+    "folder": "blocks_minecraft",
+    "name": "Плита из кирпичей из плотного льда",
+    "en": "Packed Ice Brick Slab",
+    "category": "block_renders"
+  },
+  {
+    "id": "block_render:packed_ice_brick_stairs",
+    "minecraftId": "packed_ice_brick_stairs",
+    "file": "packed_ice_brick_stairs.png",
+    "folder": "blocks_minecraft",
+    "name": "Ступени из кирпичей из плотного льда",
+    "en": "Packed Ice Brick Stairs",
+    "category": "block_renders"
+  },
+  {
+    "id": "block_render:packed_ice_brick_wall",
+    "minecraftId": "packed_ice_brick_wall",
+    "file": "packed_ice_brick_wall.png",
+    "folder": "blocks_minecraft",
+    "name": "Ограда из кирпичей из плотного льда",
+    "en": "Packed Ice Brick Wall",
+    "category": "block_renders"
+  },
+  {
+    "id": "block_render:packed_ice_bricks",
+    "minecraftId": "packed_ice_bricks",
+    "file": "packed_ice_bricks.png",
+    "folder": "blocks_minecraft",
+    "name": "Кирпичи из плотного льда",
+    "en": "Packed Ice Bricks",
+    "category": "block_renders"
+  },
+  {
     "id": "block_render:packed_mud",
     "minecraftId": "packed_mud",
     "file": "packed_mud.png",
@@ -5866,6 +5920,42 @@ export const MINECRAFT_BLOCKS = [
     "folder": "blocks_minecraft",
     "name": "Блок снега",
     "en": "Snow Block",
+    "category": "block_renders"
+  },
+  {
+    "id": "block_render:snow_brick_slab",
+    "minecraftId": "snow_brick_slab",
+    "file": "snow_brick_slab.png",
+    "folder": "blocks_minecraft",
+    "name": "Плита из снежных кирпичей",
+    "en": "Snow Brick Slab",
+    "category": "block_renders"
+  },
+  {
+    "id": "block_render:snow_brick_stairs",
+    "minecraftId": "snow_brick_stairs",
+    "file": "snow_brick_stairs.png",
+    "folder": "blocks_minecraft",
+    "name": "Ступени из снежных кирпичей",
+    "en": "Snow Brick Stairs",
+    "category": "block_renders"
+  },
+  {
+    "id": "block_render:snow_brick_wall",
+    "minecraftId": "snow_brick_wall",
+    "file": "snow_brick_wall.png",
+    "folder": "blocks_minecraft",
+    "name": "Ограда из снежных кирпичей",
+    "en": "Snow Brick Wall",
+    "category": "block_renders"
+  },
+  {
+    "id": "block_render:snow_bricks",
+    "minecraftId": "snow_bricks",
+    "file": "snow_bricks.png",
+    "folder": "blocks_minecraft",
+    "name": "Снежные кирпичи",
+    "en": "Snow Bricks",
     "category": "block_renders"
   },
   {

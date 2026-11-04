@@ -1,7 +1,7 @@
 const {contextBridge, ipcRenderer, webUtils} = require('electron');
 
 const flushHandlers = new Set();
-const buffered = new Map(['settings-tab-requested', 'project-created'].map(name => [name, {callbacks: new Set(), pending: []}]));
+const buffered = new Map(['settings-tab-requested', 'project-created','native-menu-action'].map(name => [name, {callbacks: new Set(), pending: []}]));
 const requestCallbacks = new Map(), activeTransfers = new Set();
 const closeStateHandlers = new Set();
 let activeFlush = null;
@@ -63,6 +63,10 @@ function listenRequest(name, callback) {
 
 const api = {
     runtime: 'electron',
+    platform: process.platform,
+    arch: process.arch,
+    onNativeMenuAction: callback=>listen('native-menu-action',callback),
+    nativeEdit: action=>call('native-edit',{action}),
     setLanguage: language => call('language-set', {language}),
     getPendingProjectOpens: () => call('project-open-pending'),
     acknowledgeProjectOpen: id => call('project-open-ack', {id}),
@@ -128,6 +132,9 @@ const api = {
     reconnectDiscord: () => call('discord-reconnect')
 };
 contextBridge.exposeInMainWorld('desktopAPI', api);
+const markPlatform=()=>{if(document.documentElement)document.documentElement.dataset.platform=process.platform;};
+markPlatform();
+document.addEventListener('DOMContentLoaded',markPlatform,{once:true});
 
 listen('recovery-flush-failed', () => {
     if (activeFlush) releaseFlush(activeFlush);

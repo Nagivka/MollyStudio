@@ -3,8 +3,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
+import {createCaseChecker} from './lib/case-sensitive-path.cjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const caseMismatch=createCaseChecker(root);
 const inventory = [], issues = [], counts = {};
 const excluded = new Set(['node_modules', 'dist', 'build', 'out', '.git', '.codex', '.agents', '.playwright-mcp', '.test-output', '.rollback', '.legacy', '.secrets']);
 
@@ -33,6 +35,7 @@ async function visit(directory) {
             try { reference = decodeURIComponent(reference); } catch (_) { fail('Invalid URL encoding'); return; }
             if (!reference || /^(?:[a-z]+:|#|\/\/)/i.test(reference) || reference.includes('${')) return;
             const target = path.resolve(path.dirname(file), reference.split(/[?#]/)[0]);
+            const mismatch=caseMismatch(target);if(mismatch)fail(`Path case mismatch: ${mismatch.requested} should be ${mismatch.actual}`);
             if (!await fs.stat(target).catch(() => null)) fail(`Missing reference: ${reference}`);
         };
         if (['.js', '.mjs', '.cjs'].includes(extension)) {
@@ -42,6 +45,7 @@ async function visit(directory) {
             const references = [...source().matchAll(/(?:\bfrom\s*|\bimport\s*\(|\brequire\s*\()\s*['"](\.[^'"]+)['"]/g)];
             for (const reference of references) {
                 const target = path.resolve(path.dirname(file), reference[1].split(/[?#]/)[0]);
+                const mismatch=caseMismatch(target);if(mismatch)fail(`Module path case mismatch: ${mismatch.requested} should be ${mismatch.actual}`);
                 if (!await fs.stat(target).catch(() => null) && !await fs.stat(`${target}.js`).catch(() => null)) fail(`Missing module: ${reference[1]}`);
             }
             record.checks.push('relative-module-references');

@@ -263,14 +263,14 @@ export default class ColorPicker {
             const isLeftBracket = e.code === 'BracketLeft' || e.key === '[' || e.key === 'х' || e.key === 'Х';
             const isRightBracket = e.code === 'BracketRight' || e.key === ']' || e.key === 'ъ' || e.key === 'Ъ';
             
-            if (isX && !e.ctrlKey && !e.altKey && !e.shiftKey) {
+            if (isX && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
                 this.swapColors();
-            } else if (isD && !e.ctrlKey && !e.altKey && !e.shiftKey) {
+            } else if (isD && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
                 this.resetDefaultColors();
-            } else if (isLeftBracket && e.shiftKey && !e.ctrlKey && !e.altKey) {
+            } else if (isLeftBracket && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
                 e.preventDefault();
                 this.stepRamp(-1);
-            } else if (isRightBracket && e.shiftKey && !e.ctrlKey && !e.altKey) {
+            } else if (isRightBracket && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
                 e.preventDefault();
                 this.stepRamp(1);
             }

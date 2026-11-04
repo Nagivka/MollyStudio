@@ -1,0 +1,259 @@
+[
+  {
+    "id": "creeper",
+    "name": "Крипер",
+    "en": "Creeper",
+    "layers": [
+      {
+        "model": "monster.creeper.CreeperModel",
+        "texture": "creeper/creeper"
+      }
+    ]
+  },
+  {
+    "id": "zombie",
+    "name": "Зомби",
+    "en": "Zombie",
+    "layers": [
+      {
+        "model": "HumanoidModel",
+        "texture": "zombie/zombie",
+        "method": "createMesh",
+        "textureSize": [
+          64,
+          64
+        ]
+      }
+    ]
+  },
+  {
+    "id": "husk",
+    "name": "Кадавр",
+    "en": "Husk",
+    "layers": [
+      {
+        "model": "HumanoidModel",
+        "texture": "zombie/husk",
+        "method": "createMesh",
+        "textureSize": [
+          64,
+          64
+        ]
+      }
+    ]
+  },
+  {
+    "id": "drowned",
+    "name": "Утопленник",
+    "en": "Drowned",
+    "layers": [
+      {
+        "model": "HumanoidModel",
+        "texture": "zombie/drowned",
+        "method": "createMesh",
+        "textureSize": [
+          64,
+          64
+        ]
+      },
+      {
+        "model": "HumanoidModel",
+        "texture": "zombie/drowned_outer_layer",
+        "method": "createMesh",
+        "textureSize": [
+          64,
+          64
+        ],
+        "deformation": 0.25
+      }
+    ]
+  },
+  {
+    "id": "skeleton",
+    "name": "Скелет",
+    "en": "Skeleton",
+    "layers": [
+      {
+        "model": "monster.skeleton.SkeletonModel",
+        "texture": "skeleton/skeleton"
+      }
+    ]
+  },
+  {
+    "id": "wither_skeleton",
+    "name": "Скелет-иссушитель",
+    "en": "Wither Skeleton",
+    "layers": [
+      {
+        "model": "monster.skeleton.SkeletonModel",
+        "texture": "skeleton/wither_skeleton"
+      }
+    ]
+  },
+  {
+    "id": "enderman",
+    "name": "Эндермен",
+    "en": "Enderman",
+    "layers": [
+      {
+        "model": "monster.enderman.EndermanModel",
+        "texture": "enderman/enderman"
+      },
+      {
+        "model": "monster.enderman.EndermanModel",
+        "texture": "enderman/enderman_eyes",
+        "emissive": true
+      }
+    ]
+  },
+  {
+    "id": "slime",
+    "name": "Слизень",
+    "en": "Slime",
+    "layers": [
+      {
+        "model": "monster.slime.SlimeModel",
+        "texture": "slime/slime",
+        "method": "createInnerBodyLayer"
+      },
+      {
+        "model": "monster.slime.SlimeModel",
+        "texture": "slime/slime",
+        "method": "createOuterBodyLayer",
+        "opacity": 0.3
+      }
+    ]
+  },
+  {
+    "id": "magma_cube",
+    "name": "Магмовый куб",
+    "en": "Magma Cube",
+    "layers": [
+      {
+        "model": "monster.slime.MagmaCubeModel",
+        "texture": "slime/magmacube"
+      }
+    ]
+  },
+  {
+    "id": "ghast",
+    "name": "Гаст",
+    "en": "Ghast",
+    "layers": [
+      {
+        "model": "monster.ghast.GhastModel",
+        "texture": "ghast/ghast"
+      }
+    ]
+  },
+  {
+    "id": "ghast_shooting",
+    "name": "Атакующий гаст",
+    "en": "Attacking Ghast",
+    "layers": [
+      {
+        "model": "monster.ghast.GhastModel",
+        "texture": "ghast/ghast_shooting"
+      }
+    ]
+  },
+  {
+    "id": "spider",
+    "name": "Паук",
+    "en": "Spider",
+    "layers": [
+      {
+        "model": "monster.spider.SpiderModel",
+        "texture": "spider/spider",
+        "method": "createSpiderBodyLayer"
+      },
+      {
+        "model": "monster.spider.SpiderModel",
+        "texture": "spider/spider_eyes",
+        "method": "createSpiderBodyLayer",
+        "emissive": true
+      }
+    ]
+  },
+  {
+    "id": "cave_spider",
+    "name": "Пещерный паук",
+    "en": "Cave Spider",
+    "layers": [
+      {
+        "model": "monster.spider.SpiderModel",
+        "texture": "spider/cave_spider",
+        "method": "createSpiderBodyLayer"
+      }
+    ]
+  },
+  {
+    "id": "pig",
+    "name": "Свинья",
+    "en": "Pig",
+    "layers": [
+      {
+        "model": "animal.pig.PigModel",
+        "texture": "pig/pig_temperate"
+      }
+    ]
+  },
+  {
+    "id": "cow",
+    "name": "Корова",
+    "en": "Cow",
+    "layers": [
+      {
+        "model": "animal.cow.CowModel",
+        "texture": "cow/cow_temperate"
+      }
+    ]
+  },
+  {
+    "id": "chicken",
+    "name": "Курица",
+    "en": "Chicken",
+    "layers": [
+      {
+        "model": "animal.chicken.AdultChickenModel",
+        "texture": "chicken/chicken_temperate"
+      }
+    ]
+  },
+  {
+    "id": "iron_golem",
+    "name": "Железный голем",
+    "en": "Iron Golem",
+    "layers": [
+      {
+        "model": "animal.golem.IronGolemModel",
+        "texture": "iron_golem/iron_golem"
+      }
+    ]
+  },
+  {
+    "id": "villager",
+    "name": "Житель",
+    "en": "Villager",
+    "layers": [
+      {
+        "model": "npc.VillagerModel",
+        "texture": "villager/villager",
+        "method": "createBodyModel",
+        "textureSize": [
+          64,
+          64
+        ]
+      },
+      {
+        "model": "npc.VillagerModel",
+        "texture": "villager/type/plains",
+        "method": "createBodyModel",
+        "textureSize": [
+          64,
+          64
+        ]
+      }
+    ]
+  }
+]

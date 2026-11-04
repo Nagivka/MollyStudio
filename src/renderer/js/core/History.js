@@ -20,6 +20,21 @@ export default class History {
     set redoStack(value) { this.state.redoStack = value; }
     bindState(state) { this.state = state; }
 
+    /** Called by a restore command after it has been popped, before the cursor moves. */
+    trackRestore(command, undo, previous) {
+        const state=this.state, source=undo?state.undoStack:state.redoStack, destination=undo?state.redoStack:state.undoStack;
+        const same=(first,second)=>first.length===second.length&&first.every((item,index)=>item===second[index]);
+        const beforeSource=[...source,command],afterDestination=[...destination,command];
+        const checkpoint=previous?.state===state?previous:{state,undo:[...(undo?beforeSource:destination)],redo:[...(undo?destination:beforeSource)]};
+        const expectedUndo=[...(undo?source:afterDestination)],expectedRedo=[...(undo?afterDestination:source)];
+        return {checkpoint,rollback:()=>{
+            // A new edit invalidates this repair. A different active project does not.
+            if(!same(state.undoStack,expectedUndo)||!same(state.redoStack,expectedRedo))return false;
+            state.undoStack=[...checkpoint.undo];state.redoStack=[...checkpoint.redo];
+            if(this.state===state)this.notifyChanged();return true;
+        }};
+    }
+
     setupListeners() {
         if (typeof document === 'undefined') return;
 
@@ -78,8 +93,13 @@ export default class History {
     }
 
     cancelPendingEdit() {
-        const tools=globalThis.window?.mollyEditor?.tools;
+        const app=globalThis.window?.mollyEditor,tools=app?.tools,title=app?.titleEditor,viewport=title?.viewport;
         let cancelled=tools?.cancelPointer?.()===true;
+        if(title?.project?.()&&viewport?.drag){viewport.cancelDrag();cancelled=true;}
+        else if(title?.project?.()&&viewport?.cameraDirty&&title.pending?.project===title.project()){
+            const {project,before}=title.pending;clearTimeout(viewport.cameraTimer);viewport.cameraDirty=false;title.pending=null;
+            title.safeApply(project,before);title.sync();cancelled=true;
+        }
         if (tools) {
             const moveTool = tools.tools?.move;
             if (moveTool && moveTool.transformMode) {

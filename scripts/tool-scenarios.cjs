@@ -185,7 +185,7 @@ async function exerciseTools() {
     expect(tools.currentToolId==='move'&&move.isAltInspectorActive,'Alt inspector does not switch Move to the pipette');
     document.dispatchEvent(new KeyboardEvent('keyup',{key:'Alt',code:'AltLeft',bubbles:true,cancelable:true}));
     tools.setTool('brush');tools.setSize(40);tools.setTool('pencil');tools.setSize(50);
-    expect(tools.size===16,'Pencil size honors its actual 16 px limit');
+    expect(tools.size===32,'Pencil size honors its actual 32 px limit');
     tools.setTool('brush');expect(tools.size===40,'Brush and pencil retain independent sizes');
     tools.setSize(1);tools.setTool('pencil');tools.setSize(1);
 

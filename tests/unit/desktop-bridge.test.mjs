@@ -73,7 +73,7 @@ test('runtime acknowledges close only after every recovery handler finishes and 
     const window={dispatchEvent(){}};
     const electron={contextBridge:{exposeInMainWorld:(name,value)=>{window[name]=value;}},webUtils:{getPathForFile:()=>''},
         ipcRenderer:{invoke:async(name,action,data)=>{calls.push({name,action,data});return {ok:true,value:false};},on:(name,callback)=>{events.set(name,callback);},removeListener(){}}};
-    const context={require:()=>electron,window,document:{addEventListener(){}},Event:class{},console:{error:(...args)=>errors.push(args)}};
+    const context={require:()=>electron,process:{platform:process.platform,arch:process.arch},window,document:{addEventListener(){}},Event:class{},console:{error:(...args)=>errors.push(args)}};
     vm.runInNewContext(await readFile(new URL('../../src/preload/index.cjs',import.meta.url),'utf8'),context);
     let release;const gate=new Promise(resolve=>{release=resolve;});
     const unlisten=window.desktopAPI.onFlushRecoveryDrafts(async()=>{await gate;return {confirmClose:true};});

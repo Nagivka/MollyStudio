@@ -1,4 +1,5 @@
 import {translate} from '../core/Locale.mjs';
+import {primaryModifier} from '../core/Platform.mjs';
 import { getRussianItemName } from '../utils/MinecraftItems.js';
 import { isShortcutTarget } from './KeyboardNavigation.js';
 import TransformOverlay from './TransformOverlay.js';
@@ -248,7 +249,7 @@ export default class Workspace {
             const behavior = sm?.get('wheelBehavior') || 'zoom';
             const invert = sm?.get('invertZoom') || false;
 
-            if (['scroll', 'pan-v', 'pan-h'].includes(behavior) && !e.ctrlKey) {
+            if (['scroll', 'pan-v', 'pan-h'].includes(behavior) && !e.ctrlKey && !e.metaKey) {
                 this.autoFitOnResize = false;
                 this.panX = Math.round(this.panX - (behavior === 'pan-h' ? e.deltaY + e.deltaX : e.deltaX));
                 this.panY = Math.round(this.panY - (behavior === 'pan-h' ? 0 : e.deltaY));
@@ -344,7 +345,7 @@ export default class Workspace {
             // Interactive Brush Size Gesture: Alt + RMB or Ctrl + Alt + LMB
             const resizeTool = this.isAltQuickPipette ? this.previousToolId : this.tools.currentToolId;
             const isBrushResize = ['brush', 'pencil', 'eraser'].includes(resizeTool)
-                && ((e.button === 2 && e.altKey) || (e.button === 0 && e.altKey && e.ctrlKey));
+                && ((e.button === 2 && e.altKey) || (e.button === 0 && e.altKey && primaryModifier(e)));
             if (isBrushResize) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -636,7 +637,7 @@ export default class Workspace {
 
         document.addEventListener('keydown', (e) => {
             if (e.defaultPrevented || isShortcutTarget(e.target, e)) return;
-            if (e.ctrlKey && (e.key === "'" || e.key === 'э' || e.key === 'Э')) {
+            if (primaryModifier(e) && (e.key === "'" || e.key === 'э' || e.key === 'Э')) {
                 e.preventDefault();
                 const sm = window.mollyEditor?.settingsManager;
                 if (sm) {
@@ -937,7 +938,7 @@ export default class Workspace {
         const docTab = document.querySelector('.doc-tab.active .doc-tab-zoom') || document.getElementById('doc-tab-zoom');
         const percent = `${Math.round(this.zoom * 100)}%`;
         if (zoomText) zoomText.innerText = percent;
-        if (docTab) docTab.innerText = `@ ${percent}`;
+        if (docTab) docTab.innerText = document.body?.classList?.contains('title-project')?'3D':`@ ${percent}`;
     }
 
     zoomTo(targetZoom, clientX, clientY) {
@@ -1061,7 +1062,7 @@ export default class Workspace {
         });
 
         this.workspace.addEventListener('drop', async (e) => {
-            if (window.mollyEditor?.getActiveProject?.()?.type === 'prefix') {
+            if (['prefix','title'].includes(window.mollyEditor?.getActiveProject?.()?.type)) {
                 e.preventDefault();
                 window.mollyEditor.showToast('Изображения можно добавлять в проекты GUI и холста.', 'info');
                 return;
@@ -1346,10 +1347,10 @@ export default class Workspace {
 
         document.addEventListener('keydown', (e) => {
             if (e.defaultPrevented || isShortcutTarget(e.target, e)) return;
-            if (e.ctrlKey && (e.code === 'KeyR' || e.key === 'r' || e.key === 'R' || e.key === 'к' || e.key === 'К')) {
+            if (primaryModifier(e) && (e.code === 'KeyR' || e.key === 'r' || e.key === 'R' || e.key === 'к' || e.key === 'К')) {
                 e.preventDefault();
                 this.toggleRulers();
-            } else if (e.ctrlKey && (e.code === 'Semicolon' || e.key === ';' || e.key === 'ж' || e.key === 'Ж')) {
+            } else if (primaryModifier(e) && (e.code === 'Semicolon' || e.key === ';' || e.key === 'ж' || e.key === 'Ж')) {
                 e.preventDefault();
                 this.toggleGuides();
             }
@@ -1425,7 +1426,7 @@ export default class Workspace {
         document.addEventListener('keydown', (e) => {
             if (e.defaultPrevented || isShortcutTarget(e.target, e)) return;
             const isW = e.code === 'KeyW' || e.key === 'w' || e.key === 'W' || e.key === 'ц' || e.key === 'Ц';
-            if (isW && !e.ctrlKey && !e.altKey && !e.shiftKey) {
+            if (isW && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
                 e.preventDefault();
                 this.toggleTiling();
             }

@@ -2,6 +2,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const {isAppPage} = require('./protocol.cjs');
 const {registerFileAssociation} = require('./file-association.cjs');
+const {nativeEdits}=require('./native-menu.cjs');
 const english = require('../renderer/locales/en.json');
 const tabs = new Set(['appearance', 'effects', 'canvas', 'tools', 'export', 'discord', 'backup', 'hotkeys', 'about']);
 const text = (data, key) => {
@@ -25,6 +26,13 @@ function dialogOptions(input = {}, language = 'ru') {
     }
     return options;
 }
+function saveDialogOptions(input, language, directory) {
+    const options = dialogOptions(input, language);
+    // A filename alone must not inherit System32 as its folder when a project
+    // was opened through a Windows file association.
+    if (options.defaultPath && !/[\\/]/.test(options.defaultPath)) options.defaultPath = path.join(directory, options.defaultPath);
+    return options;
+}
 
 function registerIpc(electron, runtime) {
     const {app, ipcMain, BrowserWindow, dialog, shell} = electron;
@@ -38,7 +46,13 @@ function registerIpc(electron, runtime) {
         case 'language-set':
             if (!['ru', 'en'].includes(data?.language)) throw Error('Unsupported interface language.');
             windows.language = data.language;
+            runtime.refreshMenu?.();
             return true;
+        case 'native-edit': {
+            const method=nativeEdits[data?.action];
+            if(!method)throw Error('Unsupported native edit command.');
+            window.webContents[method]();return true;
+        }
         case 'project-open-pending': return label === 'main' ? requests.pending() : [];
         case 'project-open-ack':
             if (label !== 'main' || !Number.isSafeInteger(data?.id)) throw Error('Некорректный запрос открытия проекта.');
@@ -78,7 +92,7 @@ function registerIpc(electron, runtime) {
             if (Buffer.byteLength(JSON.stringify(data)) > 1024 * 1024) throw Error('Слишком большие параметры проекта.');
             windows.send('main', action, data); windows.show(windows.get('main')); return true;
         case 'dialog-save': {
-            const options = dialogOptions(data, windows.language);
+            const options = saveDialogOptions(data, windows.language, app.getPath('documents'));
             const result = testMode && !runtime.manual ? await runtime.testSavePath(options) : await dialog.showSaveDialog(window, options);
             if (!result.canceled && result.filePath) result.filePath = await files.grant(result.filePath, true);
             return result;
@@ -161,4 +175,4 @@ function registerIpc(electron, runtime) {
     return dispatch;
 }
 
-module.exports = {registerIpc, dialogOptions};
+module.exports = {registerIpc, dialogOptions, saveDialogOptions};

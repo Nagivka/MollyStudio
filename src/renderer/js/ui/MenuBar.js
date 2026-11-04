@@ -184,7 +184,7 @@ export default class MenuBar {
                     case 'KeyC': action = 'image-canvas-size'; break;
                 }
             } else if (!e.ctrlKey && !e.altKey) {
-                if (e.code === 'Delete') {
+                if (e.code === 'Delete' || (window.desktopAPI?.platform==='darwin'&&e.code==='Backspace')) {
                     const marquee = this.app.tools?.tools?.['marquee'];
                     if (marquee && (marquee.selection || marquee.hasFloating?.())) {
                         action = 'select-delete';
@@ -224,6 +224,18 @@ export default class MenuBar {
     }
 
     performAction(action) {
+        if(this.app.getActiveProject?.()?.type==='title'){
+            const inspector=this.app.titleEditor?.panel;
+            if(action==='file-designs'||action==='file-texture'){
+                const editor=this.app.titleEditor;if(!editor||editor.commitPendingEdit()===false)return;
+                if(action==='file-texture')return editor.openMaterialLibrary();
+                editor.setTab('material');inspector?.querySelector('.title-presets')?.scrollIntoView({block:'center'});
+                return;
+            }
+            if(/^(?:layer-|transform-|select-|image-|tools-|edit-clear-layer|file-template|file-export-layer)/.test(action)){
+                this.app.showToast('Используйте параметры 3D-генератора надписей.','info');return;
+            }
+        }
         if(action==='file-texture'){this.app.texturePanel.open();return;}
         if(action==='file-designs'){this.app.designGallery.open();return;}
         if (action.startsWith('utility-')) { this.utilities.open(action.slice(8)); return; }

@@ -121,10 +121,15 @@ const {app, root, ready, makeWindow, evaluateMain, settle} = require('./lib/elec
         await settings.page.locator('[data-weather-range="weatherSize"]').evaluate(input=>{input.value='200';input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));});
         expect(await home.page.evaluate(async()=>{
             const scroller=document.querySelector('.workspace-layout'),grid=document.querySelector('.launcher-grid-layout');grid.style.paddingBottom='1400px';
-            const particle=weatherSurface.field.particles[0],before=particle.y;
+            // Freeze natural motion so scrolling is the only possible source of displacement.
+            weatherSurface.stop();
+            const fields=[weatherSurface.field,weatherSurface.previousField].filter(Boolean);
+            const positions=()=>fields.map(field=>field.particles.map(p=>[p.x,p.y]));
+            const before=JSON.stringify(positions());
             scroller.scrollTop=180;await new Promise(resolve=>setTimeout(resolve,80));
-            const changed=particle.y!==before;scroller.scrollTop=0;grid.style.paddingBottom='';weatherSurface.sync();return changed;
-        }),'Scrolling moves particles with depth-dependent parallax instead of fixing them to the viewport');
+            const stable=scroller.scrollTop>0&&JSON.stringify(positions())===before;
+            scroller.scrollTop=0;grid.style.paddingBottom='';weatherSurface.sync();return stable;
+        }),'Scrolling content does not displace current or transitioning weather particles');
         await settings.page.selectOption('#setting-weather-density', 'dense');
         const editor = makeWindow(1200, 800, {label: 'buttons'});windows.push(editor);
         await editor.loadFile(path.join(root, 'src/renderer/editor.html'), {query: {new: 'true', type: 'canvas', width: '32', height: '32', name: 'Weather QA'}});
@@ -149,9 +154,28 @@ const {app, root, ready, makeWindow, evaluateMain, settle} = require('./lib/elec
                 && beforeWeatherProject === JSON.stringify(app.projectManager.serializeProject());
         }), 'Weather never modifies saved project or exported PNG pixels');
         expect(await editor.page.evaluate(() => {
-            const surface=window.weatherSurface,work=document.querySelector('#workspace').getBoundingClientRect();
-            return surface?.obstacles.visibility(work.left+work.width/2,work.top+work.height/2)===0;
-        }), 'The workspace hides overlapping weather completely');
+            const surface=window.weatherSurface,work=document.querySelector('#workspace').getBoundingClientRect(),canvas=document.querySelector('#canvas-wrapper').getBoundingClientRect();
+            surface.obstacles.invalidate();surface.obstacles.update();
+            return surface.obstacles.visibility(canvas.left+canvas.width/2,canvas.top+canvas.height/2)===0;
+        }), 'The project canvas remains protected from weather');
+        expect(await editor.page.evaluate(()=>{
+            const scene=window.weatherSurface.obstacles,work=document.querySelector('#workspace').getBoundingClientRect();
+            for(let y=work.top+60;y<work.bottom-40;y+=20)for(let x=work.left+30;x<work.right-30;x+=20)if(scene.visibility(x,y)!==0)return false;
+            return true;
+        }),'The entire canvas workspace, including the empty background, hides weather');
+        expect(await editor.page.evaluate(()=>{
+            const scene=window.weatherSurface.obstacles;
+            return ['.top-bar','.options-bar','#main-toolbar'].every(selector=>{
+                const r=document.querySelector(selector).getBoundingClientRect();
+                for(let y=r.top+3;y<r.bottom-3;y+=3)for(let x=r.left+3;x<r.right-3;x+=3)if(scene.visibility(x,y)===1)return true;
+                return false;
+            });
+        }),'Weather can appear in free space in the top and left toolbars');
+        expect(await editor.page.evaluate(()=>{
+            const r=document.querySelector('#main-right-panel').getBoundingClientRect(),scene=window.weatherSurface.obstacles;
+            for(let y=r.top+3;y<r.bottom-3;y+=3)for(let x=r.left+3;x<r.right-3;x+=3)if(scene.visibility(x,y)===1)return true;
+            return false;
+        }),'Weather can appear in free inspector background between protected panels');
         await settings.page.selectOption('#setting-weather-scope', 'home');
         await home.page.evaluate(() => weatherSettings.set('animationsEnabled', false));
         await home.page.waitForFunction(() => document.querySelector('#ambient-weather').hidden);

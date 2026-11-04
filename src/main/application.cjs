@@ -9,6 +9,7 @@ const {registerIpc} = require('./ipc.cjs');
 const {registerFileAssociation} = require('./file-association.cjs');
 const {RendererRequests} = require('./renderer-requests.cjs');
 const {UpdateService} = require('./updates.cjs');
+const {installNativeMenu}=require('./native-menu.cjs');
 
 async function createApplication(electron, options = {}) {
     const {app, protocol, net, session} = electron;
@@ -20,7 +21,7 @@ async function createApplication(electron, options = {}) {
     const windows = new Windows(electron, {testMode, showOnReady: !testMode || options.manual === true,
         beforeClose: () => Promise.all([files.idle(), recovery.idle()])});
     const runtime = {windows, files, requests, recovery, discord, transfers: new RendererRequests(), testMode, manual: Boolean(options.manual)};
-    runtime.updates = new UpdateService({app, windows, testMode});
+    runtime.updates = new UpdateService({app, windows, testMode,macSigned:require('../../package.json').mollyMacUpdates===true});
     void runtime.updates.start().catch(error => console.warn('Updates:', error.message));
     installProtocol(protocol, net, path.join(__dirname, '../renderer'));
     const clipboard = permission => ['clipboard-read', 'clipboard-sanitized-write'].includes(permission);
@@ -33,9 +34,10 @@ async function createApplication(electron, options = {}) {
     runtime.dispatch = registerIpc(electron, runtime);
     runtime.enqueue = (args, cwd) => {
         requests.enqueue(args, cwd);
-        const main = windows.get('main');
+        const main = windows.get('main') || (requests.pending().length?windows.create('main'):null);
         if (main) { windows.show(main); windows.send('main', 'project-open-requested'); }
     };
+    runtime.refreshMenu=installNativeMenu(electron,runtime);
     if (!testMode) {
         runtime.migration = recovery.importFrom([path.join(app.getPath('appData'), 'ua.nagivka.mollystudio', 'recovery-drafts')])
             .catch(error => console.warn('Recovery migration:', error.message));

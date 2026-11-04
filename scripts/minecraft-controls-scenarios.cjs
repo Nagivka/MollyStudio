@@ -78,7 +78,7 @@ const {app, root, ready, makeWindow, settle} = require('./lib/electron-harness.c
                     const assert = (value, label) => { if (!value) throw Error(context+': '+label+'\n'+JSON.stringify(before)); checks.push(context+': '+label); };
                     assert(Math.abs(before.track.width-60)<0.1 && Math.abs(before.track.height-28)<0.1, '60x28 track');
                     assert(before.thumbCSS.width==='32px' && before.thumbCSS.height==='32px', '32px square lever');
-                    assert(Math.abs(before.thumb.y+before.thumb.height/2-before.track.y-before.track.height/2+1)<0.1, 'lever one pixel above track centre');
+                    assert(Math.abs(before.thumb.y+before.thumb.height/2-before.track.y-before.track.height/2+2)<0.1, 'lever two pixels above track centre');
                     assert(Math.abs(before.thumb.x-before.track.x)<0.1, 'OFF at left edge');
                     assert(before.indicator.join(',')==='0,1', 'OFF indicator only');
                     assert(before.disabledOpacity==='1', 'disabled action stays opaque');
@@ -101,6 +101,10 @@ const {app, root, ready, makeWindow, settle} = require('./lib/electron-harness.c
                     assert(after.before==='1' && after.after==='0', 'ON indicator only');
                     await win.page.locator('.m3-segment-item').nth(1).click();
                     assert(await win.page.locator('.m3-segment-item').nth(1).getAttribute('aria-pressed')==='true', 'segment responds to pointer');
+                    const segmentFaces=await win.page.locator('.m3-segment-item').evaluateAll(items=>items.map(item=>{
+                        const s=getComputedStyle(item);return [s.paddingTop,s.paddingBottom,s.backgroundSize,s.backgroundPosition].join('|');
+                    }));
+                    assert(segmentFaces.every(face=>face===segmentFaces[0]),'selected segment retains the same caption position and raised face');
                     assert(await win.page.locator('#disabled-lever').isDisabled(), 'disabled lever remains disabled');
                     if(zoom===1){
                         const sample=()=>win.page.locator('#action').evaluate(el=>{

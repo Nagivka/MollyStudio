@@ -384,7 +384,7 @@ export default class LayerPanel {
                     items[nextIndex].focus();
                 } else if (event.key === 'F2') { event.preventDefault(); this.beginRename(layer); }
                 else if (event.key === 'Delete') { event.preventDefault(); this.deleteLayer(layer); }
-                else if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if(this.finishEditing())this.layerManager.selectLayer(layer.id, event.ctrlKey, false); }
+                else if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if(this.finishEditing())this.layerManager.selectLayer(layer.id, event.ctrlKey || event.metaKey, false); }
             });
             if (activeLayer && layer.id === activeLayer.id) li.classList.add('active');
             if (this.layerManager.isLayerSelected(layer.id)) li.classList.add('selected');

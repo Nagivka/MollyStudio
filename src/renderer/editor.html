@@ -212,8 +212,8 @@
         <!-- 2. Pencil Option Bar -->
         <div id="opt-bar-pencil" class="opt-group">
             <span class="opt-label"><!--i18n-->Размер:</span>
-            <input type="range" id="pencil-size" class="md-slider opt-slider" min="1" max="16" value="1" title="Размер карандаша" data-i18n-title="%D0%A0%D0%B0%D0%B7%D0%BC%D0%B5%D1%80%20%D0%BA%D0%B0%D1%80%D0%B0%D0%BD%D0%B4%D0%B0%D1%88%D0%B0">
-            <input type="number" id="pencil-size-num" class="md-number-input opt-input-num" min="1" max="16" value="1" aria-label="Размер карандаша, px" data-i18n-aria-label="%D0%A0%D0%B0%D0%B7%D0%BC%D0%B5%D1%80%20%D0%BA%D0%B0%D1%80%D0%B0%D0%BD%D0%B4%D0%B0%D1%88%D0%B0%2C%20px">
+            <input type="range" id="pencil-size" class="md-slider opt-slider" min="1" max="32" value="1" title="Размер карандаша" data-i18n-title="%D0%A0%D0%B0%D0%B7%D0%BC%D0%B5%D1%80%20%D0%BA%D0%B0%D1%80%D0%B0%D0%BD%D0%B4%D0%B0%D1%88%D0%B0">
+            <input type="number" id="pencil-size-num" class="md-number-input opt-input-num" min="1" max="32" value="1" aria-label="Размер карандаша, px" data-i18n-aria-label="%D0%A0%D0%B0%D0%B7%D0%BC%D0%B5%D1%80%20%D0%BA%D0%B0%D1%80%D0%B0%D0%BD%D0%B4%D0%B0%D1%88%D0%B0%2C%20px">
             <div class="opt-sep"></div>
             <label class="md-switch">
                 <input type="checkbox" id="pencil-pixel-perfect" checked>
@@ -975,10 +975,12 @@
                             <span class="type-desc"><!--i18n-->Пиксель-арт</span>
                         </div>
                     </button>
-                <button type="button" id="new-proj-tab-prefix" class="type-option" data-type="prefix" role="tab" aria-selected="false" aria-controls="new-proj-section-prefix"><i class="material-symbols-rounded">badge</i><div class="type-option-text"><span class="type-title"><!--i18n-->Префиксы</span><span class="type-desc"><!--i18n-->Пиксельные плашки</span></div></button>
+                <button type="button" id="new-proj-tab-title" class="type-option" data-type="title" role="tab" aria-selected="false" aria-controls="new-proj-section-title"><i class="material-symbols-rounded">text_fields</i><div class="type-option-text"><span class="type-title"><!--i18n-->Генератор надписей</span><span class="type-desc"><!--i18n-->Объёмные заголовки</span></div></button>
+<button type="button" id="new-proj-tab-prefix" class="type-option" data-type="prefix" role="tab" aria-selected="false" aria-controls="new-proj-section-prefix"><i class="material-symbols-rounded">badge</i><div class="type-option-text"><span class="type-title"><!--i18n-->Префиксы</span><span class="type-desc"><!--i18n-->Пиксельные плашки</span></div></button>
 </div>
 
-                <div id="new-proj-section-prefix" role="tabpanel" aria-labelledby="new-proj-tab-prefix" tabindex="0" style="display: none;"><div class="form-group"><label for="new-prefix-name"><!--i18n-->Название проекта</label><input type="text" id="new-prefix-name" class="md-input" value="Префиксы 1" maxlength="120" autocomplete="off"></div><p class="field-hint"><!--i18n-->Текст, градиенты, обводка и тени. Размер префикса подбирается автоматически.</p></div>
+                <div id="new-proj-section-title" role="tabpanel" aria-labelledby="new-proj-tab-title" style="display:none"><label for="new-title-name"><!--i18n-->Название проекта</label><input id="new-title-name" class="md-input" value="Надпись 1" maxlength="120"><p class="field-hint"><!--i18n-->Объёмный текст, градиенты, фаска и обводка. Экспорт PNG с прозрачным фоном.</p></div>
+<div id="new-proj-section-prefix" role="tabpanel" aria-labelledby="new-proj-tab-prefix" tabindex="0" style="display: none;"><div class="form-group"><label for="new-prefix-name"><!--i18n-->Название проекта</label><input type="text" id="new-prefix-name" class="md-input" value="Префиксы 1" maxlength="120" autocomplete="off"></div><p class="field-hint"><!--i18n-->Текст, градиенты, обводка и тени. Размер префикса подбирается автоматически.</p></div>
 <!-- Section: GUI Mode -->
                 <div id="new-proj-section-gui" role="tabpanel" aria-labelledby="new-proj-tab-gui" tabindex="0">
                     <div class="form-group">

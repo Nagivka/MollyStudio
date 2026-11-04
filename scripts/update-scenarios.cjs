@@ -10,10 +10,10 @@ const {app,root,ready,makeWindow,settle,evaluateMain,command}=require('./lib/ele
         const unsupported=await command('update-status');expect(!unsupported.supported,'Development sessions never contact the update server automatically');
         await command('test-control',{operation:'update-fixture'});
         settings=makeWindow(960,760,{label:'settings'});await settings.loadFile(path.join(root,'src/renderer/settings.html'),{query:{tab:'about'}});settings.page.setDefaultTimeout(15000);await settle(settings);
-        await settings.page.locator('[data-update="check"]').click();
+        await evaluateMain(()=>globalThis.__mollyTestRuntime.updates.start());
         await settings.page.waitForFunction(()=>document.querySelector('.update-status')?.textContent.includes('Доступна версия 1.4.2'));
         await main.page.waitForFunction(()=>document.querySelector('.update-banner')&&!document.querySelector('.update-banner').hidden);
-        expect(true,'Native NSIS updater parses the signed local release and both windows display availability');
+        expect(true,'Startup automatically checks the signed release and shows availability in both windows without a manual check');
         const themes=['dark','light','minecraft','light-minecraft'];
         for(const theme of themes){
             await settings.page.locator('[data-tab="appearance"]').click();await settings.page.locator(`[data-theme="${theme}"].settings-theme-card`).click();

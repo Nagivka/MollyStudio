@@ -11,7 +11,11 @@ function configureProfile(app, requestedProfile) {
         directory = fs.realpathSync.native(privateProfile);
         const temp = fs.realpathSync.native(os.tmpdir());
         if (pathKey(path.dirname(directory)) !== pathKey(temp) || !path.basename(directory).startsWith('molly-electron-check-')) throw Error('Invalid private test profile.');
-    } else directory = path.join(app.getPath('appData'), 'MollyStudio');
+    } else {
+        const explicit=app.commandLine?.getSwitchValue('user-data-dir');
+        if(explicit&&(!path.isAbsolute(explicit)||explicit.includes('\0')))throw Error('The user data directory must be an absolute path.');
+        directory=explicit||path.join(app.getPath('appData'), 'MollyStudio');
+    }
     fs.mkdirSync(directory, {recursive: true});
     directory = fs.realpathSync.native(directory);
     const session = privateProfile ? path.join(directory, 'chromium') : directory;

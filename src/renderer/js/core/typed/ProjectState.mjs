@@ -1,5 +1,5 @@
 const states = new WeakMap();
-const documentFields = ['type', 'name', 'config', 'layers', 'bg', 'templateName', 'templatePath', 'hasFrame', 'prefixData'];
+const documentFields = ['type', 'name', 'config', 'layers', 'bg', 'templateName', 'templatePath', 'hasFrame', 'prefixData', 'titleData'];
 const editorFields = ['undoStack', 'redoStack', 'activeLayerId', 'selectedLayerIds', 'layerCounter', 'zoom', 'panX', 'panY',
     'autoFitOnResize', 'guides', 'guidesVisible', 'tilingMode', 'referenceSrc', 'referenceOpacity', 'filePath', 'fileRevision',
     'closing', 'templateLoadPromise', 'prefixLoadPromise'];

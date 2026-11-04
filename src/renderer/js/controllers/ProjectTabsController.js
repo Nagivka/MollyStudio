@@ -147,14 +147,14 @@ export default class ProjectTabsController {
         if (!proj) proj = this.getActiveProject();
         if (!proj) return;
 
-        const isCanvas = proj.type !== 'gui', isPrefix = proj.type === 'prefix';
-        proj.prefixLoadPromise = this.prefixEditor.show(proj);
+        const isCanvas = proj.type !== 'gui', isPrefix = proj.type === 'prefix',isTitle=proj.type==='title';
+        proj.prefixLoadPromise = Promise.all([this.prefixEditor.show(proj),this.titleEditor.show(proj)]).then(results=>results.every(value=>value!==false));
         this.guiPreviewPanel?.syncButton();
 
         // 1. Doc Info badge in status bar
         const infoEl = document.getElementById('doc-info');
         if (infoEl) {
-            infoEl.innerHTML = `<i class="material-symbols-rounded" style="font-size: 13px; margin-right: 4px; vertical-align: middle;">${isPrefix ? 'badge' : isCanvas ? 'palette' : 'grid_view'}</i> ${this.config.width} × ${this.config.height} px${isPrefix ? ' · ' + labelHTML('Префиксы') : ''}`;
+            infoEl.innerHTML = `<i class="material-symbols-rounded" style="font-size: 13px; margin-right: 4px; vertical-align: middle;">${isTitle?'text_fields':isPrefix ? 'badge' : isCanvas ? 'palette' : 'grid_view'}</i> ${this.config.width} × ${this.config.height} px${isTitle?' · 3D':isPrefix ? ' · ' + labelHTML('Префиксы') : ''}`;
             bindAttribute(infoEl, 'title', isPrefix ? 'Префикс: {0} × {1} px. Размер определяется настройками текста и фона.'
                 : 'Размер холста: {0} × {1} px — {2}. Кликните или нажмите Ctrl+Alt+C для изменения', {0:this.config.width,1:this.config.height,2:uiLabel(isCanvas?'Обычный холст':'Minecraft GUI')});
         }
@@ -197,7 +197,7 @@ export default class ProjectTabsController {
     }
 
     addProject(name, template, w = 256, h = 256, hasFrame = false, type = 'gui', bg = 'transparent',options={}) {
-        if (!['gui', 'canvas', 'prefix'].includes(type)) { this.showToast('Этот тип проекта больше не поддерживается.', 'error');return; }
+        if (!['gui', 'canvas', 'prefix', 'title'].includes(type)) { this.showToast('Этот тип проекта больше не поддерживается.', 'error');return; }
         if (this.tools?.finishDocument() === false) return;
         this.saveProjectState();
         this.projectManager?.performAutosave(this.activeProjectId);
@@ -219,6 +219,7 @@ export default class ProjectTabsController {
             id,
             draftId: globalThis.crypto?.randomUUID?.() || `draft_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`,
             type,
+            ...(type === 'title'?{titleData:{}}:{}),
             ...(type === 'prefix' ? { prefixData: normalizePrefixDocument() } : {}),
             name: name || (isCanvasType ? 'Холст' : 'GUI Меню'),
             templateName: tplName,
@@ -340,6 +341,7 @@ async closeProject(id, event) {
             this.projects.splice(index, 1);
             this.projectManager?.releaseProject(id);
             this.prefixEditor?.releaseProject(id);
+            this.titleEditor?.releaseProject(p);
 
             if (this.projects.length === 0) {
                 this.activeProjectId = null;
@@ -384,20 +386,20 @@ async closeProject(id, event) {
         tabBar.innerHTML = '';
         this.projects.forEach(p => {
             const isActive = p.id === this.activeProjectId;
-            const isCanvas = p.type === 'canvas';
+            const isCanvas = p.type === 'canvas'||p.type==='title';
             const isPrefix = p.type === 'prefix';
             const tab = document.createElement('div');
             tab.className = `doc-tab ${isCanvas || isPrefix ? 'tab-canvas' : 'tab-gui'} ${isActive ? 'active' : ''}`;
-            tab.title = `${p.name} (${isPrefix ? 'Префиксы' : isCanvas ? 'Обычный холст' : 'Minecraft GUI'})`;
+            tab.title = `${p.name} (${p.type==='title'?'Генератор надписей':isPrefix ? 'Префиксы' : isCanvas ? 'Обычный холст' : 'Minecraft GUI'})`;
             tab.id = `doc-tab-${p.id}`;
             tab.setAttribute('role', 'tab');
             tab.setAttribute('aria-selected', String(isActive));
-            tab.setAttribute('aria-controls', 'canvas-wrapper');
+            tab.setAttribute('aria-controls',p.type==='title'?'title-viewport':'canvas-wrapper');
             bindAttribute(tab, "aria-label", "{0}{1}. Нажмите Delete, чтобы закрыть", {0: p.name, 1: isActive ? ', активный проект' : ''});
             tab.setAttribute('aria-keyshortcuts', 'Delete Backspace');
             tab.tabIndex = isActive ? 0 : -1;
-            const zoomText = `@ ${Math.round((isActive ? this.workspace.zoom : p.zoom) * 100)}%`;
-            const iconName = isPrefix ? 'badge' : isCanvas ? 'palette' : 'grid_view';
+            const zoomText = p.type==='title'?'3D':`@ ${Math.round((isActive ? this.workspace.zoom : p.zoom) * 100)}%`;
+            const iconName = p.type==='title'?'deployed_code':isPrefix ? 'badge' : isCanvas ? 'palette' : 'grid_view';
             tab.innerHTML = `
                 <i class="material-symbols-rounded doc-tab-icon">${iconName}</i>
                 <span class="doc-tab-title"></span>
@@ -423,7 +425,7 @@ async closeProject(id, event) {
         const activeTab = tabBar.querySelector('[aria-selected="true"]');
         this.updateDocumentStatus();
         if (activeTab) requestAnimationFrame(() => activeTab.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
-        const workspace = document.getElementById('canvas-wrapper');
+        const workspace = document.getElementById(this.getActiveProject()?.type==='title'?'title-viewport':'canvas-wrapper');
         if (workspace && activeTab) workspace.setAttribute('aria-labelledby', activeTab.id);
         this.updateDiscordPresence();
     }

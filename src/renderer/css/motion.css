@@ -10,8 +10,10 @@
 }
 :root {--ui-tab-animation:ui-tab-select;--ui-accent-animation:ui-accent-breathe;}
 :root:not(.no-animations) :is(.md-btn.primary,.doc-tab.active,.settings-tab-btn.active,.utility-tabs [aria-selected="true"]) {
-    outline:1px solid var(--md-primary);outline-offset:-1px;
     animation:var(--ui-tab-animation) 240ms var(--ui-enter-easing),var(--ui-accent-animation) 6s ease-in-out 240ms infinite;
+}
+:root:not(.no-animations):not(.no-animated-accents) :is(.md-btn.primary,.doc-tab.active,.settings-tab-btn.active,.utility-tabs [aria-selected="true"]) {
+    outline:1px solid var(--md-primary);outline-offset:-1px;
 }
 ::view-transition-old(root),::view-transition-new(root) {animation:none;mix-blend-mode:normal;}
 ::view-transition-new(root) {z-index:1;}

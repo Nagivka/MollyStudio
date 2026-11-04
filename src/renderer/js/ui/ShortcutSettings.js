@@ -14,7 +14,7 @@ export function renderShortcutSettings(container,settings){
         recording=null;const query=search.value.trim().toLocaleLowerCase(),bindings=settings.get('shortcutBindings')||{};
         list.replaceChildren();
         for(const command of SHORTCUT_COMMANDS){
-            const keys=shortcutKeys(command,bindings),label=keys.map(displayChord).join(' / ')||'Не назначено';
+            const keys=shortcutKeys(command,bindings),label=keys.map(chord=>displayChord(chord)).join(' / ')||'Не назначено';
             if(query&&!`${command.label} ${translate(command.label)} ${command.category} ${translate(command.category)} ${label}`.toLocaleLowerCase().includes(query))continue;
             const row=document.createElement('div');row.className='shortcut-command';
             const name=document.createElement('span');name.className='shortcut-command-name';bindText(name,command.label);

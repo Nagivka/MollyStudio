@@ -1,3 +1,4 @@
+import {currentPlatform,shortcutLabel} from './Platform.mjs';
 const entry=(id,label,category,key,...aliases)=>Object.freeze({id,label,category,keys:[key,...aliases]});
 export const SHORTCUT_COMMANDS=Object.freeze([
     entry('file-new','Новый проект','Файл','Ctrl+KeyN'),entry('file-open','Открыть проект','Файл','Ctrl+KeyO'),
@@ -36,8 +37,9 @@ export function normalizeChord(value){
     const chord=[...modifiers.filter(part=>parts.includes(part)),key].join('+');
     return ['Alt+F4','Ctrl+Alt+F4'].includes(chord)?null:chord;
 }
-export function eventChord(event){
-    return normalizeChord([...(event.ctrlKey?['Ctrl']:[]),...(event.altKey?['Alt']:[]),...(event.shiftKey?['Shift']:[]),...(event.metaKey?['Meta']:[]),event.code].join('+'));
+export function eventChord(event,platform=currentPlatform()){
+    const mac=platform==='darwin';
+    return normalizeChord([...((mac?event.metaKey:event.ctrlKey)?['Ctrl']:[]),...(event.altKey?['Alt']:[]),...(event.shiftKey?['Shift']:[]),...((mac?event.ctrlKey:event.metaKey)?['Meta']:[]),event.code].join('+'));
 }
 export function shortcutKeys(command,overrides={}){return Object.hasOwn(overrides,command.id)?(overrides[command.id]?[overrides[command.id]]:[]):command.keys.filter(Boolean);}
 export function normalizeShortcutBindings(value){
@@ -55,7 +57,8 @@ export function normalizeShortcutBindings(value){
 export function shortcutConflict(id,chord,overrides={}){
     return SHORTCUT_COMMANDS.find(command=>command.id!==id&&shortcutKeys(command,overrides).includes(chord))||null;
 }
-export function displayChord(chord){
+export function displayChord(chord,platform=currentPlatform()){
     if(!chord)return 'Не назначено';
-    return chord.replace(/Key([A-Z])/g,'$1').replace(/Digit([0-9])/g,'$1').replace('Comma',',').replace('Period','.').replace('Quote',"'").replace('Semicolon',';').replace('Equal','=').replace('Minus','−').replace('BracketLeft','[').replace('BracketRight',']').replace('Meta','Win');
+    const label=chord.replace(/Key([A-Z])/g,'$1').replace(/Digit([0-9])/g,'$1').replace('Comma',',').replace('Period','.').replace('Quote',"'").replace('Semicolon',';').replace('Equal','=').replace('Minus','−').replace('BracketLeft','[').replace('BracketRight',']');
+    return shortcutLabel(label,platform).replace('Meta',platform==='darwin'?'Ctrl':platform==='linux'?'Super':'Win');
 }

@@ -3,7 +3,7 @@
 No source pack files are changed. GUI transforms, inherited elements/textures,
 UV rotation, element rotation, alpha, first animation frames and item tints are
 resolved offline. Entity/special renderers are deliberately reported as skipped.
-Run: python scripts/generate-minecraft-resources.py "path/to/pack" --version 26.3
+Run: python scripts/generate-minecraft-resources.py "path/to/pack" --version 26.4-snapshot-6
 """
 import argparse
 import hashlib
@@ -214,6 +214,9 @@ def main():
     en = json.loads((base/'lang'/'en_us.json').read_text(encoding='utf-8'))
     output = ROOT/'src/renderer'/'assets'/'blocks_minecraft'
     output.mkdir(parents=True,exist_ok=True)
+    previous_catalog = ROOT/'src/renderer'/'js'/'utils'/'MinecraftBlocks.js'
+    previous = json.loads(previous_catalog.read_text(encoding='utf-8').split('export const MINECRAFT_BLOCKS = ', 1)[1].strip().removesuffix(';')) if previous_catalog.exists() else []
+    previous_names = {item['minecraftId']:item['name'] for item in previous}
     items, skipped = [], []
     for file in sorted((base/'items').glob('*.json')):
         name = file.stem
@@ -226,12 +229,19 @@ def main():
             image = renderer.render(model['model'], model.get('tints', []))
             image.save(output/f'{name}.png',optimize=True)
             key = f'block.minecraft.{name}'
-            items.append({'id':f'block_render:{name}','minecraftId':name,'file':f'{name}.png','folder':'blocks_minecraft','name':ru.get(key,en.get(key,name)), 'en':en.get(key,name),'category':'block_renders'})
+            items.append({'id':f'block_render:{name}','minecraftId':name,'file':f'{name}.png','folder':'blocks_minecraft','name':ru.get(key,previous_names.get(name,en.get(key,name))), 'en':en.get(key,name),'category':'block_renders'})
         except (ValueError, KeyError, FileNotFoundError, IndexError) as error:
             skipped.append({'id':name,'reason':'Unresolved texture reference in source model' if isinstance(error, FileNotFoundError) else str(error)})
+    # Preserve published resource IDs when a newer pack removes a model or
+    # changes it to a special renderer. Existing projects may still use them.
+    rendered_ids = {item['id'] for item in items}
+    retained = [item for item in previous if item['id'] not in rendered_ids and (output/item['file']).is_file()]
+    items.extend(retained)
+    version_file = args.pack/'version.json'
+    source_version = json.loads(version_file.read_text(encoding='utf-8')) if version_file.exists() else {}
     catalog = ROOT/'src/renderer'/'js'/'utils'/'MinecraftBlocks.js'
     catalog.write_text('// Generated from the user-provided vanilla resource pack. See assets/blocks_minecraft/manifest.json.\nexport const MINECRAFT_BLOCKS = '+json.dumps(items,ensure_ascii=False,indent=2)+';\n',encoding='utf-8')
-    manifest = {'source':'User-provided vanilla Minecraft resource pack','versionLabel':args.version,'versionVerified':False,'copyright':'Minecraft textures and models © Mojang AB / Microsoft. Not covered by the application code license.','renderer':'scripts/generate-minecraft-resources.py','renderSize':SIZE,'animation':'First defined frame','limitations':['Entity/special item renderers are excluded','Static GUI lighting approximation; no game shaders or ambient occlusion'],'rendered':len(items),'skipped':skipped,'sourceHashes':renderer.sources}
+    manifest = {'source':'User-provided vanilla Minecraft resource pack','versionLabel':args.version,'versionVerified':source_version.get('id') == args.version,'sourceVersion':source_version.get('id'),'sourceStable':source_version.get('stable'),'retainedLegacyIds':[item['id'] for item in retained],'copyright':'Minecraft textures and models © Mojang AB / Microsoft. Not covered by the application code license.','renderer':'scripts/generate-minecraft-resources.py','renderSize':SIZE,'animation':'First defined frame','limitations':['Entity/special item renderers are excluded','Static GUI lighting approximation; no game shaders or ambient occlusion'],'rendered':len(items),'skipped':skipped,'sourceHashes':renderer.sources}
     manifest['localization'] = localization['source']
     (output/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
     samples = ['grass_block','stone','oak_log','oak_stairs','oak_slab','oak_fence','glass','oak_leaves','crafting_table','furnace','diamond_ore','amethyst_block']
