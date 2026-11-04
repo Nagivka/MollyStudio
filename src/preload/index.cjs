@@ -67,6 +67,7 @@ const api = {
     arch: process.arch,
     onNativeMenuAction: callback=>listen('native-menu-action',callback),
     nativeEdit: action=>call('native-edit',{action}),
+    setNativeShortcuts: bindings=>call('native-shortcuts',{bindings}),
     setLanguage: language => call('language-set', {language}),
     getPendingProjectOpens: () => call('project-open-pending'),
     acknowledgeProjectOpen: id => call('project-open-ack', {id}),

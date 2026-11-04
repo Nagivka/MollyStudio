@@ -15,6 +15,12 @@ const {app,root,ready,makeWindow,settle,evaluateMain}=require('./lib/electron-ha
         if(process.platform==='darwin'){
             const menu=await evaluateMain(({Menu})=>{const flatten=menu=>menu.items.flatMap(item=>[...(item.accelerator?[item.accelerator]:[]),...(item.submenu?flatten(item.submenu):[])]);return flatten(Menu.getApplicationMenu());});
             expect(['Command+O','Command+S','Command+Z','Command+,'].every(key=>menu.includes(key)),'The real macOS application menu exposes standard file, edit and settings accelerators');
+            const nativeSave=()=>evaluateMain(({Menu})=>Menu.getApplicationMenu().getMenuItemById('file-save')?.accelerator||null);
+            for(const [bindings,expected]of [[{'file-save':'Ctrl+Alt+KeyS'},'Command+Option+S'],[{'file-save':''},null],[{},'Command+S']]){
+                await win.page.evaluate(bindings=>mollyEditor.settingsManager.set('shortcutBindings',bindings),bindings);
+                for(let i=0;i<40&&(await nativeSave())!==expected;i++)await new Promise(resolve=>setTimeout(resolve,25));
+                expect((await nativeSave())===expected,'Native menu reflects '+(expected||'disabled')+' after changing shortcuts');
+            }
             await win.page.evaluate(()=>{mollyEditor.layerManager.addLayer('Quit recovery');mollyEditor.settingsManager.set('confirmClose',true);});
             const canceled=await evaluateMain(({app})=>new Promise(resolve=>{const runtime=globalThis.__mollyTestRuntime,timer=setTimeout(()=>resolve(false),15000);runtime.windows.electron.dialog.showMessageBox=async()=>({response:0});runtime.windows.get('main').once('molly-close-cancelled',()=>{clearTimeout(timer);resolve(true);});app.quit();}));
             await win.page.waitForFunction(()=>!document.body.inert&&!mollyEditor.documentTasks.closing);expect(canceled&&!win.page.isClosed(),'Cancelling Cmd+Q keeps the real editor interactive');

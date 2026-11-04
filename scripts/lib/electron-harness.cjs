@@ -29,7 +29,7 @@ async function ready(settings = {}) {
     ]:[process.env.CI&&process.platform==='linux'?['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']:[]];
     const probes=[];
     for(const switches of candidates){
-        application = await _electron.launch({executablePath: require('electron'),chromiumSandbox:true,args:[root,'--force-device-scale-factor=1','--lang=ru',...switches,...(settings.args||[])],env:environment(),timeout:30000});
+        application = await _electron.launch({executablePath: require('electron'),chromiumSandbox:true,args:['--force-device-scale-factor=1','--lang=ru',...switches,...(settings.switches||[]),root,...(settings.args||[])],env:environment(),timeout:30000});
         if(!intelGraphics)break;
         const page=await application.firstWindow(),available=await page.evaluate(()=>{const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl',{antialias:true,preserveDrawingBuffer:true});if(!gl)return false;gl.getExtension('WEBGL_lose_context')?.loseContext();return true;});
         probes.push({switches,available,features:await application.evaluate(({app})=>app.getGPUFeatureStatus())});
@@ -39,7 +39,7 @@ async function ready(settings = {}) {
     const webgl=intelGraphics?!!application:null;
     if(intelGraphics){
         await fs.mkdir(path.join(root,'.test-output'),{recursive:true});await fs.writeFile(path.join(root,'.test-output/ci-graphics.json'),JSON.stringify(probes,null,2));
-        if(!application)application=await _electron.launch({executablePath:require('electron'),chromiumSandbox:true,args:[root,'--force-device-scale-factor=1','--lang=ru',...(settings.args||[])],env:environment(),timeout:30000});
+        if(!application)application=await _electron.launch({executablePath:require('electron'),chromiumSandbox:true,args:['--force-device-scale-factor=1','--lang=ru',...(settings.switches||[]),root,...(settings.args||[])],env:environment(),timeout:30000});
     }
     application.process().stdout?.on('data', bytes => { log += bytes; });
     application.process().stderr?.on('data', bytes => { log += bytes; });

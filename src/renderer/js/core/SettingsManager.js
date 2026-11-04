@@ -337,6 +337,9 @@ export default class SettingsManager {
         if(key==='developerUnlocked'||key==='developerLayoutBounds')document.documentElement.classList.toggle('developer-layout-bounds',this.settings.developerUnlocked&&this.settings.developerLayoutBounds);
         const root = document.documentElement;
         switch (key) {
+            case 'shortcutBindings':
+                if(globalThis.window?.desktopAPI?.platform==='darwin')window.desktopAPI.setNativeShortcuts?.(value)?.catch(error=>console.warn('Native shortcuts:',error));
+                break;
             case 'seasonalDetailsEnabled':if(!this.applyingAll)syncSeasonalDetails(this.settings);break;
             case 'liquidGlassEnabled':
                 if(value===true)installLiquidGlassMotion();

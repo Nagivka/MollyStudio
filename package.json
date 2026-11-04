@@ -95,6 +95,7 @@
     "test:titles:audit": "node scripts/run-electron-check.cjs scripts/title-audit-scenarios.cjs",
     "test:titles:workspace": "node scripts/run-electron-check.cjs scripts/title-workspace-scenarios.cjs",
     "test:titles:edges": "node scripts/run-electron-check.cjs scripts/title-edge-scenarios.cjs",
+    "test:titles:unavailable": "node scripts/run-electron-check.cjs scripts/title-edge-scenarios.cjs --without-webgl",
     "test:soak": "node scripts/run-electron-check.cjs scripts/editor-soak-scenarios.cjs",
     "test:installed-sandbox:prepare": "node scripts/prepare-installed-sandbox.cjs",
     "test:installed-sandbox:verify": "node scripts/verify-installed-sandbox.cjs"

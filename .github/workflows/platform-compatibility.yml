@@ -66,9 +66,9 @@ jobs:
       - name: Native Electron checks
         run: |
           if [[ "$RUNNER_OS" == Linux ]]; then
-            xvfb-run -a sh -c 'npm run test:desktop && npm run test:platform && npm run test:lifecycle && npm run test:workflows && npm run test:titles:edges'
+            xvfb-run -a sh -c 'npm run test:desktop && npm run test:platform && npm run test:lifecycle && npm run test:workflows && npm run test:titles:edges && npm run test:titles:unavailable'
           else
-            npm run test:desktop && npm run test:platform && npm run test:lifecycle && npm run test:workflows && npm run test:titles:edges
+            npm run test:desktop && npm run test:platform && npm run test:lifecycle && npm run test:workflows && npm run test:titles:edges && npm run test:titles:unavailable
           fi
       - name: Build native distributions
         run: npm run dist -- ${{ matrix.platform }} ${{ matrix.arch }}

@@ -21,6 +21,7 @@ async function createApplication(electron, options = {}) {
     const windows = new Windows(electron, {testMode, showOnReady: !testMode || options.manual === true,
         beforeClose: () => Promise.all([files.idle(), recovery.idle()])});
     const runtime = {windows, files, requests, recovery, discord, transfers: new RendererRequests(), testMode, manual: Boolean(options.manual)};
+    if(process.platform==='darwin')runtime.shortcuts=await import('../renderer/js/core/Shortcuts.mjs');
     runtime.updates = new UpdateService({app, windows, testMode,macSigned:require('../../package.json').mollyMacUpdates===true});
     void runtime.updates.start().catch(error => console.warn('Updates:', error.message));
     installProtocol(protocol, net, path.join(__dirname, '../renderer'));

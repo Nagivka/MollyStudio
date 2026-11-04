@@ -49,10 +49,15 @@ function registerIpc(electron, runtime) {
             runtime.refreshMenu?.();
             return true;
         case 'native-edit': {
-            const method=nativeEdits[data?.action];
-            if(!method)throw Error('Unsupported native edit command.');
+            if(!Object.hasOwn(nativeEdits,data?.action))throw Error('Unsupported native edit command.');
+            const method=nativeEdits[data.action];
             window.webContents[method]();return true;
         }
+        case 'native-shortcuts':
+            if(!runtime.shortcuts)return false;
+            if(Buffer.byteLength(JSON.stringify(data))>16384)throw Error('Too many shortcut bindings.');
+            windows.shortcutBindings=runtime.shortcuts.normalizeShortcutBindings(data?.bindings);
+            runtime.refreshMenu?.();return true;
         case 'project-open-pending': return label === 'main' ? requests.pending() : [];
         case 'project-open-ack':
             if (label !== 'main' || !Number.isSafeInteger(data?.id)) throw Error('Некорректный запрос открытия проекта.');
