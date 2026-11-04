@@ -115,6 +115,7 @@ jobs:
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       - name: Check packaged application
+        id: packaged
         run: |
           if [[ "$RUNNER_OS" == Linux ]]; then
             sudo chown root:root "dist/linux${{ matrix.arch == 'arm64' && '-arm64' || '' }}-unpacked/chrome-sandbox"
@@ -145,7 +146,7 @@ jobs:
             done
             node scripts/packaged-platform-smoke.cjs /usr/bin/mollystudio wayland'
       - name: AppImage launch, replacement and rollback
-        if: runner.os == 'Linux'
+        if: ${{ !cancelled() && runner.os == 'Linux' && steps.packaged.outcome == 'success' }}
         run: |
           export TMPDIR=$(mktemp -d "$RUNNER_TEMP/molly-appimage.XXXXXX")
           # Ubuntu restricts unprivileged user namespaces. Grant them only to

@@ -13,8 +13,9 @@ async function buildNative(platform=process.platform,arch=process.arch){
     const target=updateTarget(platform,arch);if(!target)throw Error('Supported architectures: x64, arm64.');
     const {build,Platform,Arch}=require('electron-builder'),pkg=require('../package.json');
     const signed=platform==='darwin'&&Boolean(process.env.CSC_LINK||process.env.CSC_NAME&&process.env.CSC_NAME!=='-');
+    const notarized=signed&&Boolean(process.env.APPLE_API_KEY||process.env.APPLE_ID&&process.env.APPLE_APP_SPECIFIC_PASSWORD&&process.env.APPLE_TEAM_ID);
     const config={extraMetadata:{mollyMacUpdates:signed}};
-    if(platform==='darwin')config.mac={artifactName:`MollyStudio-${pkg.version}.0-${arch}-mac.\${ext}`,...(!signed?{identity:'-',hardenedRuntime:false}:{}),notarize:signed&&Boolean(process.env.APPLE_API_KEY||process.env.APPLE_ID&&process.env.APPLE_APP_SPECIFIC_PASSWORD&&process.env.APPLE_TEAM_ID)};
+    if(platform==='darwin')config.mac={artifactName:`MollyStudio-${pkg.version}.0-${arch}-mac.\${ext}`,...(!signed?{identity:'-',hardenedRuntime:false}:{}),forceCodeSigning:signed,notarize:notarized};
     else config.linux={artifactName:`MollyStudio-${pkg.version}.0-${arch}-linux.\${ext}`};
     const artifacts=await build({targets:(platform==='darwin'?Platform.MAC:Platform.LINUX).createTarget(platform==='darwin'?['dmg','zip']:['AppImage','deb','tar.gz'],Arch[arch]),config,publish:'never'});
     const output=path.join(root,'dist'),checksums=[];
@@ -25,8 +26,13 @@ async function buildNative(platform=process.platform,arch=process.arch){
     const filename=targetReleaseNames(pkg.version,target)[0],bytes=await fs.readFile(path.join(output,filename)),sha512=createHash('sha512').update(bytes).digest('base64');
     await fs.writeFile(path.join(output,target.metadata),`version: ${pkg.version}\nfiles:\n  - url: ${filename}\n    sha512: ${sha512}\n    size: ${bytes.length}\npath: ${filename}\nsha512: ${sha512}\nreleaseDate: '${new Date().toISOString()}'\n`);
     const unpacked=platform==='darwin'?`dist/${arch==='arm64'?'mac-arm64':'mac'}/MollyStudio.app`:`dist/linux${arch==='arm64'?'-arm64':''}-unpacked`;
+    if(signed){
+        const requirement = 'anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists';
+        await run('/usr/bin/codesign',['--verify','--deep','--strict',`-R=${requirement}`,unpacked],{cwd:root});
+        if(notarized)await run('/usr/bin/xcrun',['stapler','validate',unpacked],{cwd:root});
+    }
     await run(process.execPath,[path.join(__dirname,'check-distribution.cjs'),unpacked,platform],{cwd:root});
-    const report={platform,arch,signed,version:pkg.version,files:checksums,unpacked,checkedAt:new Date().toISOString()};
+    const report={platform,arch,signed,notarized,version:pkg.version,files:checksums,unpacked,checkedAt:new Date().toISOString()};
     await fs.writeFile(path.join(output,`build-${platform}-${arch}.json`),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));return report;
 }
 if(require.main===module)buildNative(process.argv[2]||process.platform,process.argv[3]||process.arch).catch(error=>{console.error(error);process.exit(1);});

@@ -1,7 +1,8 @@
 const fs=require('node:fs/promises'),path=require('node:path');
 const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
 (async()=>{let win;try{
- const withoutWebGL=process.argv.includes('--without-webgl'),capabilities=await ready({graphics:!withoutWebGL});win=makeWindow(1280,900);
+ const withoutWebGL=process.argv.includes('--without-webgl'),requireWebGL=process.argv.includes('--require-webgl');
+ const capabilities=await ready({graphics:!withoutWebGL&&!requireWebGL});win=makeWindow(1280,900);
  if(withoutWebGL){await win.ensure();await win.page.addInitScript(()=>{const getContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(kind,...options){return ['webgl','webgl2','experimental-webgl'].includes(kind)?null:getContext.call(this,kind,...options);};});}
  await win.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:'title',name:'Title edge audit'}});await settle(win);
  if(withoutWebGL||capabilities.webgl===false){

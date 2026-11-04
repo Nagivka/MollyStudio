@@ -43,6 +43,7 @@ async function checkProjectAssociation(executable, fixture) {
     const profile=wayland?path.join(directory,'config','MollyStudio'):path.join(directory,'profile');
     const fixture=path.join(await fs.realpath(directory),'Проект проверки.mlst');
     const installed=wayland||process.argv[3]==='installed';
+    const suffix=wayland?'-wayland':appImage?'-appimage':installed?'-installed':'';
     await fs.mkdir(profile,{recursive:true});await fs.writeFile(path.join(profile,'update-preferences.json'),JSON.stringify({autoCheck:false,autoDownload:false}));
     await fs.writeFile(fixture,JSON.stringify({mollyVersion:2,type:'canvas',name:'Native smoke',config:{width:64,height:64},layers:[]}));
     const server=net.createServer();server.listen(0,'127.0.0.1');await once(server,'listening');const port=server.address().port;await new Promise(resolve=>server.close(resolve));
@@ -57,7 +58,7 @@ async function checkProjectAssociation(executable, fixture) {
         const displaySwitches=wayland?['--ozone-platform=wayland','--force-device-scale-factor=1.25']:[];
         child=spawn(executable,[...displaySwitches,`--user-data-dir=${profile}`,`--remote-debugging-address=127.0.0.1`,`--remote-debugging-port=${port}`,openArgument],{cwd:directory,env,stdio:['ignore','pipe','pipe']});
         let waylandSurface=false;
-        child.on('error',error=>{log+=error.message;});child.stdout.on('data',bytes=>{log=(log+bytes).slice(-16000);});child.stderr.on('data',bytes=>{log=(log+bytes).slice(-16000);waylandSurface ||= /xdg_surface@\d+\.get_toplevel/.test(log);});
+        child.on('error',error=>{log+=error.message;});child.stdout.on('data',bytes=>{log=(log+bytes).slice(-16000);});child.stderr.on('data',bytes=>{log=(log+bytes).slice(-16000);waylandSurface ||= /xdg_surface[@#]\d+\.get_toplevel/.test(log);});
         let endpoint;
         for(let i=0;i<150;i++){
             if(child.exitCode!==null)throw Error('Packaged application exited before opening: '+log);
@@ -81,7 +82,8 @@ async function checkProjectAssociation(executable, fixture) {
         if(!pixels.data.equals(expected.data))throw Error('Packaged export pixels differ from saved MLST');
         if(appImage && !await page.evaluate(async()=>Boolean((await desktopAPI.getUpdateStatus()).supported)))throw Error('AppImage update channel is unavailable');
         if(wayland){
-            if(!waylandSurface||Math.abs(await page.evaluate(()=>devicePixelRatio)-1.25)>.01)throw Error('Expected a native Wayland surface at 125% scale');
+            const scale=await page.evaluate(()=>devicePixelRatio);
+            if(!waylandSurface||Math.abs(scale-1.25)>.01)throw Error(`Expected a native Wayland surface at 125% scale (native=${waylandSurface}, devicePixelRatio=${scale})`);
             await page.bringToFront();
             const clipboard='MollyStudio — проверка Wayland';
             await page.evaluate(text=>navigator.clipboard.writeText(text),clipboard);
@@ -120,10 +122,12 @@ async function checkProjectAssociation(executable, fixture) {
             await closeWindow(reopened);
         }
         const output={passed:true,platform:process.platform,arch:process.arch,packaged:true,installed,wayland,appImage,productionFuses:true,associationRegistered:installed,associationArgumentOpened:true,launchServicesOpened,mlstSaved:true,pngPixelsEqual:true,cleanClose:true,checkedAt:new Date().toISOString()};
-        const suffix=wayland?'-wayland':appImage?'-appimage':installed?'-installed':'';
         await fs.mkdir(path.join(root,'.test-output'),{recursive:true});await fs.writeFile(path.join(root,`.test-output/packaged-platform-smoke${suffix}.json`),JSON.stringify(output,null,2));console.log(JSON.stringify(output));
+    }catch(error){
+        if(wayland)console.error(log.slice(-5000));
+        throw error;
     }finally{
-        await fs.mkdir(path.join(root,'.test-output'),{recursive:true});await fs.writeFile(path.join(root,'.test-output/packaged-process.log'),log);
+        await fs.mkdir(path.join(root,'.test-output'),{recursive:true});await fs.writeFile(path.join(root,`.test-output/packaged-process${suffix}.log`),log);
         await browser?.close().catch(()=>{});
         if(child&&child.exitCode===null){const stopped=once(child,'exit');child.kill();await Promise.race([stopped,delay(10000)]);}
         if(path.dirname(directory)!==os.tmpdir()||!path.basename(directory).startsWith('molly-packaged-smoke-'))throw Error('Invalid smoke cleanup path');
