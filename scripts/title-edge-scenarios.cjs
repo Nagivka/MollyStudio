@@ -1,7 +1,22 @@
 const fs=require('node:fs/promises'),path=require('node:path');
 const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
 (async()=>{let win;try{
- await ready({graphics:true});win=makeWindow(1280,900);await win.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:'title',name:'Title edge audit'}});await settle(win);
+ const capabilities=await ready({graphics:true});win=makeWindow(1280,900);await win.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:'title',name:'Title edge audit'}});await settle(win);
+ if(capabilities.webgl===false){
+  const checks=await win.page.evaluate(async()=>{
+   const a=mollyEditor,e=a.titleEditor,p=a.getActiveProject();await p.prefixLoadPromise;
+   const checks=[],expect=(ok,label)=>{if(!ok)throw Error(label);checks.push(label);};
+   expect(e.panel.querySelector('.title-warning').textContent.includes('WebGL'),'Missing graphics support is explained in the title editor');
+   expect(!e.panel.inert&&!e.viewport.stage.inert&&Array.isArray(p.titleData.rows),'Missing WebGL retains the editable document and releases loading controls');
+   expect(!e.panel.querySelector('[data-title-retry]').hidden,'The title editor offers retry after graphics become available');
+   a.addProject('2D remains usable','none',32,32,false,'canvas');const layer=a.layerManager.addLayer('Pixels');layer.ctx.fillRect(0,0,4,4);layer.invalidateSource();a.renderer.render();expect(a.getActiveProject().type==='canvas'&&layer.ctx.getImageData(1,1,1,1).data[3]===255,'The regular canvas remains usable after a 3D capability failure');
+   return checks;
+  });
+  const report={passed:true,checks,webgl:false,skipped:['3D rendering and WebGL context restoration on the hosted Intel Mac'],reason:'No available WebGL backend; see ci-graphics.json. Native graphics checks remain required on a GPU-capable Intel Mac.'};
+  await fs.writeFile(path.join(root,'.test-output/title-edge-report.json'),JSON.stringify(report,null,2));
+  if(process.env.GITHUB_STEP_SUMMARY)await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,'\n### Intel Mac graphics limitation\nThe hosted VM provides no WebGL backend. Verified graceful failure and working 2D editing. 3D rendering/context restoration is **not verified** on this runner; see ci-graphics.json.\n');
+  console.log(JSON.stringify(report));return;
+ }
  const checks=await win.page.evaluate(async()=>{
   const a=mollyEditor,e=a.titleEditor,r=e.renderer;await a.getActiveProject().prefixLoadPromise;
   const checks=[],expect=(ok,label)=>{if(!ok)throw Error(label);checks.push(label);};
