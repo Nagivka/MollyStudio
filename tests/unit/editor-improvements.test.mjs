@@ -66,7 +66,7 @@ test('an exact edge snap takes priority over a nearby equal-gap suggestion',()=>
 
 test('shortcut assignments are physical, unique, bounded and detect conflicts',()=>{
     const keys=SHORTCUT_COMMANDS.flatMap(command=>shortcutKeys(command));assert.equal(new Set(keys).size,keys.length);
-    assert.equal(eventChord({code:'KeyS',ctrlKey:true,shiftKey:true}),'Ctrl+Shift+KeyS');
+    assert.equal(eventChord({code:'KeyS',ctrlKey:true,shiftKey:true},'win32'),'Ctrl+Shift+KeyS');
     assert.equal(normalizeChord('Alt+F4'),null);assert.equal(normalizeChord('Ctrl+Escape'),null);
     assert.equal(shortcutConflict('tool:brush','KeyP').id,'tool:pencil');
     const bindings=normalizeShortcutBindings({'tool:pencil':'','tool:brush':'KeyP','bad':'Ctrl+KeyS'});

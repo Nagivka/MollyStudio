@@ -92,7 +92,7 @@ test('Alt handle resizing uses symmetric rounding after Ctrl snapping and across
     Object.assign(move,{isLockAspect:()=>false,activeSourceCanvas:{width:8,height:8},updateDimensionBadge(){}});
     let box={...original};
     for(let index=0;index<10;index++){
-        move.boxStart=box;move.currentBox={...box};move.scaleBoxFromHandle('se',-1,-1,true,true,{ctrlKey:true});
+        move.boxStart=box;move.currentBox={...box};move.scaleBoxFromHandle('se',-1,-1,true,true,{ctrlKey:process.platform!=='darwin',metaKey:process.platform==='darwin'});
         assert.equal(move.currentBox.w,4);assert.equal(move.currentBox.h,4);
         move.boxStart={...move.currentBox};move.currentBox={...move.boxStart};move.scaleBoxFromHandle('se',1.5,.5,true,true,{});
         box={...move.currentBox};assert.deepEqual(box,original);

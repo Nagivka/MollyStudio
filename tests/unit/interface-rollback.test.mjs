@@ -6,7 +6,8 @@ import { createHash } from 'node:crypto';
 const reference = JSON.parse(await readFile(new URL('../fixtures/interface-1.2.5.json', import.meta.url), 'utf8'));
 
 test('accepted design tokens and launcher retain the 1.2.5 foundation', async () => {
-    const launcher = await readFile(new URL('../../src/renderer/css/launcher.css', import.meta.url));
+    const source = await readFile(new URL('../../src/renderer/css/launcher.css', import.meta.url),'utf8');
+    const launcher = source.replace(/\r?\n/g,'\r\n'); // The accepted Windows installer used CRLF.
     assert.equal(createHash('sha256').update(launcher).digest('hex'), reference.files['css/launcher.css']);
     // Responsive layout and motion may evolve while the accepted visual tokens stay stable.
     const material = await readFile(new URL('../../src/renderer/css/material-you.css', import.meta.url), 'utf8');
