@@ -21,7 +21,35 @@ concurrency:
   group: native-platform-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  windows-project-fixtures:
+    if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
+    runs-on: windows-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: node node_modules/electron/install.js
+      - run: npm run test:workflows
+      - run: node scripts/run-electron-check.cjs scripts/project-transfer-scenarios.cjs generate .test-output/complete-workflows
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: project-transfer-${{ github.sha }}
+          path: |
+            .test-output/complete-workflows/*.mlst
+            .test-output/complete-workflows/gui.png
+            .test-output/complete-workflows/prefix.png
+            .test-output/complete-workflows/title.png
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
   native:
+    needs: windows-project-fixtures
     if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
     strategy:
       fail-fast: false
@@ -59,7 +87,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb libgtk-3-0 libnss3 libasound2t64 libgbm1 libfuse2t64 libglib2.0-bin
+          sudo apt-get install -y xvfb libgtk-3-0 libnss3 libasound2t64 libgbm1 libfuse2t64 libglib2.0-bin weston wl-clipboard
           sudo chown root:root node_modules/electron/dist/chrome-sandbox
           sudo chmod 4755 node_modules/electron/dist/chrome-sandbox
       - run: npm run typecheck && npm run core:verify && npm test && npm run audit
@@ -70,6 +98,14 @@ jobs:
           else
             npm run test:desktop && npm run test:platform && npm run test:lifecycle && npm run test:workflows && npm run test:titles:edges && npm run test:titles:unavailable
           fi
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
+        with:
+          name: project-transfer-${{ github.sha }}
+          path: .test-output/transfer-input
+      - name: Open, re-save and edit Windows projects
+        run: |
+          command=(node scripts/run-electron-check.cjs scripts/project-transfer-scenarios.cjs verify .test-output/transfer-input)
+          if [[ "$RUNNER_OS" == Linux ]]; then xvfb-run -a "${command[@]}"; else "${command[@]}"; fi
       - name: Build native distributions
         run: npm run dist -- ${{ matrix.platform }} ${{ matrix.arch }}
         env:
@@ -93,6 +129,31 @@ jobs:
             codesign --verify --deep --strict "$mac_package/MollyStudio.app"
             node scripts/packaged-platform-smoke.cjs "$mac_package/MollyStudio.app/Contents/MacOS/MollyStudio" installed
           fi
+      - name: Native Wayland session with installed DEB
+        if: runner.os == 'Linux'
+        run: |
+          xvfb-run -a -s '-screen 0 1920x1080x24' dbus-run-session -- bash -e -c '
+            export XDG_RUNTIME_DIR=$(mktemp -d "$RUNNER_TEMP/molly-wayland.XXXXXX")
+            export WAYLAND_DISPLAY=molly-wayland XDG_SESSION_TYPE=wayland
+            weston --backend=x11-backend.so --renderer=pixman --width=1600 --height=960 --idle-time=0 --socket="$WAYLAND_DISPLAY" --no-config >.test-output/weston.log 2>&1 &
+            compositor=$!
+            trap "kill $compositor 2>/dev/null || true" EXIT
+            for attempt in {1..100}; do
+              [[ -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]] && break
+              kill -0 "$compositor"
+              sleep .1
+            done
+            node scripts/packaged-platform-smoke.cjs /usr/bin/mollystudio wayland'
+      - name: AppImage launch, replacement and rollback
+        if: runner.os == 'Linux'
+        run: |
+          export TMPDIR=$(mktemp -d "$RUNNER_TEMP/molly-appimage.XXXXXX")
+          # Ubuntu restricts unprivileged user namespaces. Grant them only to
+          # Electron inside the disposable AppImage fixture directory.
+          if [[ $(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns 2>/dev/null || true) == 1 ]]; then
+            printf 'abi <abi/4.0>,\nprofile mollystudio-ci-appimage "%s/**/mollystudio" flags=(unconfined) {\n  userns,\n}\n' "$TMPDIR" | sudo apparmor_parser -r
+          fi
+          xvfb-run -a node scripts/appimage-compatibility.cjs dist/MollyStudio-*-${{ matrix.arch }}-linux.AppImage
       - name: Retain private artifacts and diagnostics
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f

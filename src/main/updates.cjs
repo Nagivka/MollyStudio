@@ -6,16 +6,22 @@ const security = require('./update-security.cjs');
 const {requestBuffer} = require('./update-network.cjs');
 const {abortable,requestWithRetry,errorCode} = require('./update-operations.cjs');
 const {updateTarget}=require('./update-targets.cjs');
+const {installAppImage}=require('./appimage-install.cjs');
 
 const CHECK_INTERVAL = 6 * 60 * 60 * 1000;
 const RETRY_INTERVAL = 15 * 60 * 1000;
 class UpdateService {
     constructor({app, windows, testMode = false, platform = process.platform, arch = process.arch,
-        portable = Boolean(process.env.PORTABLE_EXECUTABLE_FILE),appImage=process.env.APPIMAGE,macSigned=false, engineFactory = () => require('electron-updater').autoUpdater,
+        portable = Boolean(process.env.PORTABLE_EXECUTABLE_FILE),appImage=process.env.APPIMAGE,macSigned=false, engineFactory,
+        replaceAppImage = installAppImage,
         request = requestBuffer, publicKey = security.PUBLIC_KEY, now = Date.now,
         checkTimeout = 60000, downloadIdleTimeout = 120000, retryDelays = [0,500,1500]}) {
-        Object.assign(this, {app, windows, engineFactory, request, publicKey, now,checkTimeout,downloadIdleTimeout,retryDelays});
+        Object.assign(this, {app, windows, appImage, replaceAppImage, request, publicKey, now,checkTimeout,downloadIdleTimeout,retryDelays});
         this.target=updateTarget(platform,arch);
+        this.engineFactory = engineFactory || (() => {
+            const updater = require('electron-updater');
+            return this.target?.format === 'AppImage' ? new updater.AppImageUpdater() : updater.autoUpdater;
+        });
         this.supported = !testMode && app.isPackaged && !!this.target && !portable && (platform==='win32'||platform==='linux'&&!!appImage||platform==='darwin'&&macSigned);
         const unavailableReason=testMode||!app.isPackaged?'development':portable?'portable':!this.target?'platform':platform==='darwin'&&!macSigned?'mac-signing':platform==='linux'&&!appImage?'linuxNative':'';
         this.preferencesFile = path.join(app.getPath('userData'), 'update-preferences.json');
@@ -209,7 +215,14 @@ class UpdateService {
             if (finishing) return;
             finishing = true; cleanup(false);
             // All editor flushes and native writes have completed at this point.
-            void security.verifyFile(this.installer, this.manifest.files[0]).then(() => {
+            void security.verifyFile(this.installer, this.manifest.files[0]).then(async () => {
+                if (this.target.format === 'AppImage') {
+                    await this.replaceAppImage({current: this.appImage, download: this.installer, expected: this.manifest.files[0],
+                        relaunch: execPath => this.app.relaunch({execPath, args: [`--user-data-dir=${this.app.getPath('userData')}`]})});
+                    cleanup();
+                    this.app.quit();
+                    return;
+                }
                 cleanup();
                 this.engine.quitAndInstall(true, true);
                 if ('quitAndInstallCalled' in this.engine && !this.engine.quitAndInstallCalled) throw Error('UPDATE_INSTALL_FAILED');

@@ -21,7 +21,9 @@ for(const platform of ['darwin','linux'])for(const arch of ['x64','arm64'])test(
     const main=new EventEmitter();main.id=1;main.close=()=>{};
     const windows={get:()=>main,closing:new Map(),broadcast(){},create(){throw Error('Unexpected reopen');}},release={tag_name:'v'+version,draft:false,prerelease:false,assets:files.map(file=>({name:file.name,size:file.bytes.length,browser_download_url:security.downloadBase(version)+file.name}))};
     const request=async url=>url.endsWith('/releases/latest')?Buffer.from(JSON.stringify(release)):url.endsWith(target.manifest)?Buffer.from(envelope):url.endsWith(target.metadata)?yaml:Promise.reject(Error('Unexpected URL'));
-    const service=new UpdateService({app,windows,platform,arch,portable:false,macSigned:true,appImage:'/tmp/AppImage',publicKey,request,engineFactory:()=>engine});t.after(()=>service.dispose());
+    app.relaunch=()=>engine.emit('installed');
+    const replaceAppImage=async options=>{assert.equal(options.download,filename);assert.equal(options.expected.name,names[0]);await options.relaunch(options.current);};
+    const service=new UpdateService({app,windows,platform,arch,portable:false,macSigned:true,appImage:'/tmp/AppImage',publicKey,request,engineFactory:()=>engine,replaceAppImage});t.after(()=>service.dispose());
     await service.check();assert.equal(service.status().status,'available');assert.equal(engine.feed.channel,target.channel);
     await service.download();assert.equal(service.status().status,'downloaded');assert.equal(await service.install(),true);
     const installed=once(engine,'installed');main.emit('closed');await installed;

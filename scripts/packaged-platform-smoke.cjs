@@ -38,20 +38,26 @@ async function checkProjectAssociation(executable, fixture) {
 (async()=>{
     if(!process.env.CI)throw Error('Run packaged smoke checks on a disposable CI runner.');
     const report=JSON.parse(await fs.readFile(path.join(root,`dist/build-${process.platform}-${process.arch}.json`),'utf8'));
-    const directory=await fs.mkdtemp(path.join(os.tmpdir(),'molly-packaged-smoke-')),profile=path.join(directory,'profile');
+    const directory=await fs.mkdtemp(path.join(os.tmpdir(),'molly-packaged-smoke-'));
+    const wayland=process.argv[3]==='wayland',appImage=process.argv[3]==='appimage';
+    const profile=wayland?path.join(directory,'config','MollyStudio'):path.join(directory,'profile');
     const fixture=path.join(await fs.realpath(directory),'Проект проверки.mlst');
-    const installed=process.argv[3]==='installed';
-    await fs.mkdir(profile);await fs.writeFile(path.join(profile,'update-preferences.json'),JSON.stringify({autoCheck:false,autoDownload:false}));
+    const installed=wayland||process.argv[3]==='installed';
+    await fs.mkdir(profile,{recursive:true});await fs.writeFile(path.join(profile,'update-preferences.json'),JSON.stringify({autoCheck:false,autoDownload:false}));
     await fs.writeFile(fixture,JSON.stringify({mollyVersion:2,type:'canvas',name:'Native smoke',config:{width:64,height:64},layers:[]}));
     const server=net.createServer();server.listen(0,'127.0.0.1');await once(server,'listening');const port=server.address().port;await new Promise(resolve=>server.close(resolve));
     const executable=process.argv[2]||distributionLayout(path.join(root,report.unpacked),process.platform).executable;
     const env={...process.env};for(const key of ['MOLLY_TEST_PROFILE','MOLLY_MANUAL_CHECK','ELECTRON_RUN_AS_NODE','NODE_OPTIONS'])delete env[key];
+    if(wayland){delete env.DISPLAY;env.XDG_CONFIG_HOME=path.dirname(profile);env.WAYLAND_DEBUG='client';}
+    if(appImage)env.APPIMAGE_EXTRACT_AND_RUN='1';
     let child,browser,log='';
     try{
         if(installed)await checkProjectAssociation(executable,fixture);
         const openArgument=process.platform==='linux'&&installed?pathToFileURL(fixture).href:fixture;
-        child=spawn(executable,[`--user-data-dir=${profile}`,`--remote-debugging-address=127.0.0.1`,`--remote-debugging-port=${port}`,openArgument],{cwd:directory,env,stdio:['ignore','pipe','pipe']});
-        child.on('error',error=>{log+=error.message;});child.stdout.on('data',bytes=>{log=(log+bytes).slice(-16000);});child.stderr.on('data',bytes=>{log=(log+bytes).slice(-16000);});
+        const displaySwitches=wayland?['--ozone-platform=wayland','--force-device-scale-factor=1.25']:[];
+        child=spawn(executable,[...displaySwitches,`--user-data-dir=${profile}`,`--remote-debugging-address=127.0.0.1`,`--remote-debugging-port=${port}`,openArgument],{cwd:directory,env,stdio:['ignore','pipe','pipe']});
+        let waylandSurface=false;
+        child.on('error',error=>{log+=error.message;});child.stdout.on('data',bytes=>{log=(log+bytes).slice(-16000);});child.stderr.on('data',bytes=>{log=(log+bytes).slice(-16000);waylandSurface ||= /xdg_surface@\d+\.get_toplevel/.test(log);});
         let endpoint;
         for(let i=0;i<150;i++){
             if(child.exitCode!==null)throw Error('Packaged application exited before opening: '+log);
@@ -73,6 +79,30 @@ async function checkProjectAssociation(executable, fixture) {
         const saved=JSON.parse(await fs.readFile(fixture,'utf8')),pixels=PNG.sync.read(Buffer.from(result.png.split(',')[1],'base64'));
         const expected=PNG.sync.read(Buffer.from(saved.layers.at(-1).dataUrl.split(',')[1],'base64'));
         if(!pixels.data.equals(expected.data))throw Error('Packaged export pixels differ from saved MLST');
+        if(appImage && !await page.evaluate(async()=>Boolean((await desktopAPI.getUpdateStatus()).supported)))throw Error('AppImage update channel is unavailable');
+        if(wayland){
+            if(!waylandSurface||Math.abs(await page.evaluate(()=>devicePixelRatio)-1.25)>.01)throw Error('Expected a native Wayland surface at 125% scale');
+            await page.bringToFront();
+            const clipboard='MollyStudio — проверка Wayland';
+            await page.evaluate(text=>navigator.clipboard.writeText(text),clipboard);
+            const copied=execFileSync('wl-paste',['--no-newline'],{encoding:'utf8',env,timeout:8000});
+            if(copied!==clipboard)throw Error('Wayland clipboard differs from the copied text');
+
+            const pngFile=path.join(directory,'Wayland drop.png');
+            await fs.writeFile(pngFile,PNG.sync.write(pixels));
+            const layerCount=await page.evaluate(()=>mollyEditor.layerManager.layers.length);
+            const box=await page.locator('#workspace').boundingBox();
+            const session=await context.newCDPSession(page);
+            const drop={x:box.x+box.width/2,y:box.y+box.height/2,data:{items:[],files:[pngFile],dragOperationsMask:1}};
+            for(const type of ['dragEnter','dragOver','drop'])await session.send('Input.dispatchDragEvent',{...drop,type});
+            await page.waitForFunction(count=>mollyEditor.layerManager.layers.length===count+1,layerCount);
+            await page.evaluate(()=>mollyEditor.settingsManager.set('confirmClose',false));
+
+            const fromDesktop=path.join(path.dirname(fixture),'Проект из файлового менеджера.mlst');
+            await fs.copyFile(fixture,fromDesktop);
+            await run('gio',['launch','/usr/share/applications/mollystudio.desktop',pathToFileURL(fromDesktop).href],{env});
+            await waitForProject(context,fromDesktop);
+        }
         const closeWindow=async target=>{
             const closed=target.waitForEvent('close',{timeout:30000});
             await target.evaluate(()=>{setTimeout(()=>desktopAPI.close(),50);});
@@ -89,8 +119,9 @@ async function checkProjectAssociation(executable, fixture) {
             launchServicesOpened=true;
             await closeWindow(reopened);
         }
-        const output={passed:true,platform:process.platform,arch:process.arch,packaged:true,installed,productionFuses:true,associationRegistered:installed,associationArgumentOpened:true,launchServicesOpened,mlstSaved:true,pngPixelsEqual:true,cleanClose:true,checkedAt:new Date().toISOString()};
-        await fs.mkdir(path.join(root,'.test-output'),{recursive:true});await fs.writeFile(path.join(root,`.test-output/packaged-platform-smoke${output.installed?'-installed':''}.json`),JSON.stringify(output,null,2));console.log(JSON.stringify(output));
+        const output={passed:true,platform:process.platform,arch:process.arch,packaged:true,installed,wayland,appImage,productionFuses:true,associationRegistered:installed,associationArgumentOpened:true,launchServicesOpened,mlstSaved:true,pngPixelsEqual:true,cleanClose:true,checkedAt:new Date().toISOString()};
+        const suffix=wayland?'-wayland':appImage?'-appimage':installed?'-installed':'';
+        await fs.mkdir(path.join(root,'.test-output'),{recursive:true});await fs.writeFile(path.join(root,`.test-output/packaged-platform-smoke${suffix}.json`),JSON.stringify(output,null,2));console.log(JSON.stringify(output));
     }finally{
         await fs.mkdir(path.join(root,'.test-output'),{recursive:true});await fs.writeFile(path.join(root,'.test-output/packaged-process.log'),log);
         await browser?.close().catch(()=>{});
