@@ -93,9 +93,19 @@ async function checkProjectAssociation(executable, fixture) {
             const scale=await page.evaluate(()=>devicePixelRatio);
             if(!waylandSurface||Math.abs(scale-1.25)>.01)throw Error(`Expected a native Wayland surface at 125% scale (native=${waylandSurface}, devicePixelRatio=${scale})`);
             await page.bringToFront();
+            // A DevTools event has no Wayland seat serial. Deliver a key to
+            // the nested compositor before exercising the system clipboard.
+            await page.evaluate(()=>window.addEventListener('keydown',event=>{
+                if(event.key==='Shift')document.documentElement.dataset.ciWaylandKey='true';
+            },{once:true}));
+            const westonLog=await fs.readFile(path.join(root,'.test-output','weston.log'),'utf8');
+            const westonWindow=/x11 output .*window id (\d+)/.exec(westonLog)?.[1];
+            if(!westonWindow)throw Error('Weston X11 window ID is missing');
+            execFileSync('xdotool',['windowfocus','--sync',westonWindow,'key','Shift_L'],{timeout:5000});
+            await page.waitForFunction(()=>document.documentElement.dataset.ciWaylandKey==='true',null,{timeout:5000});
             const clipboard='MollyStudio — проверка Wayland';
             await page.evaluate(text=>navigator.clipboard.writeText(text),clipboard);
-            const copied=execFileSync('wl-paste',['--no-newline'],{encoding:'utf8',env,timeout:8000});
+            const copied=execFileSync('wl-paste',['--no-newline'],{encoding:'utf8',env:{...env,WAYLAND_DEBUG:''},timeout:8000});
             if(copied!==clipboard)throw Error('Wayland clipboard differs from the copied text');
 
             const pngFile=path.join(directory,'Wayland drop.png');
@@ -105,7 +115,7 @@ async function checkProjectAssociation(executable, fixture) {
             const session=await context.newCDPSession(page);
             const drop={x:box.x+box.width/2,y:box.y+box.height/2,data:{items:[],files:[pngFile],dragOperationsMask:1}};
             for(const type of ['dragEnter','dragOver','drop'])await session.send('Input.dispatchDragEvent',{...drop,type});
-            await page.waitForFunction(count=>mollyEditor.layerManager.layers.length===count+1,layerCount);
+            await page.waitForFunction(count=>mollyEditor.layerManager.layers.length===count+1,layerCount,{timeout:10000});
             await page.evaluate(()=>mollyEditor.settingsManager.set('confirmClose',false));
 
             const fromDesktop=path.join(path.dirname(fixture),'Проект из файлового менеджера.mlst');
