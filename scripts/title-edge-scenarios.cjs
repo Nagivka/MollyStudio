@@ -15,7 +15,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
    return checks;
   });
   const report={passed:true,checks,webgl:false,skipped:['3D rendering and WebGL context restoration'],reason:withoutWebGL?'WebGL intentionally disabled to verify recovery.':'No available WebGL backend; see ci-graphics.json. Native graphics checks remain required on a GPU-capable Intel Mac.'};
-  await fs.writeFile(path.join(root,'.test-output/title-edge-report.json'),JSON.stringify(report,null,2));
+  await fs.writeFile(path.join(root,withoutWebGL?'.test-output/title-unavailable-report.json':'.test-output/title-edge-report.json'),JSON.stringify(report,null,2));
   if(!withoutWebGL&&process.env.GITHUB_STEP_SUMMARY)await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,'\n### Intel Mac graphics limitation\nThe hosted VM provides no WebGL backend. Verified graceful failure and working 2D editing. 3D rendering/context restoration is **not verified** on this runner; see ci-graphics.json.\n');
   console.log(JSON.stringify(report));return;
  }
