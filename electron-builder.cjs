@@ -35,8 +35,7 @@ module.exports = {
     linux: {
         executableName:'mollystudio',syncDesktopName:true,icon:'src/renderer/assets/images/icon/icon512.png',category:'Graphics',maintainer:'nagivka',
         target:[{target:'AppImage',arch:['x64','arm64']},{target:'deb',arch:['x64','arm64']},{target:'tar.gz',arch:['x64','arm64']}],
-        artifactName:'MollyStudio-${buildVersion}-${arch}-linux.${ext}',
-        mimeTypes:['application/x-mollystudio-project']
+        artifactName:'MollyStudio-${buildVersion}-${arch}-linux.${ext}'
     },
     nsis: {oneClick: false, perMachine: false, allowToChangeInstallationDirectory: true,
         createDesktopShortcut: true, createStartMenuShortcut: true, shortcutName: 'MollyStudio',
