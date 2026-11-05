@@ -45,7 +45,6 @@ export default class TitleEditor {
                 <fieldset class="title-transform-fields" disabled><legend>${text('Преобразование')}</legend>
                 ${[['position','Положение'],['rotation','Вращение'],['scale','Масштаб']].map(([key,label])=>`<div class="title-transform-group"><span>${text(label)}</span><div>${['X','Y','Z'].map((axis,i)=>`<label>${axis}<input type="number" class="md-number-input" step="any" min="${key==='scale'?.01:key==='rotation'?-180:-4096}" max="${key==='scale'?20:key==='rotation'?180:4096}" data-title-transform="${key}" data-axis="${i}"></label>`).join('')}</div></div>`).join('')}
                 <button class="md-btn outlined" type="button" data-title-reset-object>${text('Сбросить преобразование')}</button></fieldset>
-                <button class="md-btn outlined" type="button" data-title-model-export><i class="material-symbols-rounded">download</i>${text('Экспорт модели .bbmodel')}</button>
             </div>
             <div class="title-settings-panel">
             <label>${text('Текст · до 3 строк по 64 символа')}<textarea class="md-input" rows="3" maxlength="386" data-title-field="text"></textarea></label>
@@ -55,13 +54,11 @@ export default class TitleEditor {
             ${select('font','Шрифт',Object.entries(TITLE_FONT_CATALOG).map(([id,font])=>[id,font.name]))}
             <button class="md-btn outlined" type="button" data-title-library="fonts">${text('Библиотека шрифтов')}</button>
             <p class="field-hint">${text('Показываются исходные шрифты и оформления для языка выбранной строки.')}</p>
-            ${select('meshMode','Геометрия',[['original','Модели оригинального генератора'],['solid','Замкнутые модели']])}
             ${select('role','Тип строки',[['auto','По компоновке'],['top','Заголовок'],['bottom','Подзаголовок'],['small','Подпись']])}
             ${select('layout','Компоновка',[['logo','Логотип: заголовок, подзаголовок, подпись'],['stacked','Обычные строки']])}
             <div class="title-fields">${numeric('spacing','Интервал букв',0,20)}${numeric('lineGap','Между строками',-4,20)}${numeric('depth','Глубина',0,48)}</div>
-            <div class="title-fields">${['X','Y','Z'].map((axis,i)=>`<label>${text('Масштаб {0}',{0:axis})}<input class="md-number-input" type="number" min="0.05" max="4" step="0.05" data-title-scale="${i}"></label>`).join('')}</div>
             ${toggle('kerning','Оптические интервалы')}${toggle('terminators','Краевые элементы строки')}
-            ${toggle('creeperA','Крипер в букве A')}${toggle('outline','Чёрный контур')}
+            ${toggle('creeperA','Крипер в букве A')}
             <h4>${text('Материал')}</h4>
             ${appearanceSelect('source','Источник',[['texture','Готовый материал'],['gradient','Градиент'],['tileable','Повторяющаяся текстура'],['file','Своё изображение']])}
             ${select('texture','Материал',[['none','Гладкий']])}
@@ -93,12 +90,8 @@ export default class TitleEditor {
             ${select('projection','Проекция',[['perspective','Перспективная'],['orthographic','Ортогональная']])}
             <div class="title-fields">${numeric('yaw','Поворот Y, °',-180,180)}${numeric('pitch','Поворот X, °',-80,80)}${numeric('zoom','Приближение, %',10,600)}</div>
             <button type="button" class="md-btn outlined" data-title-reset-camera>${text('Сбросить камеру')}</button>
-            <h4>${text('Изображение')}</h4>
-            ${select('resolution','Ширина PNG',[[1024,'1024 px'],[2048,'2048 px'],[4096,'4096 px']])}
-            ${select('output','Формат',[['auto','По надписи'],['square','Квадрат']])}
-            ${numeric('padding','Поля изображения, px',0,128)}
             <p class="title-warning" role="status"></p>
-            <p class="field-hint">${text('Ctrl+S — сохранить проект .mlst. Экспорт — PNG с прозрачным фоном.')}</p></div>`;
+            </div>`;
         // Keep the shared row scope outside the three inspector sections.
         const tabs=this.panel.querySelector('.title-inspector-tabs'),settings=this.panel.querySelector('.title-settings-panel'),scene=this.panel.querySelector('.title-scene-panel');
         tabs.after(this.panel.querySelector('[data-title-row]').closest('label'),this.panel.querySelector('[data-title-row-reset]'));
@@ -152,7 +145,6 @@ export default class TitleEditor {
                 return;
             }
             if(event.target.closest('[data-title-reset-object]')){const id=this.viewport.state.selection;if(id)this.change(data=>{const transform=normalizeTitleTransform(data.transforms[id]);data.transforms[id]={...normalizeTitleTransform(),visible:transform.visible,locked:transform.locked};});return;}
-            if(event.target.closest('[data-title-model-export]')){this.exportModel();return;}
 
             if(event.target.closest('[data-title-reset-camera]')){
                 this.viewport.resetCamera();return;
@@ -181,9 +173,8 @@ export default class TitleEditor {
         const body=document.createElement('div');body.className='title-inspector-body';body.append(settings,material,scene);this.panel.append(header,body);
         const fontHint=control('[data-title-field="font"]').nextElementSibling.nextElementSibling;
         group(settings,'Текст надписи','text_fields',[control('[data-title-field="text"]'),this.panel.querySelector('.title-row-languages')]);
-        group(settings,'Шрифт','text_fields',[control('[data-title-field="font"]'),this.panel.querySelector('[data-title-library="fonts"]'),fontHint]);
+        group(settings,'Шрифт','text_fields',[control('[data-title-field="font"]'),this.panel.querySelector('[data-title-library="fonts"]'),fontHint,control('[data-title-field="creeperA"]')]);
         group(settings,'Компоновка','grid_view',[control('[data-title-field="layout"]'),control('[data-title-field="role"]'),control('[data-title-field="spacing"]').parentElement,control('[data-title-field="kerning"]'),control('[data-title-field="terminators"]')]);
-        group(settings,'Форма букв','deployed_code',[control('[data-title-field="meshMode"]'),this.panel.querySelector('[data-title-scale]').closest('.title-fields'),control('[data-title-field="creeperA"]'),control('[data-title-field="outline"]')]);
         for(const parent of [material,scene]){
             const children=[...parent.children],headings=parent===material?['Материал','Наложение','Коррекция материала']:['Камера','Изображение'];let section=null,index=0;
             for(const child of children){
@@ -546,6 +537,6 @@ export default class TitleEditor {
         this.viewport.select(next);
         const target=[...tree.children].find(row=>row.dataset.sceneNode===next);target?.focus({preventScroll:true});target?.scrollIntoView({block:'nearest',inline:'nearest'});
     }
-    exportModel(){return exportTitleModel(this);}
 
+    exportModel(){return exportTitleModel(this);}
 }

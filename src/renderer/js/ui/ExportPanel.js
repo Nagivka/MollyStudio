@@ -13,7 +13,7 @@ const blobOf=canvas=>new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?reso
 const base64=bytes=>{let text='';for(let i=0;i<bytes.length;i+=24576)text+=String.fromCharCode(...bytes.subarray(i,i+24576));return btoa(text);};
 
 export default class ExportPanel {
-    constructor(app){this.app=app;this.options=null;this.busy=false;this.previewGeneration=0;}
+    constructor(app){this.app=app;this.options=null;this.busy=false;this.previewGeneration=0;this.titleOptions=new WeakMap();}
 
     create(){
         if(this.dialog)return;
@@ -22,6 +22,11 @@ export default class ExportPanel {
         <div class="export-body"><section class="export-controls" aria-label="Параметры экспорта" data-i18n-aria-label="%D0%9F%D0%B0%D1%80%D0%B0%D0%BC%D0%B5%D1%82%D1%80%D1%8B%20%D1%8D%D0%BA%D1%81%D0%BF%D0%BE%D1%80%D1%82%D0%B0">
         <label class="prop-field-block"><span><!--i18n-->Что экспортировать</span><select class="md-select" data-export="source"><option value="project"><!--i18n-->Весь проект</option><option value="active"><!--i18n-->Активный слой или группа</option><option value="selected"><!--i18n-->Выбранные слои отдельными PNG</option><option value="prefixes"><!--i18n-->Список префиксов</option></select></label>
         <div data-export="prefix-fields"><label class="prop-field-block"><span><!--i18n-->Блок, в котором менять текст</span><select class="md-select" data-export="block"></select></label><label class="prop-field-block"><span><!--i18n-->Названия — по одному в строке</span><textarea class="md-input" data-export="names" maxlength="13000" rows="5" placeholder="VIP&#10;PREMIUM&#10;ADMIN"></textarea></label><p class="prop-help-text"><!--i18n-->До 200 вариантов. Остальные блоки и оформление сохраняются.</p></div>
+        <div data-export="title-fields" hidden>
+            <div class="export-fields"><label class="prop-field-block"><span><!--i18n-->Ширина PNG</span><select class="md-select" data-export="titleResolution">${[1024,2048,4096].map(size=>`<option value="${size}">${size} px</option>`).join('')}</select></label>
+            <label class="prop-field-block"><span><!--i18n-->Форма изображения</span><select class="md-select" data-export="titleOutput"><option value="auto"><!--i18n-->По надписи</option><option value="square"><!--i18n-->Квадрат</option></select></label></div>
+            ${numberFieldHTML({label:'Поля изображения, px',attribute:'data-export',attributeValue:'titlePadding',min:0,max:128,value:24})}
+        </div>
         <div class="export-fields"><label class="prop-field-block"><span><!--i18n-->Масштаб PNG</span><select class="md-select" data-export="scale">${[1,2,3,4,8,16].map(n=>`<option value="${n}">${n}×</option>`).join('')}</select></label><label class="prop-field-block"><span><!--i18n-->Результат</span><select class="md-select" data-export="format"><option value="png"><!--i18n-->Одно изображение PNG</option><option value="zip"><!--i18n-->Архив с PNG</option><option value="sheet"><!--i18n-->Спрайт-лист в архиве</option></select></label></div>
         ${switchHTML("data-export","Обрезать прозрачные поля",false,"trim")}
         <div class="export-fields" data-export="sheet-fields">${numberFieldHTML({label:"Столбцы",attribute:"data-export",attributeValue:"columns",min:1,max:32,value:4})}${numberFieldHTML({label:"Промежуток, px",attribute:"data-export",attributeValue:"gap",min:0,max:64,value:1})}</div>
@@ -52,7 +57,8 @@ export default class ExportPanel {
         this.context={id:project.id,revision:this.app.projectManager.getRevision(project.id),name:project.name,type:project.type,layers:[...this.app.layerManager.getLayers()],config:{...this.app.config},prefixData:project.type==='prefix'?structuredClone(project.prefixData):null,titleData:project.type==='title'?structuredClone(project.titleData):null,selected:[...this.app.layerManager.selectedLayerIds],active:this.app.layerManager.activeLayerId};
         const controls=this.get('source');controls.querySelector('[value="prefixes"]').hidden=project.type!=='prefix';
         for(const key of ['active','selected'])controls.querySelector(`[value="${key}"]`).hidden=['prefix','title'].includes(project.type);
-        const defaults={source,scale:project.type==='title'?1:this.app.settingsManager.get('exportScale')||1,trim:this.app.settingsManager.get('exportTrim')===true,format:source==='selected'?'zip':'png',columns:4,gap:1,prefix:'',numbered:false,names:'',block:this.app.prefixEditor?.selected||0};
+        const defaults={source,scale:project.type==='title'?1:this.app.settingsManager.get('exportScale')||1,trim:this.app.settingsManager.get('exportTrim')===true,format:source==='selected'?'zip':'png',columns:4,gap:1,prefix:'',numbered:false,names:'',block:this.app.prefixEditor?.selected||0,
+            titleResolution:project.titleData?.resolution||2048,titleOutput:project.titleData?.output||'auto',titlePadding:project.titleData?.padding??24,...this.titleOptions.get(project)};
         const options=repeat&&this.last?{...defaults,...this.last}:defaults;
         if(project.type!=='prefix'&&options.source==='prefixes')options.source='project';
         if(['prefix','title'].includes(project.type)&&['active','selected'].includes(options.source))options.source='project';
@@ -60,14 +66,21 @@ export default class ExportPanel {
         project.prefixData?.blocks.forEach((item,index)=>{const option=document.createElement('option');option.value=String(index);option.textContent=`${index+1}. ${item.text||'Без текста'}`;block.append(option);});
         for(const [key,value] of Object.entries(options)){const control=this.get(key);if(control)control.type==='checkbox'?control.checked=value:control.value=String(value);}
         this.dialog.classList.toggle('title-export',project.type==='title');
+        this.get('title-fields').hidden=project.type!=='title';
         this.returnFocus=document.activeElement;this.get('error').hidden=true;this.get('progress-panel').hidden=true;
         if(!this.dialog.open)this.dialog.showModal();this.get('source').focus();await this.preview();return true;
     }
 
     read(){
-        if(this.get('format').value==='sheet')for(const control of this.dialog.querySelectorAll('input[type="number"]'))if(numberValue(control)===null)throw Error('Проверьте числовые параметры экспорта.');
+        if(this.get('format').value==='sheet')for(const control of this.dialog.querySelectorAll('input[type="number"]'))if(!control.closest('[hidden]')&&numberValue(control)===null)throw Error('Проверьте числовые параметры экспорта.');
         const result={};for(const key of ['source','scale','trim','format','columns','gap','prefix','numbered','names','block']){const input=this.get(key);result[key]=input.type==='checkbox'?input.checked:input.value;}
-        for(const key of ['scale','columns','gap','block'])result[key]=Number(result[key]);return result;
+        for(const key of ['scale','columns','gap','block'])result[key]=Number(result[key]);
+        if(this.context?.type==='title'){
+            result.titleResolution=Number(this.get('titleResolution').value);result.titleOutput=this.get('titleOutput').value;
+            result.titlePadding=numberValue(this.get('titlePadding'));
+            if(result.titlePadding===null||![1024,2048,4096].includes(result.titleResolution)||!['auto','square'].includes(result.titleOutput))throw Error('Проверьте числовые параметры экспорта.');
+        }
+        return result;
     }
 
     entries(options){
@@ -90,7 +103,9 @@ export default class ExportPanel {
     source(entry,options,fullResolution=false){
         this.assertContext();
         const c=this.context;
-        if(c.type==='title')return this.app.titleEditor.renderer.render(c.titleData,{scale:fullResolution?options.scale:1}).canvas;
+        if(c.type==='title')return this.app.titleEditor.renderer.render({...c.titleData,
+            resolution:options.titleResolution??c.titleData.resolution,output:options.titleOutput??c.titleData.output,padding:options.titlePadding??c.titleData.padding},
+            {scale:fullResolution?options.scale:1}).canvas;
         if(options.source==='prefixes'){
             const data=structuredClone(c.prefixData);data.blocks[options.block].text=entry.text;
             return this.app.prefixEditor.renderer.render(data).canvas;
@@ -154,6 +169,7 @@ export default class ExportPanel {
             const names=uniqueExportNames(entries.map(e=>e.name),options),list=this.get('files');list.replaceChildren();
             for(const name of (options.format==='sheet'?['sprites.png','manifest.json']:names.slice(0,5))){const li=document.createElement('li');li.textContent=name;list.append(li);}
             this.get('sheet-fields').hidden=options.format!=='sheet';this.get('save').disabled=false;
+            if(this.context.type==='title')this.titleOptions.set(this.app.getActiveProject(),{titleResolution:options.titleResolution,titleOutput:options.titleOutput,titlePadding:options.titlePadding});
         }catch(error){if(generation===this.previewGeneration){bindText(this.get('error'), error.message);this.get('error').hidden=false;}}
         finally{if(previewSource)previewSource.width=previewSource.height=1;}
     }

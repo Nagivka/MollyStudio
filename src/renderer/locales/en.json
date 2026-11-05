@@ -1658,6 +1658,7 @@
   "Проверить обновления": "Check for updates",
   "Скачать обновление": "Download update",
   "Скачать DMG": "Download DMG",
+  "Форма изображения": "Image shape",
   "Скачайте DMG, закройте MollyStudio и перенесите новую версию в «Программы», выбрав «Заменить». Проекты и настройки сохранятся.": "Download the DMG, quit MollyStudio, and drag the new version to Applications, choosing Replace. Your projects and settings will be preserved.",
   "На macOS обновление устанавливается заменой приложения из DMG.": "On macOS, install the update by replacing the application from the DMG.",
   "Установить и перезапустить": "Install and restart",

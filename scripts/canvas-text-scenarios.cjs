@@ -54,7 +54,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
         await page.locator('#properties-tab-object').click();
         await page.locator('#text-font-size').fill('16');await page.locator('#text-font-size').press('Tab');
         check((await state()).data.fontSize===16,'Font size controls the native bitmap glyph size');
-        await page.locator('label').filter({has:page.locator('#text-auto-leading')}).click();
+        await page.locator('#text-auto-leading').check();
         check(await page.locator('#text-line-height').isDisabled(),'Automatic line spacing disables manual input');
         await focus();await page.keyboard.press('Control+z');
         check((await state()).data.autoLeading!==true,'Style controls participate in the text session undo history');

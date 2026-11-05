@@ -30,7 +30,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
   expect(data().texture===choices[3].id,'The latest texture choice wins when loads finish out of order');
   app.history.undo();await wait();expect(data().texture===beforeRace,'A rapid texture change is one undo action');app.history.redo();await wait();expect(data().texture===choices[3].id,'Redo restores a lazily loaded material');
   editor.change(value=>{value.text='MINECRAFT\nSTUDIO\nJAVA';value.texture='none';});
-  await field('[data-title-row]',1);await field('[data-title-field="font"]','minecraft-five-bold');await field('[data-title-field="texture"]','gold');await field('[data-title-scale="0"]',1.25);await field('[data-title-field="role"]','top');
+  await field('[data-title-row]',1);await field('[data-title-field="font"]','minecraft-five-bold');await field('[data-title-field="texture"]','gold');editor.changeSettings(value=>{value.scale=[1.25,1,1];});await field('[data-title-field="role"]','top');
   expect(data().font==='minecraft-ten'&&data().rows[1].font==='minecraft-five-bold'&&data().rows[1].texture==='gold'&&data().rows[1].scale[0]===1.25&&data().rows[1].role==='top','Each row retains its own font, material, scale and model role');
   await field('[data-title-row]',-1);await field('[data-title-appearance="source"]','gradient');
   editor.setTab('material');
