@@ -130,9 +130,11 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
             await page.keyboard.down('Alt');await click(80,69);await page.keyboard.up('Alt');
             check(await page.evaluate(()=>mollyEditor.layerManager.activeLayerId===pickFixture.front),`${tool}: repeated Alt-click cycles back through the painted stack`);
             await page.keyboard.press('Delete');
-            check(await page.evaluate(()=>!mollyEditor.layerManager.layers.some(layer=>layer.id===pickFixture.front)&&!mollyEditor.layerPanel.layerElements.has(pickFixture.front)),`${tool}: Delete removes the object and its layer row`);
+            await page.waitForFunction(()=>!mollyEditor.layerManager.layers.some(layer=>layer.id===pickFixture.front)&&!mollyEditor.layerPanel.layerElements.has(pickFixture.front));
+            checks.push(`${tool}: Delete removes the object and its layer row`);
             await page.locator('#btn-undo').click();
-            check(await page.evaluate(()=>mollyEditor.layerManager.layers.some(layer=>layer.id===pickFixture.front)&&mollyEditor.layerPanel.layerElements.has(pickFixture.front)),`${tool}: undo restores the deleted object and layer row`);
+            await page.waitForFunction(()=>mollyEditor.layerManager.layers.some(layer=>layer.id===pickFixture.front)&&mollyEditor.layerPanel.layerElements.has(pickFixture.front));
+            checks.push(`${tool}: undo restores the deleted object and layer row`);
         }
         await fixture();await page.evaluate(()=>{
             const m=mollyEditor.layerManager;m.selectedLayerIds=new Set([pickFixture.back,pickFixture.front]);m.activeLayerId=pickFixture.front;m.bus.emit('LAYER_ACTIVE_CHANGED',m.getActiveLayer());

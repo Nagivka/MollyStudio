@@ -29,6 +29,7 @@ const {app, root, ready, makeWindow, evaluateMain, settle} = require('./lib/elec
         await settings.loadFile(path.join(root, 'src/renderer/settings.html'));
         await settings.page.click('#settings-tab-effects');
         await settings.showInactive();
+        await evaluateMain(() => globalThis.__mollyTestRuntime.windows.get('settings').focus());
         await settings.cdp.send('Emulation.setEmulatedMedia', {features: [{name: 'prefers-reduced-motion', value: 'no-preference'}]});
         await settings.page.evaluate(async () => {
             const {WeatherSurface} = await import(new URL('js/ui/AmbientWeather.js', location.href));
@@ -50,6 +51,7 @@ const {app, root, ready, makeWindow, evaluateMain, settle} = require('./lib/elec
         expect(await home.page.evaluate(()=>weatherSettings.get('weatherEffect')==='rain'),'Hover previews a different effect without applying it to other windows');
         expect(!await settings.page.locator('[data-leaf-options]').isVisible(),'Hover preview does not expose unrelated leaf controls');
         await settings.page.focus('[data-weather-effect="snow"]');
+        await settings.page.locator('[data-weather-effect="leaves"]').dispatchEvent('pointerleave');
         await settings.page.waitForFunction(()=>previewSurface.field.effect==='snow');
         expect(await home.page.evaluate(()=>weatherSettings.get('weatherEffect')==='rain'),'Keyboard focus previews weather without changing the saved effect');
         await settings.page.click('[data-weather-effect="snow"]');

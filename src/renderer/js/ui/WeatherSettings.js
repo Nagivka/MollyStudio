@@ -82,11 +82,11 @@ export function renderWeatherSettings(container, settings) {
     const pause = section.querySelector('[data-weather-pause]');
     const reset = section.querySelector('[data-weather-reset]');
     const pending = new Map();
-    let hoverEffect=null;
+    const previews = new Map();
     const media = matchMedia('(prefers-reduced-motion: reduce)');
     const update = () => {
         const effect = settings.get('weatherEffect');
-        const values = {...settings.settings, ...Object.fromEntries(pending),weatherEffect:hoverEffect??effect};
+        const values = {...settings.settings, ...Object.fromEntries(pending),weatherEffect:[...previews.values()].at(-1)??effect};
         section.querySelectorAll('[data-weather-effect]').forEach(button => {
             const selected = button.dataset.weatherEffect === effect;
             button.setAttribute('aria-pressed', String(selected));
@@ -130,12 +130,24 @@ export function renderWeatherSettings(container, settings) {
         const button = event.target.closest('[data-weather-effect]');
         if (button) { settings.set('weatherEffect', button.dataset.weatherEffect);update(); }
     });
-    for(const button of section.querySelectorAll('[data-weather-effect]')){
-        const preview=()=>{hoverEffect=button.dataset.weatherEffect;surface.setPaused(false);update();};
-        button.addEventListener('pointerenter',preview);
-        button.addEventListener('focus',preview);
-        button.addEventListener('pointerleave',()=>{if(document.activeElement!==button){hoverEffect=null;update();}});
-        button.addEventListener('blur',()=>{hoverEffect=null;update();});
+    for (const button of section.querySelectorAll('[data-weather-effect]')) {
+        const effect = button.dataset.weatherEffect;
+        const startPreview = input => {
+            // Keep pointer and keyboard previews independent, with the latest input on top.
+            previews.delete(input);
+            previews.set(input, effect);
+            surface.setPaused(false);
+            update();
+        };
+        const endPreview = input => {
+            if (previews.get(input) !== effect) return;
+            previews.delete(input);
+            update();
+        };
+        button.addEventListener('pointerenter', () => startPreview('pointer'));
+        button.addEventListener('pointerleave', () => endPreview('pointer'));
+        button.addEventListener('focus', () => startPreview('keyboard'));
+        button.addEventListener('blur', () => endPreview('keyboard'));
     }
     density.addEventListener('change', () => { settings.set('weatherDensity', density.value);update(); });
     leaves.addEventListener('change', () => { settings.set('weatherLeaves', leaves.value);update(); });
