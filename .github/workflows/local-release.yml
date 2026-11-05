@@ -1,0 +1,26 @@
+name: Publish verified local Windows installer
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: local-windows-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
+    runs-on: [self-hosted, Windows, X64, molly-release-145-once]
+    timeout-minutes: 15
+    environment: UPDATES_REPO_TOKEN
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - name: Verify and publish checked installer
+        shell: pwsh
+        env:
+          RELEASES_TOKEN: ${{ secrets.UPDATES_REPO_TOKEN }}
+          SOURCE_TOKEN: ${{ github.token }}
+          UPDATES_SIGNING_KEY: ${{ secrets.UPDATES_SIGNING_KEY }}
+        run: |
+          node -e "const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'); const root=process.env.MOLLY_LOCAL_RELEASE_ROOT;if(!root)throw Error('Local staging directory is missing');const {releaseInfo}=require('./scripts/release/validate.cjs');const info=releaseInfo(root);if(info.version!=='1.4.5')throw Error('Unexpected release version');const bytes=fs.readFileSync(path.join(root,'dist',info.filename));if(crypto.createHash('sha256').update(bytes).digest('hex')!=='e91f5b55dd262de84ab01104395e69099e4931b0cc3850d790cb67fd8c0f22e4')throw Error('Local installer differs from verified build');if(!fs.readFileSync(info.notesPath).equals(fs.readFileSync(path.join(process.cwd(),'releases','1.4.5.md'))))throw Error('Release notes differ');require('./scripts/release/publish.cjs').publish({root}).catch(error=>{console.error(error.message);process.exitCode=1});"
