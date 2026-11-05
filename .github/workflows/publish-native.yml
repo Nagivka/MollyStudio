@@ -1,0 +1,52 @@
+name: Add checked native packages to release
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Successful Native platform compatibility run
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: publish-native-packages
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.repository == 'Nagivka/MollyStudio' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: UPDATES_REPO_TOKEN
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Validate source build
+        id: build
+        env:
+          SOURCE_TOKEN: ${{ github.token }}
+          NATIVE_BUILD_RUN: ${{ inputs.run_id }}
+        run: |
+          node scripts/release/validate-native-run.cjs
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
+        with:
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+          pattern: MollyStudio-*-${{ steps.build.outputs.sha }}
+          merge-multiple: true
+          path: .test-output/native-release
+      - name: Stage checked distributions
+        run: mkdir -p dist && cp .test-output/native-release/dist/* dist/
+      - name: Append native packages without changing Windows release
+        env:
+          SOURCE_TOKEN: ${{ github.token }}
+          RELEASES_TOKEN: ${{ secrets.UPDATES_REPO_TOKEN }}
+          UPDATES_SIGNING_KEY: ${{ secrets.UPDATES_SIGNING_KEY }}
+          NATIVE_BUILD_RUN: ${{ inputs.run_id }}
+          NATIVE_BUILD_SHA: ${{ steps.build.outputs.sha }}
+        run: node scripts/release/publish-native.cjs

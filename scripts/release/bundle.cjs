@@ -3,7 +3,10 @@ const {prepareRelease}=require('./sign.cjs');
 const {PUBLIC_KEY}=require('../../src/main/update-security.cjs');
 const {updateTarget,targetReleaseNames}=require('../../src/main/update-targets.cjs');
 async function prepareReleaseBundle(root,info,key,publicKey=PUBLIC_KEY){
-    const files=await prepareRelease(root,info,key,publicKey),directory=path.join(root,'dist');
+    return [...await prepareRelease(root,info,key,publicKey),...await prepareNativeReleaseBundle(root,info,key,publicKey)];
+}
+async function prepareNativeReleaseBundle(root,info,key,publicKey=PUBLIC_KEY){
+    const files=[],directory=path.join(root,'dist');
     for(const platform of ['darwin','linux'])for(const arch of ['x64','arm64']){
         const target=updateTarget(platform,arch),filename=targetReleaseNames(info.version,target)[0];
         if(!await fs.stat(path.join(directory,filename)).catch(error=>{if(error.code==='ENOENT')return null;throw error;}))continue;
@@ -30,4 +33,4 @@ async function prepareReleaseBundle(root,info,key,publicKey=PUBLIC_KEY){
     if(new Set(files.map(file=>file.name)).size!==files.length)throw Error('Duplicate release artifact.');
     return files;
 }
-module.exports={prepareReleaseBundle};
+module.exports={prepareReleaseBundle,prepareNativeReleaseBundle};

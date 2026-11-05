@@ -1,6 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path'),os=require('node:os');
 const {createHash,generateKeyPairSync}=require('node:crypto');
 const {prepareReleaseBundle}=require('../../scripts/release/bundle.cjs');
+const {publishNative}=require('../../scripts/release/publish-native.cjs');
 const {readManifest}=require('../../src/main/update-security.cjs');
 const {updateTarget,targetReleaseNames}=require('../../src/main/update-targets.cjs');
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
@@ -36,4 +37,33 @@ test('native build version and artifact tampering stop staging before any public
     const f=await fixture(t),native=await f.native('linux','arm64',false),report=JSON.parse(await fs.readFile(native.report,'utf8'));report.version='1.4.5';await fs.writeFile(native.report,JSON.stringify(report));
     await assert.rejects(prepareReleaseBundle(f.root,f.info,f.key,f.publicKey),/report does not match/);report.version=f.info.version;await fs.writeFile(native.report,JSON.stringify(report));
     await fs.appendFile(path.join(f.root,'dist',native.name),'changed');await assert.rejects(prepareReleaseBundle(f.root,f.info,f.key,f.publicKey),/does not match its checked build/);
+});
+
+async function nativePublication(t,{runChanges={},existing=[]}={}){
+ const f=await fixture(t);await fs.writeFile(path.join(f.root,'package.json'),JSON.stringify({version:f.info.version}));await fs.writeFile(path.join(f.root,'electron-builder.cjs'),"module.exports={buildVersion:'1.4.6.0'}");await fs.mkdir(path.join(f.root,'releases'));await fs.writeFile(path.join(f.root,'releases/1.4.6.md'),'Native release');
+ for(const platform of ['darwin','linux'])for(const arch of ['x64','arm64'])await f.native(platform,arch,false);
+ const calls=[],sha='a'.repeat(40),env={GITHUB_REPOSITORY:'Nagivka/MollyStudio',SOURCE_TOKEN:'source-fixture',RELEASES_TOKEN:'target-fixture',UPDATES_SIGNING_KEY:f.key,NATIVE_BUILD_RUN:'123',NATIVE_BUILD_SHA:sha};
+ const fetchImpl=async(url,options)=>{calls.push({url,...options});let data;
+  if(url.endsWith('/actions/runs/123'))data={conclusion:'success',head_repository:{full_name:'Nagivka/MollyStudio'},path:'.github/workflows/platform-compatibility.yml',head_branch:'main',head_sha:sha,...runChanges};
+  else if(url.endsWith('/releases/tags/v1.4.6'))data={id:42,tag_name:'v1.4.6',draft:false,prerelease:false,assets:existing,html_url:'https://github.com/Nagivka/MollyStudio-Releases/releases/tag/v1.4.6'};
+  else if(url.startsWith('https://uploads.github.com/'))data={name:new URL(url).searchParams.get('name'),state:'uploaded',size:options.body.length,digest:'sha256:'+hash(options.body)};
+  else data={full_name:'Nagivka/MollyStudio-Releases',private:false,permissions:{push:true}};
+  return {ok:true,json:async()=>data};
+ };
+ return {root:f.root,env,publicKey:f.publicKey,fetchImpl,calls};
+}
+test('native append publishes four checked platforms and never touches Windows assets',async t=>{
+ const f=await nativePublication(t),result=await publishNative(f),uploads=f.calls.filter(c=>c.method==='POST');
+ assert.equal(result.files.length,28);assert.equal(uploads.length,28);
+ assert.ok(result.files.includes('release-manifest-linux-arm64.json'));
+ assert.ok(!result.files.some(name=>name.includes('setup.exe')||name==='latest.yml'||name==='release-manifest.json'||name.startsWith('release-manifest-darwin')));
+ assert.ok(f.calls.every(c=>c.method!=='PATCH'&&c.method!=='DELETE'));
+});
+test('native append rejects a failed or foreign build before release writes',async t=>{
+ for(const runChanges of [{conclusion:'failure'},{head_sha:'b'.repeat(40)},{head_branch:'fork'},{head_repository:{full_name:'someone/MollyStudio'}}]){
+  const f=await nativePublication(t,{runChanges});await assert.rejects(publishNative(f),/successful official native build/);assert.equal(f.calls.length,1);
+ }
+});
+test('native append preflights conflicting published packages before uploading anything',async t=>{
+ const f=await nativePublication(t,{existing:[{name:'MollyStudio-1.4.6.0-x64-mac.zip',size:12,digest:'sha256:wrong'}]});await assert.rejects(publishNative(f),/Existing native artifact differs/);assert.ok(f.calls.every(c=>c.method==='GET'));
 });
