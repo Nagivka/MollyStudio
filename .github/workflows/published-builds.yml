@@ -1,0 +1,81 @@
+name: Test published application packages
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: published-build-qa
+  cancel-in-progress: false
+jobs:
+  desktop:
+    if: github.repository == 'Nagivka/MollyStudio'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+          - os: macos-26-intel
+          - os: macos-26
+          - os: ubuntu-24.04
+          - os: ubuntu-24.04-arm
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Download exact public release and verify hashes
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/download-published-build.cjs
+      - name: Install published Windows NSIS
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $destination=Join-Path $PWD 'dist/published-win'
+          $installer=Get-ChildItem dist/*-x64-setup.exe | Select-Object -First 1
+          $process=Start-Process -FilePath $installer.FullName -ArgumentList @('/S',"/D=$destination") -WindowStyle Hidden -Wait -PassThru
+          if($process.ExitCode -ne 0){throw "Installer exit code $($process.ExitCode)"}
+          node scripts/packaged-platform-smoke.cjs "$destination/MollyStudio.exe" installed
+      - name: Check published Mac DMG and ZIP
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir -p "dist/published-mac-$(node -p process.arch)"
+          ditto -x -k dist/*-mac.zip "dist/published-mac-$(node -p process.arch)"
+          hdiutil verify dist/*-mac.dmg
+          bundle="dist/published-mac-$(node -p process.arch)/MollyStudio.app"
+          codesign --verify --deep --strict "$bundle"
+          node scripts/packaged-platform-smoke.cjs "$bundle/Contents/MacOS/MollyStudio" installed
+      - name: Install published Linux DEB and check AppImage
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo apt-get update -o Acquire::Retries=3 -o Acquire::http::Timeout=30
+          sudo apt-get install -y --no-install-recommends xvfb libgtk-3-0 libnss3 libasound2t64 libgbm1 libfuse2t64 libglib2.0-bin
+          mkdir -p dist/linux-unpacked
+          tar -xzf dist/*linux.tar.gz --strip-components=1 -C dist/linux-unpacked
+          sudo chown root:root dist/linux-unpacked/chrome-sandbox
+          sudo chmod 4755 dist/linux-unpacked/chrome-sandbox
+          xvfb-run -a node scripts/packaged-platform-smoke.cjs
+          sudo apt-get install -y ./dist/*linux.deb
+          xvfb-run -a node scripts/packaged-platform-smoke.cjs /usr/bin/mollystudio installed
+          export TMPDIR=$(mktemp -d "$RUNNER_TEMP/molly-public-appimage.XXXXXX")
+          launch=()
+          if [[ $(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns 2>/dev/null || true) == 1 ]]; then
+            printf 'abi <abi/4.0>,\nprofile mollystudio-public-appimage flags=(unconfined) {\n  userns,\n}\n' | sudo apparmor_parser -r
+            launch=(aa-exec -p mollystudio-public-appimage --)
+          fi
+          "${launch[@]}" xvfb-run -a node scripts/packaged-platform-smoke.cjs "$(realpath dist/*linux.AppImage)" appimage
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        if: always()
+        with:
+          name: published-package-qa-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+          path: .test-output/
+          include-hidden-files: true
+          retention-days: 7
