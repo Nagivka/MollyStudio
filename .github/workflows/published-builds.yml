@@ -10,7 +10,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: published-build-qa
+  group: published-build-qa-${{ inputs.targets }}
   cancel-in-progress: false
 jobs:
   desktop:
@@ -43,7 +43,7 @@ jobs:
           $process=Start-Process -FilePath $installer.FullName -ArgumentList @('/S',"/D=$destination") -WindowStyle Hidden -Wait -PassThru
           if($process.ExitCode -ne 0){throw "Installer exit code $($process.ExitCode)"}
           node scripts/packaged-platform-smoke.cjs "$destination/MollyStudio.exe" installed
-      - name: Launch the app from the published Mac DMG
+      - name: Install and launch the app from the published Mac DMG
         if: runner.os == 'macOS'
         shell: bash
         run: |
@@ -51,7 +51,11 @@ jobs:
           mount=$(mktemp -d "$RUNNER_TEMP/molly-dmg.XXXXXX")
           hdiutil attach -nobrowse -readonly -mountpoint "$mount" dist/*-mac.dmg
           trap 'hdiutil detach "$mount"' EXIT
-          bundle="$mount/MollyStudio.app"
+          install=$(mktemp -d "$RUNNER_TEMP/molly-app.XXXXXX")
+          bundle="$install/MollyStudio.app"
+          ditto "$mount/MollyStudio.app" "$bundle"
+          hdiutil detach "$mount"
+          trap - EXIT
           codesign --verify --deep --strict "$bundle"
           node scripts/packaged-platform-smoke.cjs "$bundle/Contents/MacOS/MollyStudio" installed
       - name: Install published Linux DEB and check AppImage

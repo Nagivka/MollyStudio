@@ -60,7 +60,8 @@ async function checkProjectAssociation(executable, fixture) {
         let waylandSurface=false;
         child.on('error',error=>{log+=error.message;});child.stdout.on('data',bytes=>{log=(log+bytes).slice(-16000);});child.stderr.on('data',bytes=>{log=(log+bytes).slice(-16000);waylandSurface ||= /xdg_surface[@#]\d+\.get_toplevel/.test(log);});
         let endpoint;
-        for(let i=0;i<150;i++){
+        const launchDeadline=Date.now()+(process.platform==='darwin'?90000:30000);
+        while(Date.now()<launchDeadline){
             if(child.exitCode!==null)throw Error('Packaged application exited before opening: '+log);
             try{const info=await(await fetch(`http://127.0.0.1:${port}/json/version`,{signal:AbortSignal.timeout(500)})).json();endpoint=info.webSocketDebuggerUrl;if(endpoint)break;}catch{}
             await delay(200);
