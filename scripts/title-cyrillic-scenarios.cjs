@@ -3,7 +3,7 @@ const {app,root,profile,ready,makeWindow,settle}=require('./lib/electron-harness
 (async()=>{let win;try{
  await ready();win=makeWindow(1280,900);await win.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:'title',name:'Native Cyrillic QA'}});await settle(win);
  const result=await win.page.evaluate(async()=>{
-  const a=mollyEditor,e=a.titleEditor;await a.getActiveProject().prefixLoadPromise;
+  const a=mollyEditor,e=a.titleEditor;await a.getActiveProject().prefixLoadPromise;e.currentRow=-1;e.sync();
   const {TITLE_MATERIAL_CATALOG:M}=await import(new URL('js/core/TitleMaterialCatalog.mjs',location.href));
   const {titleRowSettings}=await import(new URL('js/core/TitleDocument.mjs',location.href));
   const {TITLE_TEXT_LANGUAGES,titleFontsForLanguage}=await import(new URL('js/core/TitleLanguages.mjs',location.href));

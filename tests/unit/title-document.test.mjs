@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {normalizeTitleDocument,normalizeTitleTransform,TITLE_FONTS,titleMaterials,titleRowSettings} from '../../src/renderer/js/core/TitleDocument.mjs';
+import {normalizeTitleDocument,normalizeTitleTransform,TITLE_FONTS,titleMaterials,titleRowSettings,addTitleRow,removeTitleRow} from '../../src/renderer/js/core/TitleDocument.mjs';
 import {TITLE_FONT_CATALOG} from '../../src/renderer/js/core/TitleFontCatalog.mjs';
 import {createProjectFromForm,buildEditorUrl} from '../../src/renderer/js/core/ProjectFactory.mjs';
 import {readDocumentState} from '../../src/renderer/js/core/typed/DocumentState.mjs';
@@ -22,6 +22,19 @@ test('whole-title settings read the shared defaults independently of a first-row
  assert.equal(shared.font,data.font);assert.equal(shared.texture,data.texture);assert.equal(shared.spacing,2);assert.equal(shared.appearance.source,'texture');
  assert.equal(first.font,'minecraft-five-bold');assert.equal(first.texture,'gold');assert.equal(first.spacing,5);assert.equal(first.appearance.source,'gradient');
  assert.equal(titleRowSettings(data,1).font,shared.font);assert.deepEqual(data,before);
+});
+
+test('adding and deleting headings preserves remaining settings, languages and object transforms',()=>{
+ const data=normalizeTitleDocument({text:'ONE\nTWO\nTHREE',rowLanguages:['en','en','en'],rows:[null,{font:'minecraft-five-bold'},null],transforms:{'row-1/char-0-54':{position:[1,2,3]},'row-2':{position:[4,5,6]}}});
+ const before=structuredClone(data),removed=removeTitleRow(data,0);
+ assert.equal(removed.text,'TWO\nTHREE');assert.equal(removed.rows[0].font,'minecraft-five-bold');
+ assert.equal(removed.rows[0].role,'bottom');assert.equal(removed.rows[1].role,'small');
+ assert.deepEqual(removed.transforms['row-0/char-0-54'].position,[1,2,3]);assert.deepEqual(removed.transforms['row-1'].position,[4,5,6]);assert.deepEqual(data,before);
+ assert.equal(addTitleRow(data),null);assert.equal(removeTitleRow(data,-1),null);
+ const single=removeTitleRow(removed,1),added=addTitleRow(single);
+ assert.equal(added.text,'TWO\n');assert.equal(added.layout,'stacked');assert.equal(added.rows[0].role,'bottom');assert.equal(added.rows[1].role,'top');assert.equal(removeTitleRow(single,0),null);
+ const centered=buildTitleMesh(normalizeTitleDocument({text:'TITLE',rows:[{role:'top'}]}));
+ assert.ok(Math.abs(centered.baseBounds.min[1]+centered.baseBounds.max[1])<1e-8);
 });
 
 test('the complete reference catalog uses real, independently authored font models',()=>{

@@ -3,7 +3,7 @@ import {titleControlAvailability} from '../core/TitleControls.mjs';
 import TitleRenderer from '../graphics/TitleRenderer.js';
 import TitleViewport from './TitleViewport.js';
 import Layer from '../graphics/Layer.js';
-import {normalizeTitleDocument,normalizeTitleTransform} from '../core/TitleDocument.mjs';
+import {normalizeTitleDocument,normalizeTitleTransform,addTitleRow,removeTitleRow} from '../core/TitleDocument.mjs';
 import {TITLE_FONT_CATALOG} from '../core/TitleFontCatalog.mjs';
 import {TITLE_MATERIAL_CATALOG} from '../core/TitleMaterialCatalog.mjs';
 import {normalizeTitleAppearance,TITLE_BLENDS,titleMaterialCatalog} from '../core/TitleAppearance.mjs';
@@ -37,7 +37,7 @@ const choice=(kind,controls,action)=>`<div class="title-choice-row">${controls}<
 
 export default class TitleEditor {
     constructor(app){
-        this.app=app;this.renderer=new TitleRenderer();this.pending=null;this.currentRow=-1;this.requestSerial=0;this.loading=null;this.rendered=new WeakMap();
+        this.app=app;this.renderer=new TitleRenderer();this.pending=null;this.currentRow=0;this.requestSerial=0;this.loading=null;this.rendered=new WeakMap();
         this.panel=document.createElement('aside');this.panel.id='title-editor';this.panel.hidden=true;this.panel.className='title-inspector';
         bindAttribute(this.panel,'aria-label','Генератор надписей');
         this.panel.innerHTML=`
@@ -45,8 +45,8 @@ export default class TitleEditor {
                 <h3>${text('3D-генератор надписей')}</h3>
                 <div class="title-inspector-tabs" role="tablist">${[['settings','text_fields','Текст'],['material','palette','Оформление'],['scene','deployed_code','Сцена']].map(([id,symbol,label])=>`<button type="button" class="inspector-tab" role="tab" data-title-tab="${id}">${icon(symbol)}${text(label)}</button>`).join('')}</div>
                 <div class="title-scope" hidden>
-                    <label>${text('Применять к')}<select class="md-select" data-title-row><option value="-1">${text('Вся надпись')}</option><option value="0">${text('Строка 1')}</option><option value="1">${text('Строка 2')}</option><option value="2">${text('Строка 3')}</option></select></label>
-                    <button class="md-icon-btn" type="button" data-title-row-reset hidden>${icon('restart_alt')}</button>
+                    <label>${text('Редактировать заголовок')}<select class="md-select" data-title-row><option value="-1">${text('Общие настройки')}</option><option value="0"></option><option value="1"></option><option value="2"></option></select></label>
+                    <div class="title-row-actions"><button class="md-icon-btn" type="button" data-title-row-add>${icon('add')}</button><button class="md-icon-btn" type="button" data-title-row-remove>${icon('delete')}</button><button class="md-icon-btn" type="button" data-title-row-reset hidden>${icon('restart_alt')}</button></div>
                     <p class="field-hint" data-title-scope-description hidden></p>
                 </div>
                 <p class="title-warning" role="status"></p>
@@ -55,6 +55,7 @@ export default class TitleEditor {
             <div class="title-inspector-body">
             <div class="title-settings-panel">
             ${group('Текст надписи','text_fields',`
+                <label hidden data-title-row-text-label>${text('Текст выбранного заголовка')}<input class="md-input" type="text" maxlength="128" data-title-row-text></label>
                 <label>${text('Текст')}<textarea class="md-input" rows="3" maxlength="386" data-title-field="text" aria-describedby="title-text-help"></textarea></label>
                 <p id="title-text-help" class="field-hint">${text('До трёх строк, по 64 символа. Enter добавляет строку.')}</p>
                 ${disclosure('Язык строк','text_fields',`<p class="field-hint">${text('Язык определяется автоматически. Используйте один алфавит в каждой строке.')}</p>
@@ -62,10 +63,11 @@ export default class TitleEditor {
             `)}
             ${group('Форма текста','tune',`
                 ${choice('font',select('font','Шрифт',[]),'data-title-library="fonts"')}
+                ${select('role','Размер и роль',[['auto','По компоновке'],['top','Большой заголовок'],['bottom','Подзаголовок'],['small','Подпись']])}
                 <div class="title-fields">${numeric('depth','Глубина букв',0,48)}${numeric('spacing','Интервал букв',0,20)}</div>
                 <div class="title-layout-options" hidden>
                     ${select('layout','Компоновка',[['logo','Заголовок, подзаголовок, подпись'],['stacked','Строки одного размера']])}
-                    <div class="title-fields">${numeric('lineGap','Между строками',-4,20)}${select('role','Роль строки',[['auto','По компоновке'],['top','Заголовок'],['bottom','Подзаголовок'],['small','Подпись']])}</div>
+                    <div class="title-fields">${numeric('lineGap','Между строками',-4,20)}</div>
                 </div>
                 ${disclosure('Детали шрифта','tune',`${toggle('kerning','Оптические интервалы')}${toggle('terminators','Краевые элементы строки')}${toggle('creeperA','Крипер в букве A')}`)}
             `)}
@@ -124,7 +126,7 @@ export default class TitleEditor {
             </div>`;
         const tabs=this.panel.querySelector('.title-inspector-tabs');
         const retry=this.panel.querySelector('[data-title-retry]');
-        for(const [selector,label] of [['[data-title-library="fonts"]','Библиотека шрифтов'],['[data-title-material-library]','Библиотека материалов'],['[data-title-row-reset]','Наследовать общие настройки']]){
+        for(const [selector,label] of [['[data-title-library="fonts"]','Библиотека шрифтов'],['[data-title-material-library]','Библиотека материалов'],['[data-title-row-reset]','Наследовать общие настройки'],['[data-title-row-add]','Добавить заголовок'],['[data-title-row-remove]','Удалить выбранный заголовок']]){
             const button=this.panel.querySelector(selector);bindAttribute(button,'title',label);bindAttribute(button,'aria-label',label);
         }
         bindAttribute(tabs,'aria-label','Параметры надписи');
@@ -149,13 +151,15 @@ export default class TitleEditor {
         document.getElementById('workspace').after(this.panel);
         this.viewport=new TitleViewport(this);
         this.panel.addEventListener('input',event=>this.edit(event));
-        this.panel.addEventListener('change',event=>{if(event.target.matches('[data-title-row]')){if(this.commitPendingEdit()===false){this.sync();return;}this.currentRow=Number(event.target.value);this.sync();}else this.commitPendingEdit();});
+        this.panel.addEventListener('change',event=>{if(event.target.matches('[data-title-row]')){if(this.commitPendingEdit()===false){this.sync();return;}this.currentRow=Number(event.target.value);this.sync(true);}else this.commitPendingEdit();});
         this.panel.addEventListener('focusout',()=>this.commitPendingEdit());
         this.panel.addEventListener('keydown',event=>{
             if(event.key!=='Escape'||!event.target.matches('[aria-invalid="true"]'))return;
             event.preventDefault();event.stopPropagation();event.target.removeAttribute('aria-invalid');event.target.blur();this.sync(true);this.syncTransform(true);this.syncRenderStatus();
         });
         this.panel.addEventListener('click',event=>{
+            if(event.target.closest('[data-title-row-add]')){this.manageRows(false);return;}
+            if(event.target.closest('[data-title-row-remove]')){this.manageRows(true);return;}
             const library=event.target.closest('[data-title-library]');if(library){this.openMaterialLibrary(library.dataset.titleLibrary);return;}
             if(event.target.closest('[data-title-material-library]')){this.openMaterialLibrary();return;}
             const importer=event.target.closest('[data-title-import]');if(importer){this.importArtwork(importer.dataset.titleImport);return;}
@@ -178,7 +182,7 @@ export default class TitleEditor {
             if(event.target.closest('[data-title-edit-selection]')){
                 if(this.commitPendingEdit()===false)return;
                 const node=this.viewport.node();if(!node)return;
-                const project=this.project();this.currentRow=project.titleData.text.includes('\n')||project.titleData.rows[0]?node.row:-1;
+                this.currentRow=node.row;
                 this.setTab('material');this.sync();this.panel.querySelector('[data-title-tab="material"]').focus();return;
             }
 
@@ -191,6 +195,15 @@ export default class TitleEditor {
         window.addEventListener('pagehide',()=>this.renderer.dispose());
     }
     project(){const project=this.app.getActiveProject();return project?.type==='title'?project:null;}
+    manageRows(remove){
+        const project=this.project();if(!project||this.commitPendingEdit()===false)return;
+        const next=remove?removeTitleRow(project.titleData,this.currentRow):addTitleRow(project.titleData);
+        if(!next)return;
+        this.currentRow=remove?Math.min(this.currentRow,next.text.split('\n').length-1):next.text.split('\n').length-1;
+        this.viewport.state.selection=null;
+        this.change(data=>Object.assign(data,next));this.setTab('settings');this.sync(true);
+        this.panel.querySelector('[data-title-row-text]').focus();
+    }
     releaseProject(project){
         if(this.displayedProject===project)this.displayedProject=null;
         this.rendered.delete(project);this.viewport.states.delete(project);
@@ -207,7 +220,7 @@ export default class TitleEditor {
         const visible=project.type==='title';this.panel.hidden=!visible;document.body.classList.toggle('title-project',visible);
         if(!visible||this.displayedProject!==project)for(const dialog of document.querySelectorAll('.title-material-library'))dialog.close();
         if(!visible){this.opening=null;this.displayedProject=null;this.syncAvailability();this.viewport.show(false);return;}
-        if(this.displayedProject!==project){this.displayedProject=project;this.currentRow=-1;this.materialFont=null;for(const input of this.panel.querySelectorAll('[aria-invalid]'))input.removeAttribute('aria-invalid');this.setTab('settings');}
+        if(this.displayedProject!==project){this.displayedProject=project;this.currentRow=0;this.materialFont=null;for(const input of this.panel.querySelectorAll('[aria-invalid]'))input.removeAttribute('aria-invalid');this.setTab('settings');}
         project.titleData=normalizeTitleDocument(project.titleData);
         this.app.tools.setTool('hand');
         const opening={project};this.opening=opening;this.syncAvailability();this.viewport.show(true);
@@ -317,6 +330,14 @@ export default class TitleEditor {
     edit(event){
         const input=event.target,key=input.dataset.titleField,appearanceKey=input.dataset.titleAppearance,stopIndex=input.dataset.titleStop,transformKey=input.dataset.titleTransform,project=this.project();
         if(this.loading?.before){this.sync();return;}
+        if(input.hasAttribute('data-title-row-text')&&project){
+            const next=clone(this.loading?.project===project?this.loading.next:project.titleData),lines=next.text.split('\n');
+            if(this.currentRow<0||this.currentRow>=lines.length)return;
+            lines[this.currentRow]=input.value.normalize('NFC');
+            const issues=titleLanguageIssues(lines.join('\n'),next.rowLanguages);
+            if([...lines[this.currentRow]].length>64||issues.length){input.setAttribute('aria-invalid','true');bindText(this.panel.querySelector('.title-warning'),'До 64 символов и один алфавит в заголовке.');return;}
+            input.removeAttribute('aria-invalid');next.text=lines.join('\n');this.requestApply(project,normalizeTitleDocument(next));return;
+        }
         if(input.dataset.titleLanguage!==undefined&&project){this.editTextLanguage(project);return;}
         if((!key&&!appearanceKey&&stopIndex===undefined&&!transformKey)||!project)return;
         if(key==='text'){
@@ -332,7 +353,7 @@ export default class TitleEditor {
             const applied=this.safeApply(project,{...project.titleData,transforms:{...project.titleData.transforms,[id]:transform}});this.syncTransform(!applied);return;
         }
         const next=clone(this.loading?.project===project?this.loading.next:project.titleData);
-        const globalKeys=['layout','subtitleTexture','depth','creeperA','projection','yaw','pitch','zoom'];
+        const globalKeys=['layout','subtitleTexture','projection','yaw','pitch','zoom'];
         const target=globalKeys.includes(key)?next:this.targetSettings(next);
         if(appearanceKey){target.appearance={...target.appearance,[appearanceKey]:value};if(appearanceKey==='overlay')target.appearance.overlayImage=null;}
         else if(stopIndex!==undefined){target.appearance=clone(target.appearance);target.appearance.stops[Number(stopIndex)][input.dataset.stopProperty]=input.dataset.stopProperty==='at'?Number(value)/100:value;}
@@ -383,7 +404,7 @@ export default class TitleEditor {
     sync(force=false){
         const project=this.project();if(!project)return;
         const value=normalizeTitleDocument(this.loading?.project===project?this.loading.next:project.titleData);
-        if(this.currentRow>=value.text.split('\n').length)this.currentRow=-1;
+        if(this.currentRow>=value.text.split('\n').length)this.currentRow=0;
         const settings=titleRowSettings(value,this.currentRow);
         this.syncAvailability();
         const a=settings.appearance,defaultAppearance=JSON.stringify(a)===JSON.stringify(normalizeTitleAppearance({},settings.font));
@@ -404,10 +425,15 @@ export default class TitleEditor {
             bindAttribute(image.parentElement,'title',kind==='font'?'Библиотека шрифтов · {0}':'Библиотека материалов · {0}',{0:kind==='font'?fontRecord.name:translate(texture.name)});
         }
         const lines=value.text.split('\n'),description=this.panel.querySelector('[data-title-scope-description]'),overrides=value.rows.slice(0,lines.length).some(row=>row!==null);
+        const rowInput=this.panel.querySelector('[data-title-row-text]');
+        this.panel.querySelector('[data-title-row-text-label]').hidden=this.currentRow<0;
+        this.panel.querySelector('[data-title-field="text"]').closest('label').hidden=this.currentRow>=0;
+        bindText(this.panel.querySelector('#title-text-help'),this.currentRow>=0?'До 64 символов и один алфавит в заголовке.':'До трёх строк, по 64 символа. Enter добавляет строку.');
+        if(!rowInput.hasAttribute('aria-invalid')&&(force||document.activeElement!==rowInput))rowInput.value=lines[this.currentRow]||'';
         description.hidden=this.currentRow<0?!overrides:!value.rows[this.currentRow];
         bindText(description,this.currentRow<0?'У некоторых строк свои настройки. Выберите строку, чтобы изменить их.':'У этой строки свои настройки шрифта и оформления.');
         for(const input of this.panel.querySelectorAll('[data-title-field]'))if((force||document.activeElement!==input||input.dataset.titleField==='text'&&input.value.normalize('NFC').replace(/\r/g,'')!==value.text)&&!input.hasAttribute('aria-invalid')){
-            const key=input.dataset.titleField,local=['font','texture','spacing','lineGap','kerning','terminators','role','originalColors','top','bottom','side'].includes(key),current=key==='role'?value.rows[this.currentRow]?.role||'auto':(local?settings:value)[key];
+            const key=input.dataset.titleField,local=['font','texture','spacing','lineGap','depth','creeperA','kerning','terminators','role','originalColors','top','bottom','side'].includes(key),current=key==='role'?value.rows[this.currentRow]?.role||'auto':(local?settings:value)[key];
             if(input.type==='checkbox')input.checked=Boolean(current);else input.value=current;
         }
         for(const input of this.panel.querySelectorAll('[data-title-appearance]'))if((force||document.activeElement!==input)&&!input.hasAttribute('aria-invalid')){const current=a[input.dataset.titleAppearance];if(input.type==='checkbox')input.checked=Boolean(current);else input.value=current;}
@@ -429,10 +455,12 @@ export default class TitleEditor {
             button.classList.toggle('active',selected);button.setAttribute('aria-pressed',String(selected));
         }
         const scope=this.panel.querySelector('[data-title-row]');
-        this.panel.querySelector('.title-scope').hidden=lines.length<2&&!overrides;
+        this.panel.querySelector('.title-scope').hidden=false;
+        this.panel.querySelector('[data-title-row-add]').disabled=lines.length>=3;
+        this.panel.querySelector('[data-title-row-remove]').disabled=lines.length<=1||this.currentRow<0;
         this.panel.querySelector('.title-layout-options').hidden=lines.length<2;
         const fontDetails=this.panel.querySelector('[data-title-field="kerning"]').closest('details');fontDetails.hidden=!available.kerning&&!available.terminators&&!available.creeperA;
-        for(const option of scope.options){const index=Number(option.value);option.disabled=index>=lines.length;if(index>=0)bindText(option,'Строка {0}: {1}',{0:index+1,1:lines[index]?.slice(0,20)||'—'});}
+        for(const option of scope.options){const index=Number(option.value);option.hidden=index>=lines.length;option.disabled=index>=lines.length;if(index>=0)bindText(option,'Заголовок {0} · {1}',{0:index+1,1:lines[index]?.slice(0,20)||'—'});}
         scope.value=String(this.currentRow);
         for(const group of this.panel.querySelectorAll('[data-title-source]'))group.hidden=group.dataset.titleSource!==a.source;
         this.panel.querySelector('[data-title-material-library]').closest('.title-choice-row').hidden=a.source!=='texture';

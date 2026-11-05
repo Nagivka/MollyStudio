@@ -9,7 +9,7 @@ export function titleControlAvailability(data,rowIndex=-1){
  return {
   kerning:Object.keys(font.shifts||{}).length>0,
   terminators:!font.forcedTerminators&&!!model.characters['┫']&&!!model.characters['┣'],
-  creeperA:rows.some(row=>!!TITLE_FONT_MODELS[row.font].characters['😳']),
+  creeperA:rowIndex<0?rows.some(row=>!!TITLE_FONT_MODELS[row.font].characters['😳']):!!model.characters['😳'],
   subtitleTexture:rowIndex<0&&rows.length>1&&new Set(rows.map(row=>row.language)).size===1
  };
 }

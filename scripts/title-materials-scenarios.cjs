@@ -3,7 +3,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
 (async()=>{let win;try{
  await ready();win=makeWindow(1280,900);await win.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:'title',name:'Reference parity QA'}});await settle(win);
  const checks=await win.page.evaluate(async()=>{
-  const app=mollyEditor,editor=app.titleEditor;await app.getActiveProject().prefixLoadPromise;
+  const app=mollyEditor,editor=app.titleEditor;await app.getActiveProject().prefixLoadPromise;editor.currentRow=-1;editor.sync();
   const {TITLE_MATERIAL_CATALOG}=await import(new URL('js/core/TitleMaterialCatalog.mjs',location.href));
   const checks=[],expect=(ok,label)=>{if(!ok)throw Error(label);checks.push(label);};
   const wait=async()=>{for(let i=0;editor.loading&&i<500;i++)await new Promise(resolve=>setTimeout(resolve,20));if(editor.loading)throw Error('Material load did not settle');};
@@ -13,7 +13,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
   expect(data().meshMode==='original','New documents use the original generator model geometry');
   for(const tab of ['settings','material','scene']){
    editor.panel.querySelector('[data-title-tab="'+tab+'"]').click();
-   expect(!editor.panel.querySelector('.title-'+(tab==='settings'?'settings':tab)+'-panel').hidden&&!editor.panel.querySelector('[data-title-row]').checkVisibility(),'The '+tab+' section opens without an unnecessary scope selector for a single row');
+   expect(!editor.panel.querySelector('.title-'+tab+'-panel').hidden&&editor.panel.querySelector('[data-title-row]').checkVisibility()===(tab!=='scene'),'The '+tab+' section exposes heading controls only where they apply');
   }
   const lastTab=editor.panel.querySelector('[data-title-tab="scene"]');lastTab.focus();lastTab.dispatchEvent(new KeyboardEvent('keydown',{key:'Home',bubbles:true,cancelable:true}));expect(editor.panel.querySelector('[data-title-tab="settings"]').tabIndex===0&&!editor.panel.querySelector('.title-settings-panel').hidden,'Inspector tabs support keyboard navigation and a single tab stop');
   editor.setTab('settings');editor.panel.querySelector('[data-title-library="fonts"]').click();

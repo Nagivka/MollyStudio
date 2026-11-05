@@ -1166,6 +1166,8 @@ html[data-platform="darwin"] :is(.titlebar-controls,.settings-win-titlebar-contr
 .title-inspector-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:16px;scrollbar-gutter:stable;}
 .title-scope{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px;min-width:0;}.title-scope .field-hint{grid-column:1/-1;margin:0;overflow-wrap:anywhere;}.title-scope [data-title-row-reset]{width:36px;height:36px;min-width:36px;}
 .title-inspector[data-title-active-tab="scene"] .title-scope{display:none;}
+.title-row-actions{display:flex;align-items:center;gap:4px;}
+.title-row-actions>.md-icon-btn{width:40px;min-width:40px;height:40px;padding:4px;}
 .title-viewport-actions{display:flex;align-items:center;gap:8px;min-width:0;}
 .title-control-group{display:flex;flex-direction:column;gap:12px;min-width:0;padding:0 0 16px;border-bottom:1px solid var(--md-outline-variant);}.title-control-group:last-child{border-bottom:0;padding-bottom:0;}
 .title-control-group>h4{display:flex;align-items:center;gap:8px;font-size:13px;}.title-control-group>h4>.material-symbols-rounded{font-size:18px;color:var(--md-primary);}

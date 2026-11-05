@@ -29,6 +29,7 @@ suites.splice(suites.indexOf('tool-scenarios')+1,0,'pipette-history-scenarios');
 suites.splice(suites.indexOf('usability-scenarios')+1,0,'responsive-scenarios');
 suites.push('developer-settings-scenarios','basement-scenarios','weather-important-scenarios','visual-components','visual-interactions');
 suites.push('editor-soak-scenarios','production-window-scenarios','title-export-options-scenarios');
+suites.push('title-headings-scenarios');
 let tasks=[['types',['node_modules/typescript/bin/tsc','-p','tsconfig.json','--noEmit']],['generated',['scripts/verify-core.cjs']],['unit',['scripts/run-unit.cjs']],['static',['scripts/audit-project.mjs']],...suites.map(name=>[name,['scripts/run-electron-check.cjs',`scripts/${name}.cjs`]])];
 tasks.push(['title-unavailable',['scripts/run-electron-check.cjs','scripts/title-edge-scenarios.cjs','--without-webgl']]);
 if (process.argv.includes('--full-visual')) for (const page of ['index','editor','settings','new-project','buttons']) {

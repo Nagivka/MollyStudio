@@ -10,7 +10,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
   expect(e.panel.querySelector('.title-inspector-header').contains(e.panel.querySelector('[data-title-row]')),'The row scope stays with the inspector tabs');
   expect(e.panel.querySelector('[data-title-field="text"]').closest('.title-control-group').querySelector('.title-row-languages'),'Text and its row languages share one clearly labelled group');
   expect(e.panel.querySelector('[data-title-field="font"]').closest('.title-control-group').querySelector('[data-title-choice="font"]'),'The font choice has a real native visual preview');
-  expect(!e.panel.querySelector('[data-title-row]').checkVisibility(),'A single row starts with the text controls and no redundant edit scope');
+  expect(e.panel.querySelector('[data-title-row]').checkVisibility(),'The heading selector is available even for a single row');
   expect(e.panel.querySelector('[data-title-field="depth"]').checkVisibility()&&e.panel.querySelector('[data-title-field="font"]').checkVisibility(),'Font and letter depth are available without opening advanced settings');
   expect([...e.panel.querySelectorAll('details')].every(details=>!details.open),'Advanced controls start collapsed');
   const header=e.panel.querySelector('.title-inspector-header'),body=e.panel.querySelector('.title-inspector-body'),top=header.getBoundingClientRect().top;body.scrollTop=body.scrollHeight;

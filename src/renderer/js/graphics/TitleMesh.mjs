@@ -57,7 +57,7 @@ export function buildTitleMesh(data){
             const input=token.input;
             const characterIndex=token.index;
             if(input===' '&&!(original&&TITLE_FONT_MODELS[settings.font].characters[' '])){offset+=(metadata.spaceWidth+settings.spacing)*(original?settings.scale[0]:1);if(!original)previous='';continue;}
-            const glyph=resolveTitleGlyph(settings.font,input,data.creeperA);
+            const glyph=resolveTitleGlyph(settings.font,input,settings.creeperA);
             if(input==='\u200b'&&spacers)glyph.elements=glyph.elements.map(cube=>{const result={...cube,from:[...cube.from],to:[...cube.to]};if(result.to[0]>result.from[0])result.to[0]+=settings.spacing-1;else result.from[0]+=settings.spacing-1;return result;});
             const points=glyph.elements.flatMap(cube=>[cube.from,cube.to]);
             const min=[0,1,2].map(axis=>Math.min(...points.map(p=>p[axis]))),max=[0,1,2].map(axis=>Math.max(...points.map(p=>p[axis])));
@@ -83,7 +83,7 @@ export function buildTitleMesh(data){
                     if(type==='bottom'){y=(y*2-(fontHeight*2+18)-settings.lineGap)*.75;z=z*.75-8+(!metadata.flat&&point[2]===Math.max(cube.from[2],cube.to[2])?24:0);}
                     else if(type==='small'){y=y*.35-fontHeight*.35-settings.lineGap;z=(z-(zMax-zMin))*.35;}
                     else{z-=(zMax-zMin)/2;y-=data.layout==='stacked'?row*(fontHeight+4+settings.lineGap):0;}
-                    x*=settings.scale[0];y*=settings.scale[1];z*=settings.scale[2]*data.depth/22;
+                    x*=settings.scale[0];y*=settings.scale[1];z*=settings.scale[2]*settings.depth/22;
                     if(type==='bottom')[y,z]=[z,-y];
                     return [x/4,y/4,-z/4];
                 };
@@ -99,7 +99,7 @@ export function buildTitleMesh(data){
                 }
                 continue;
             }
-            const depth=data.depth;
+            const depth=settings.depth;
             const bodyDepth=type==='small'?Math.max(0,depth-6):depth;
             const bodyMin=-bodyDepth/2,bodyMax=bodyDepth/2;
             const transform=point=>{

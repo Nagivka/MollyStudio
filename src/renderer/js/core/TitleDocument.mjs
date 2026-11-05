@@ -36,6 +36,8 @@ export function normalizeTitleDocument(value={}) {
         return {font,texture:titleMaterialRecord(font,source.texture??defaults.texture).id,
             role:['auto','top','bottom','small'].includes(source.role)?source.role:'auto',
             spacing:precise(source.spacing,defaults.spacing,0,20),lineGap:precise(source.lineGap,defaults.lineGap,-4,20),
+            depth:number(source.depth,defaults.depth,0,48),
+            creeperA:typeof source.creeperA==='boolean'?source.creeperA:defaults.creeperA,
             scale:[0,1,2].map(i=>precise(source.scale?.[i],defaults.scale?.[i]??1,.05,4)),
             kerning:typeof source.kerning==='boolean'?source.kerning:defaults.kerning,terminators:typeof source.terminators==='boolean'?source.terminators:defaults.terminators,
             originalColors:typeof source.originalColors==='boolean'?source.originalColors:defaults.originalColors,top:color(source.top,defaults.top),bottom:color(source.bottom,defaults.bottom),side:color(source.side,defaults.side),
@@ -71,4 +73,30 @@ export function titleRowSettings(data,index){
     const language=titleLanguageForLine(data.text.split('\n')[index]||'',data.rowLanguages?.[index],value.font);
     const font=titleFontForLanguage(value.font,language)||TITLE_TEXT_LANGUAGES[language].font;
     return {...value,font,language,texture:titleMaterialRecord(font,value.texture).id,appearance:normalizeTitleAppearance(value.appearance,font)};
+}
+
+export function addTitleRow(value){
+    const data=normalizeTitleDocument(value),lines=data.text.split('\n');
+    if(lines.length>=3)return null;
+    data.rows=lines.map((_,index)=>({...data.rows[index],role:titleRowSettings(data,index).role}));
+    data.layout='stacked';
+    data.rows[lines.length]={role:'top'};data.rowLanguages[lines.length]='auto';
+    data.text=[...lines,''].join('\n');
+    return normalizeTitleDocument(data);
+}
+
+export function removeTitleRow(value,index){
+    const data=normalizeTitleDocument(value),lines=data.text.split('\n');
+    if(lines.length<=1||!Number.isInteger(index)||index<0||index>=lines.length)return null;
+    // Capture automatic roles before indices change, preserving each remaining heading.
+    const rows=lines.map((_,row)=>({...data.rows[row],role:titleRowSettings(data,row).role}));
+    lines.splice(index,1);rows.splice(index,1);data.rowLanguages.splice(index,1);
+    data.text=lines.join('\n');data.rows=rows;data.rowLanguages.push('auto');
+    const transforms={};
+    for(const [id,transform] of Object.entries(data.transforms)){
+        const row=Number(/^row-(\d+)/.exec(id)[1]);
+        if(row!==index)transforms[id.replace(/^row-\d+/,`row-${row>index?row-1:row}`)]=transform;
+    }
+    data.transforms=transforms;
+    return normalizeTitleDocument(data);
 }

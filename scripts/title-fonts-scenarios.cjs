@@ -3,7 +3,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
 (async()=>{let win;try{
  await ready();win=makeWindow(1280,900);await win.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:'title',name:'Font geometry QA'}});await settle(win);
  const result=await win.page.evaluate(async()=>{
-  const editor=mollyEditor.titleEditor,project=mollyEditor.getActiveProject();await project.prefixLoadPromise;
+  const editor=mollyEditor.titleEditor,project=mollyEditor.getActiveProject();await project.prefixLoadPromise;editor.currentRow=-1;editor.sync();
   const {TITLE_FONT_CATALOG}=await import(new URL('js/core/TitleFontCatalog.mjs',location.href));
   const checks=[],expect=(ok,label)=>{if(!ok)throw Error(label);checks.push(label);};
   const options=[...editor.panel.querySelector('[data-title-field="font"]').options];
