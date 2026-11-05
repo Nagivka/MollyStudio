@@ -60,7 +60,7 @@ export default class ExportPanel {
         const defaults={source,scale:project.type==='title'?1:this.app.settingsManager.get('exportScale')||1,trim:this.app.settingsManager.get('exportTrim')===true,format:source==='selected'?'zip':'png',columns:4,gap:1,prefix:'',numbered:false,names:'',block:this.app.prefixEditor?.selected||0,
             titleResolution:project.titleData?.resolution||2048,titleOutput:project.titleData?.output||'auto',titlePadding:project.titleData?.padding??24,...this.titleOptions.get(project)};
         const options=repeat&&this.last?{...defaults,...this.last}:defaults;
-        if(project.type==='title')options.scale=1;
+        if(project.type==='title'){options.scale=1;options.trim=false;}
         if(project.type!=='prefix'&&options.source==='prefixes')options.source='project';
         if(['prefix','title'].includes(project.type)&&['active','selected'].includes(options.source))options.source='project';
         const block=this.get('block');block.replaceChildren();
@@ -69,6 +69,8 @@ export default class ExportPanel {
         this.dialog.classList.toggle('title-export',project.type==='title');
         this.get('title-fields').hidden=project.type!=='title';
         this.get('scale').closest('label').hidden=project.type==='title';
+        this.get('source').closest('label').hidden=project.type==='title';
+        this.get('trim').closest('label').hidden=project.type==='title';
         this.returnFocus=document.activeElement;this.get('error').hidden=true;this.get('progress-panel').hidden=true;
         if(!this.dialog.open)this.dialog.showModal();this.get('source').focus();await this.preview();return true;
     }
