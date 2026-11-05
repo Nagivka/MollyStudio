@@ -10,16 +10,10 @@ import {normalizeTitleAppearance,TITLE_BLENDS,titleMaterialCatalog} from '../cor
 import {titleRowSettings} from '../core/TitleDocument.mjs';
 import {TITLE_TEXT_LANGUAGES,titleLanguageIssues,titleFontsForLanguage} from '../core/TitleLanguages.mjs';
 import {bindText,labelHTML,bindAttribute,uiLabel,translate} from '../core/Locale.mjs';
+import {TITLE_DESIGNS as PRESETS,applyTitleDesign} from '../core/TitleDesignPresets.mjs';
+import {openTitleDesignGallery} from './TitleDesignGallery.js';
 
 const clone=value=>structuredClone(value);
-const PRESETS=[
-    {name:'Классика',texture:'stone',originalColors:true,swatch:['#BEB9AA','#77736A']},
-    {name:'Золото',texture:'gold',originalColors:true,swatch:['#FFE880','#BC790E']},
-    {name:'Алмаз',texture:'none',originalColors:false,top:'#D8FFFF',bottom:'#34C7DC',side:'#155D83'},
-    {name:'Изумруд',texture:'none',originalColors:false,top:'#D6FFBF',bottom:'#39B765',side:'#155037'},
-    {name:'Незерит',texture:'none',originalColors:false,top:'#D4C5D4',bottom:'#6D6172',side:'#29212E'},
-    {name:'Лава',texture:'stone',originalColors:false,top:'#FFF589',bottom:'#F25A23',side:'#621D26'}
-];
 const text=labelHTML;
 const blendNames={'multiply':'Умножение','screen':'Экран','overlay':'Перекрытие','soft-light':'Мягкий свет','hard-light':'Жёсткий свет','darken':'Затемнение','lighten':'Осветление','color-dodge':'Осветление основы','color-burn':'Затемнение основы','difference':'Разница','exclusion':'Исключение','hue':'Цветовой тон','saturation':'Насыщенность','color':'Цветность','luminosity':'Яркость','source-over':'Обычное'};
 const blendOptions=TITLE_BLENDS.map(id=>[id,blendNames[id]]);
@@ -73,7 +67,7 @@ export default class TitleEditor {
             `)}
             </div>
             <div class="title-material-panel" hidden>
-            ${group('Готовые оформления','palette',`<div class="title-presets">${PRESETS.map((preset,index)=>{
+            ${group('Готовые оформления','palette',`<button class="md-btn outlined" type="button" data-title-design-gallery>${icon('grid_view')}${text('Готовые оформления')}</button><div class="title-presets">${PRESETS.slice(0,6).map((preset,index)=>{
                 const [top,bottom]=preset.swatch||[preset.top,preset.bottom];
                 return `<button class="md-btn outlined" type="button" data-title-preset="${index}"><span class="title-preset-swatch" aria-hidden="true" style="--swatch-top:${top};--swatch-bottom:${bottom}"></span>${text(preset.name)}</button>`;
             }).join('')}</div>`)}
@@ -162,6 +156,7 @@ export default class TitleEditor {
             if(event.target.closest('[data-title-row-remove]')){this.manageRows(true);return;}
             const library=event.target.closest('[data-title-library]');if(library){this.openMaterialLibrary(library.dataset.titleLibrary);return;}
             if(event.target.closest('[data-title-material-library]')){this.openMaterialLibrary();return;}
+            if(event.target.closest('[data-title-design-gallery]')){openTitleDesignGallery(this);return;}
             const importer=event.target.closest('[data-title-import]');if(importer){this.importArtwork(importer.dataset.titleImport);return;}
             if(event.target.closest('[data-title-clear-overlay]')){this.changeSettings(value=>{value.appearance={...value.appearance,overlayImage:null};});return;}
             if(event.target.closest('[data-title-row-reset]')){if(this.currentRow>=0)this.change(data=>{data.rows[this.currentRow]=null;});return;}
@@ -190,7 +185,7 @@ export default class TitleEditor {
                 this.viewport.resetCamera();return;
             }
             const button=event.target.closest('[data-title-preset]');if(!button)return;
-            this.changeSettings(value=>{const {name,swatch,...preset}=PRESETS[Number(button.dataset.titlePreset)];Object.assign(value,preset);value.appearance=normalizeTitleAppearance();});
+            this.changeSettings(value=>Object.assign(value,applyTitleDesign(value,PRESETS[Number(button.dataset.titlePreset)])));
         });
         window.addEventListener('pagehide',()=>this.renderer.dispose());
     }

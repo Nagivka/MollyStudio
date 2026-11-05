@@ -96,7 +96,7 @@ test('magic wand visits a large uniform area without recursive flood fill',()=>{
 });
 test('designs preserve prefix content and normalize every color and corner',()=>{
     const block=normalizePrefixDocument({blocks:[{id:'saved',text:'АДМИН',font:'minecraft-ten'}]}).blocks[0];
-    assert.equal(PREFIX_DESIGNS.length,20);assert.equal(GUI_DESIGNS.length,76);
+    assert.equal(PREFIX_DESIGNS.length,44);assert.equal(GUI_DESIGNS.length,100);
     for(const preset of PREFIX_DESIGNS){const result=applyPrefixDesign(block,preset.id);assert.equal(result.text,'АДМИН');assert.equal(result.font,'minecraft-ten');assert.equal(result.id,'saved');assert.deepEqual(normalizePrefixDocument({blocks:[result]}).blocks[0],result);}
 });
 test('GUI designs preserve transparency, geometry and colored details',()=>{

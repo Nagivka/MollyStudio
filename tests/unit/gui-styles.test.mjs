@@ -6,14 +6,28 @@ import {paintPixelPreview,pixelPreviewSize,fittedPixelScale} from '../../src/ren
 import {BUTTON_STYLES,normalizeButtonStyle} from '../../src/renderer/js/graphics/ButtonRenderer.js';
 import ButtonGeneratorModel from '../../src/renderer/js/ui/ButtonGeneratorModel.js';
 import {RasterCanvas} from '../helpers/raster-canvas.mjs';
+import {TITLE_DESIGNS,applyTitleDesign} from '../../src/renderer/js/core/TitleDesignPresets.mjs';
+import {normalizeTitleDocument,titleRowSettings} from '../../src/renderer/js/core/TitleDocument.mjs';
+
+test('title designs preserve text and geometry while resetting custom artwork',()=>{
+    assert.equal(TITLE_DESIGNS.length,24);
+    assert.equal(new Set(TITLE_DESIGNS.map(p=>p.name)).size,24);
+    for(const text of ['MOLLY','МОЛЛИ'])for(const preset of TITLE_DESIGNS){
+        const data=normalizeTitleDocument({text,depth:12,spacing:2,appearance:{source:'gradient'}});
+        const next=normalizeTitleDocument(applyTitleDesign(data,preset));
+        assert.equal(next.text,text);assert.equal(next.depth,12);assert.equal(next.spacing,2);
+        assert.equal(next.appearance.source,'texture');assert.equal(next.appearance.image,null);
+        assert.equal(titleRowSettings(next,0).originalColors,preset.originalColors);
+    }
+});
 
 test('GUI catalogue retains old designs and adds eight complete, texture-free collections',()=>{
-    assert.equal(GUI_DESIGNS.length,76);
-    assert.equal(new Set(GUI_DESIGNS.map(item=>item.id)).size,76);
-    assert.equal(new Set(GUI_DESIGNS.map(item=>item.name)).size,76);
+    assert.equal(GUI_DESIGNS.length,100);
+    assert.equal(new Set(GUI_DESIGNS.map(item=>item.id)).size,100);
+    assert.equal(new Set(GUI_DESIGNS.map(item=>item.name)).size,100);
     for(const id of ['vanilla','slate','stone','oak','spruce','nether','ice','parchment','obsidian','ender','ocean','copper'])assert.ok(GUI_DESIGNS.some(item=>item.id===id));
     const counts=Map.groupBy(GUI_DESIGNS,item=>item.category);
-    assert.equal(counts.size,9);
+    assert.equal(counts.size,12);
     for(const [category,items] of counts)assert.equal(items.length,category==='Классические'?12:8);
     for(const design of GUI_DESIGNS){
         assert.equal(design.pattern,'none');

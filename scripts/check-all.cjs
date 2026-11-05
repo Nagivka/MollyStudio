@@ -30,6 +30,7 @@ suites.splice(suites.indexOf('tool-scenarios')+1,0,'pipette-history-scenarios');
 suites.splice(suites.indexOf('usability-scenarios')+1,0,'responsive-scenarios');
 suites.splice(suites.indexOf('usability-scenarios')+1,0,'editor-usability-scenarios');
 suites.splice(suites.indexOf('usability-scenarios')+1,0,'pixel-interface-scenarios');
+suites.splice(suites.indexOf('gui-style-scenarios')+1,0,'design-gallery-scenarios');
 suites.push('developer-settings-scenarios','basement-scenarios','weather-important-scenarios','visual-components','visual-interactions');
 suites.push('editor-soak-scenarios','production-window-scenarios','title-export-options-scenarios');
 suites.push('title-headings-scenarios');

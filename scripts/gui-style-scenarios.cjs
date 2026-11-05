@@ -24,8 +24,8 @@ async function exerciseGui(){
     const base=app.layerManager.getLayers().find(layer=>layer.isBase);base.fx.texture={type:'checker',amount:50,scale:2,seed:1};base.releaseRenderCache();
     app.history.clear();const original=pixels(base),other=app.layerManager.getLayers().find(layer=>layer.name==='Content'),otherPixels=pixels(other);
     await app.designGallery.open();
-    expect(document.querySelectorAll('.design-gallery-card').length===76,'Gallery offers all 76 GUI designs');
-    expect(document.querySelector('[data-design-category]').options.length===10,'GUI gallery exposes every palette category');
+    expect(document.querySelectorAll('.design-gallery-card').length===100,'Gallery offers all 100 GUI designs');
+    expect(document.querySelector('[data-design-category]').options.length===13,'GUI gallery exposes every palette category');
     const search=document.querySelector('[data-design-search]');search.value='Сапфир';search.dispatchEvent(new Event('input',{bubbles:true}));
     expect(document.querySelectorAll('.design-gallery-card').length===1,'GUI design search filters the library');
     document.querySelector('.design-gallery-card').click();

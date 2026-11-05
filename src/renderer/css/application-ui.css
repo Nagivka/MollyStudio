@@ -1239,6 +1239,9 @@ html[data-platform="darwin"] :is(.titlebar-controls,.settings-win-titlebar-contr
 .title-material-card:hover,.title-material-card.active{border-color:var(--md-primary);background:var(--md-secondary-container);}
 .title-material-card img{width:100%;height:72px;object-fit:contain;}
 .title-material-card img.title-tile-preview{image-rendering:pixelated;}
+.title-design-gallery .title-material-card canvas{display:block;width:100%;height:80px;object-fit:contain;image-rendering:auto!important;}
+.title-design-gallery [hidden]{display:none!important;}
+.title-design-gallery>.md-btn{flex:none;align-self:flex-end;}
 .title-material-panel{display:flex;flex-direction:column;gap:16px;min-width:0;}
 .title-warning:empty{display:none;}
 .title-row-languages{display:flex;flex-direction:column;gap:8px;min-width:0;}

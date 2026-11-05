@@ -81,3 +81,32 @@
 :root:is([data-theme="minecraft"],[data-theme="light-minecraft"]) :is(.md-btn,.md-icon-btn,.m3-segment-item,.m3-chip,.ui-disclosure-trigger):active:not(:disabled) {scale:1;}
 :root.no-animations *, :root.no-animations *::before, :root.no-animations *::after {animation:none !important;transition:none !important;scroll-behavior:auto !important;}
 @media (prefers-reduced-motion:reduce) {*,*::before,*::after{animation:none !important;transition:none !important;scroll-behavior:auto !important;}}
+
+/* Rich motion belongs to standard themes. No document/canvas transforms and
+   no extra timers: hidden panels stop participating in CSS animations. */
+@keyframes ui-section-reveal {
+    from {opacity:0;translate:0 6px;}
+    to {opacity:1;translate:0 0;}
+}
+@keyframes ui-card-reveal {from {opacity:0;} to {opacity:1;}}
+@media (prefers-reduced-motion:no-preference) {
+    :root:not([data-theme*="minecraft"]):not(.no-animations) {
+        & :is(.inspector-tab-panel,.title-settings-panel,.title-material-panel,.title-scene-panel):not([hidden]) {
+            animation:ui-section-reveal 280ms cubic-bezier(.16,1,.3,1) backwards;
+        }
+        & dialog[open] {animation:ui-dialog-enter 320ms cubic-bezier(.16,1,.3,1) backwards;}
+        & :is(.design-gallery-card,.title-material-card,.type-option) {
+            transition:translate 220ms cubic-bezier(.16,1,.3,1),background-color 180ms ease,border-color 180ms ease,box-shadow 220ms ease;
+        }
+        & :is(.design-gallery-card,.title-material-card) {animation:ui-card-reveal 260ms ease backwards;}
+        & :is(.design-gallery-card,.title-material-card):nth-child(2n) {animation-delay:30ms;}
+        & :is(.design-gallery-card,.title-material-card):nth-child(3n) {animation-delay:60ms;}
+        & :is(.md-input,.md-number-input,.md-select) {transition:border-color 180ms ease,box-shadow 220ms ease,background-color 180ms ease;}
+        & :is(.md-input,.md-number-input,.md-select):focus-visible {box-shadow:0 0 0 3px color-mix(in srgb,var(--md-primary) 18%,transparent);}
+        & :is(.tool-btn,.inspector-tab,.doc-tab,.title-viewport-toolbar .md-btn) {transition:background-color 180ms ease,color 180ms ease,border-color 180ms ease,scale 180ms cubic-bezier(.16,1,.3,1);}
+        & :is(.tool-btn,.inspector-tab):active:not(:disabled) {scale:.96;}
+    }
+}
+@media (hover:hover) and (prefers-reduced-motion:no-preference) {
+    :root:not([data-theme*="minecraft"]):not(.no-animations) :is(.design-gallery-card,.title-material-card,.type-option):hover:not(:disabled) {translate:0 -2px;box-shadow:0 4px 12px #0002;}
+}
