@@ -17,6 +17,7 @@ await win.page.locator('[data-basement-add]').click();
 expect(await win.page.locator('[data-basement-add]').isDisabled(),'Adding palette disables duplicate rewards');
 expect(await win.page.evaluate(async()=>{const {Palettes,PaletteOptions}=await import(new URL('js/utils/Palettes.js',location.href));return Palettes.basement?.length===8&&PaletteOptions.filter(([id])=>id==='basement').length===1;}),'Reward is in the shared palette registry');
 await generator.page.waitForFunction(()=>document.querySelector('#paletteSelect option[value="basement"]'));
+await generator.page.locator('#button-generator-tab-color').click();
 await generator.page.selectOption('#paletteSelect','basement');
 expect(await generator.page.locator('#paletteSelect').inputValue()==='basement','An already open generator receives and selects the secret palette');
 for(const theme of ['dark','light','minecraft','light-minecraft']){

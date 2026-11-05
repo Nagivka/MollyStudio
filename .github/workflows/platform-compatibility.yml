@@ -87,7 +87,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb libgtk-3-0 libnss3 libasound2t64 libgbm1 libfuse2t64 libglib2.0-bin weston wl-clipboard xdotool
+          sudo apt-get install -y rpm xvfb libgtk-3-0 libnss3 libasound2t64 libgbm1 libfuse2t64 libglib2.0-bin weston wl-clipboard xdotool
           sudo chown root:root node_modules/electron/dist/chrome-sandbox
           sudo chmod 4755 node_modules/electron/dist/chrome-sandbox
       - run: npm run typecheck && npm run core:verify && npm test && npm run audit
@@ -167,6 +167,7 @@ jobs:
             dist/*mac.zip
             dist/*.AppImage
             dist/*.deb
+            dist/*.rpm
             dist/*.tar.gz
             dist/*.sha256
             dist/latest*.yml

@@ -24,7 +24,7 @@ async function prepareReleaseBundle(root,info,key,publicKey=PUBLIC_KEY){
         const primary=await verify(filename);
         if(platform==='linux'||report.signed)files.push(...await prepareRelease(root,info,key,publicKey,target));
         else files.push(...primary); // Ad-hoc Mac apps are downloadable, not automatic updates.
-        const extras=platform==='darwin'?[filename.replace(/\.zip$/,'.dmg')]:[filename.replace(/\.AppImage$/,'.deb'),filename.replace(/\.AppImage$/,'.tar.gz')];
+        const extras=platform==='darwin'?[filename.replace(/\.zip$/,'.dmg')]:[filename.replace(/\.AppImage$/,'.deb'),filename.replace(/\.AppImage$/,'.rpm'),filename.replace(/\.AppImage$/,'.tar.gz')];
         for(const name of extras)if(await fs.stat(path.join(directory,name)).catch(error=>{if(error.code==='ENOENT')return null;throw error;}))files.push(...await verify(name));
     }
     if(new Set(files.map(file=>file.name)).size!==files.length)throw Error('Duplicate release artifact.');

@@ -1961,6 +1961,8 @@
   "Фигура": "Shape",
   "Выбор шрифта": "Choose font",
   "Обводка и фаски": "Border and bevels",
+  "Цвет блика": "Highlight color",
+  "Цвет тени фаски": "Bevel shadow color",
   "Палитры": "Palettes",
   "3D-контекст временно недоступен.": "The 3D context is temporarily unavailable.",
   "Выбранное разрешение не поддерживается видеокартой.": "The graphics card does not support the selected resolution.",

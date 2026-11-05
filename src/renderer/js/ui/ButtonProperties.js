@@ -35,8 +35,9 @@ export default class ButtonProperties{
             ${switchHTML('data-button-field','Прозрачная обводка',data.transparentBorder,'transparentBorder')}`;
         for(const key of ['style','colorMode'])this.element.querySelector(`[data-button-field="${key}"]`).value=data[key];
         const colors=this.element.querySelector('[data-button-colors]');
-        const addColor=(color,label,change,container=colors)=>{
-            const row=createGradientRow(container.querySelectorAll('.grad-stop-row').length),preview=createColorPreview(color),hex=createHexInput(color);
+        const addColor=(color,label,change,container=colors,key=null)=>{
+            const index=container.querySelectorAll('.grad-stop-row').length;
+            const row=createGradientRow(index),preview=createColorPreview(color),hex=createHexInput(color);row.dataset.gradientKey=key||`fill-${index}`;
             preview.input.dataset.gradientRole='color';hex.dataset.gradientRole='hex';
             bindAttribute(preview.input,'aria-label',label);bindAttribute(hex,'aria-label',label);
             const commit=value=>{if(/^#[\da-f]{6}$/i.test(value))change(value.toUpperCase());else hex.value=color;};
@@ -54,7 +55,7 @@ export default class ButtonProperties{
         const shades=data.style==='outline'?[['highlight','Цвет контура']]:[['border','Цвет обводки'],['highlight','Цвет блика'],...(['default','ten'].includes(data.style)?[['shadow','Цвет тени фаски']]:[])];
         if(!data.autoShade)for(const [key,label] of shades){
             const heading=document.createElement('span');heading.className='prop-field-label';heading.innerHTML=labelHTML(label);manual.append(heading);
-            addColor(data.colors[key],label,value=>this.edit({colors:{...data.colors,[key]:value}}),manual);
+            addColor(data.colors[key],label,value=>this.edit({colors:{...data.colors,[key]:value}}),manual,`edge-${key}`);
         }
         this.element.querySelector('[data-button-field="tintedBorder"]').closest('label').hidden=!data.autoShade||data.style==='outline';
         for(const input of this.element.querySelectorAll('input,select,button'))input.disabled=!this.app.layerManager.isEditable(layer);

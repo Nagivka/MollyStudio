@@ -34,8 +34,13 @@ module.exports = {
     },
     linux: {
         executableName:'mollystudio',syncDesktopName:true,icon:'src/renderer/assets/images/icon/icon512.png',category:'Graphics',maintainer:'nagivka',
-        target:[{target:'AppImage',arch:['x64','arm64']},{target:'deb',arch:['x64','arm64']},{target:'tar.gz',arch:['x64','arm64']}],
+        target:[{target:'AppImage',arch:['x64','arm64']},{target:'deb',arch:['x64','arm64']},{target:'rpm',arch:['x64','arm64']},{target:'tar.gz',arch:['x64','arm64']}],
         artifactName:'MollyStudio-${buildVersion}-${arch}-linux.${ext}'
+    },
+    flatpak: {
+        runtime:'org.freedesktop.Platform',sdk:'org.freedesktop.Sdk',runtimeVersion:'25.08',
+        base:'org.electronjs.Electron2.BaseApp',baseVersion:'25.08',branch:'stable',useWaylandFlags:true,
+        finishArgs:['--socket=wayland','--socket=fallback-x11','--share=ipc','--device=dri','--socket=pulseaudio','--share=network','--filesystem=home','--filesystem=/media','--filesystem=/run/media','--filesystem=/mnt']
     },
     nsis: {oneClick: false, perMachine: false, allowToChangeInstallationDirectory: true,
         createDesktopShortcut: true, createStartMenuShortcut: true, shortcutName: 'MollyStudio',

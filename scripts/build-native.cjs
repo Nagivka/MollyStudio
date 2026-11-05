@@ -17,9 +17,9 @@ async function buildNative(platform=process.platform,arch=process.arch){
     const config={extraMetadata:{mollyMacUpdates:signed}};
     if(platform==='darwin')config.mac={artifactName:`MollyStudio-${pkg.version}.0-${arch}-mac.\${ext}`,...(!signed?{identity:'-',hardenedRuntime:false}:{}),forceCodeSigning:signed,notarize:notarized};
     else config.linux={artifactName:`MollyStudio-${pkg.version}.0-${arch}-linux.\${ext}`};
-    const artifacts=await build({targets:(platform==='darwin'?Platform.MAC:Platform.LINUX).createTarget(platform==='darwin'?['dmg','zip']:['AppImage','deb','tar.gz'],Arch[arch]),config,publish:'never'});
+    const artifacts=await build({targets:(platform==='darwin'?Platform.MAC:Platform.LINUX).createTarget(platform==='darwin'?['dmg','zip']:['AppImage','deb','rpm','tar.gz'],Arch[arch]),config,publish:'never'});
     const output=path.join(root,'dist'),checksums=[];
-    for(const file of artifacts){if(!/\.(?:dmg|zip|AppImage|deb|tar\.gz)$/.test(file))continue;
+    for(const file of artifacts){if(!/\.(?:dmg|zip|AppImage|deb|rpm|tar\.gz)$/.test(file))continue;
         const bytes=await fs.readFile(file),name=path.basename(file),sha256=createHash('sha256').update(bytes).digest('hex');
         await fs.writeFile(file+'.sha256',`${sha256}  ${name}\n`);checksums.push({name,sha256,size:bytes.length});
     }

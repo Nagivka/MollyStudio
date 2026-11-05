@@ -8,7 +8,7 @@ export function captureGradientFocus(container) {
     const role = source?.dataset.gradientRole;
     if (!row || !role) return null;
     return {
-        index: Number(row.dataset.gradientIndex), role,
+        index: [...container.querySelectorAll('.grad-stop-row')].indexOf(row), key:row.dataset.gradientKey, role,
         start: role === 'hex' ? active.selectionStart : null,
         end: role === 'hex' ? active.selectionEnd : null
     };
@@ -17,10 +17,10 @@ export function captureGradientFocus(container) {
 export function restoreGradientFocus(container, token) {
     if (!token || !container?.isConnected) return;
     const rows = [...container.querySelectorAll('.grad-stop-row')];
-    const row = rows[Math.min(token.index, rows.length - 1)];
+    const row = token.key?rows.find(row=>row.dataset.gradientKey===token.key):rows[Math.min(token.index, rows.length - 1)];
     const source = row?.querySelector(`[data-gradient-role="${token.role}"]`);
     if (!source) return;
-    source.focus();
+    source.focus({preventScroll:true});
     if (token.role !== 'hex' || token.start == null) return;
     const control = source;
     Promise.resolve(control.updateComplete).then(() => {

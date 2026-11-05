@@ -207,6 +207,7 @@ export default class ItemsPanel {
 
     renderItems() {
         if (!this.gridElement) return;
+        const generation=this.renderGeneration=(this.renderGeneration||0)+1;
         this._itemObserver?.disconnect();
 
         if (this._renderChunkTimer) {
@@ -220,6 +221,7 @@ export default class ItemsPanel {
         }
 
         if (filtered.length === 0) {
+            this.gridElement.replaceChildren();
             this.gridElement.style.display = 'none';
             if (this.emptyState) this.emptyState.style.display = 'flex';
             return;
@@ -283,6 +285,7 @@ export default class ItemsPanel {
             const BATCH_SIZE = 80;
 
             const renderNextBatch = () => {
+                if(generation!==this.renderGeneration)return;
                 this._itemObserver?.disconnect();
                 const batchFrag = document.createDocumentFragment();
                 const limit = Math.min(filtered.length, currentIndex + BATCH_SIZE);

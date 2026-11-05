@@ -1,0 +1,91 @@
+name: Linux distribution compatibility
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci && node node_modules/electron/install.js
+      - run: sudo apt-get update && sudo apt-get install -y rpm
+      - run: npm run dist -- linux x64
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: linux-distro-input
+          path: |
+            dist/*linux.tar.gz
+            dist/build-linux-x64.json
+          retention-days: 3
+  desktop:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ['ubuntu:22.04', 'debian:12', 'debian:13', 'fedora:43', 'archlinux:base', 'opensuse/tumbleweed:latest']
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
+        with:
+          name: linux-distro-input
+          path: dist
+      - name: Run packaged editor as an ordinary user with Chromium sandbox
+        env:
+          DISTRO_IMAGE: ${{ matrix.image }}
+        run: |
+          node_root=$(dirname "$(dirname "$(command -v node)")")
+          docker run --rm --cap-add=SYS_ADMIN --security-opt seccomp=unconfined --shm-size=1g \
+            -e CI=true -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \
+            -v "$PWD:/work" -v "$node_root:/opt/node:ro" -w /work "$DISTRO_IMAGE" \
+            bash scripts/linux-distro-check.sh
+  flatpak:
+    if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '24'
+          cache: npm
+      - run: sudo apt-get update && sudo apt-get install -y flatpak flatpak-builder
+      - run: |
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user -y --noninteractive flathub org.freedesktop.Platform//25.08 org.freedesktop.Sdk//25.08 org.electronjs.Electron2.BaseApp//25.08
+      - run: npm ci && node node_modules/electron/install.js && npm run dist:flatpak
+      - name: Verify bundle installation and permissions
+        run: |
+          flatpak install --user -y --noninteractive dist/*.flatpak
+          flatpak info --user --show-permissions ua.nagivka.mollystudio
+          flatpak run --user --command=sh ua.nagivka.mollystudio -c 'test -x /app/bin/electron-wrapper && command -v zypak-wrapper'
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: MollyStudio-flatpak-${{ runner.arch }}-${{ github.sha }}
+          path: |
+            dist/*.flatpak
+            dist/*.sha256
+          retention-days: 7
