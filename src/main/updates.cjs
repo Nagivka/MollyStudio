@@ -46,18 +46,20 @@ class UpdateService {
     }
     status() { return {...this.state}; }
     set(patch) { Object.assign(this.state, patch); if(!this.disposed)this.windows.broadcast('update-status', this.status()); }
-    async savePreferences() {
-        return this.writePreferences(() => atomicWrite(this.preferencesFile, JSON.stringify(this.preferences)));
+    async savePreferences(patch = {}) {
+        return this.writePreferences(async () => {
+            const next = {...this.preferences, ...patch};
+            await atomicWrite(this.preferencesFile, JSON.stringify(next));
+            this.preferences = next;
+            this.set(next);
+        });
     }
     async configure(data) {
         await this.ready;
         if (!data || typeof data !== 'object' || Object.keys(data).some(key => !['autoCheck', 'autoDownload'].includes(key)) ||
             Object.values(data).some(value => typeof value !== 'boolean')) throw Error('UPDATE_INVALID_PREFERENCE');
         return this.configureQueue(async () => {
-            const next = {...this.preferences, ...data};
-            await this.writePreferences(() => atomicWrite(this.preferencesFile, JSON.stringify(next)));
-            this.preferences = next;
-            this.set(this.preferences);
+            await this.savePreferences(data);
             if (data.autoCheck === false) clearTimeout(this.timer);
             else if (data.autoCheck === true) this.schedule(1000);
             if(data.autoDownload===true&&!this.manualInstall){this.cancelledVersion=null;if(this.state.status==='available')void this.download().catch(error=>this.fail(error));}
@@ -129,10 +131,10 @@ class UpdateService {
             const version = typeof release.tag_name === 'string' ? release.tag_name.slice(1) : '';
             if (release.tag_name !== `v${version}` || !security.stableVersion(version) || release.draft !== false || release.prerelease !== false) throw Error('UPDATE_INVALID_MANIFEST');
             if (security.compareVersions(version, this.app.getVersion()) <= 0) {
-                this.preferences.lastChecked = this.now();
+                const checkedAt = this.now();
                 this.manifest = null; this.installer = null;
-                this.set({status: 'up-to-date', version: '', notes: '', lastChecked: this.preferences.lastChecked});
-                await this.savePreferences().catch(()=>{}); return this.status();
+                this.set({status: 'up-to-date', version: '', notes: '', lastChecked: checkedAt});
+                await this.savePreferences({lastChecked: checkedAt}).catch(()=>{}); return this.status();
             }
             const base = security.downloadBase(version);
             if (this.manualInstall) {
@@ -141,11 +143,11 @@ class UpdateService {
                 const asset = candidates[0];
                 if (candidates.length !== 1 || asset.browser_download_url !== base + name ||
                     !Number.isSafeInteger(asset.size) || asset.size < 1_000_000 || asset.size > 1_000_000_000 || asset.state !== 'uploaded') throw Error('UPDATE_NOT_PUBLISHED');
-                this.preferences.lastChecked = this.now();
+                const checkedAt = this.now();
                 this.set({status: 'available', version, notes: typeof release.body === 'string' ? release.body.slice(0, 10000) : '',
-                    downloadUrl: base + name, total: asset.size, lastChecked: this.preferences.lastChecked,
+                    downloadUrl: base + name, total: asset.size, lastChecked: checkedAt,
                     releaseUrl: `https://github.com/${security.REPOSITORY}/releases/tag/v${version}`});
-                await this.savePreferences().catch(() => {});
+                await this.savePreferences({lastChecked: checkedAt}).catch(() => {});
                 return this.status();
             }
             const names = [...security.releaseNames(version,this.target), this.target.manifest];
@@ -162,10 +164,10 @@ class UpdateService {
             if (!result?.isUpdateAvailable) throw Error('UPDATE_INVALID_VERSION');
             security.validateUpdateInfo(result.updateInfo, manifest);
             this.manifest = manifest; this.installer = null;
-            this.preferences.lastChecked = this.now();
+            const checkedAt = this.now();
             this.set({status: 'available', version, notes: manifest.notes, total: manifest.files[0].size,
-                percent: 0, lastChecked: this.preferences.lastChecked, releaseUrl: `https://github.com/${security.REPOSITORY}/releases/tag/v${version}`});
-            await this.savePreferences().catch(()=>{});
+                percent: 0, lastChecked: checkedAt, releaseUrl: `https://github.com/${security.REPOSITORY}/releases/tag/v${version}`});
+            await this.savePreferences({lastChecked: checkedAt}).catch(()=>{});
             return this.status();
         } catch (error) { return this.fail(error); }
         finally { clearTimeout(timeout); this.checkAbort = null; }

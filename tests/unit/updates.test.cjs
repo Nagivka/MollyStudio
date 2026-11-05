@@ -167,6 +167,28 @@ test('concurrent preference edits preserve both switches on disk',async t=>{
     assert.equal(saved.autoCheck,false);assert.equal(saved.autoDownload,true);
 });
 
+test('a completed check keeps its timestamp while a preference write is pending', async t => {
+    const f = await fixture(t);
+    const queue = f.service.writePreferences;
+    let release, entered;
+    const blocked = new Promise(resolve => {release = resolve;});
+    const started = new Promise(resolve => {entered = resolve;});
+    f.service.writePreferences = operation => queue(async () => {entered();await blocked;return operation();});
+    const configure = f.service.configure({autoCheck: false});
+    await started;
+    const checking = f.service.check();
+    try {
+        for (let attempt = 0; attempt < 100 && f.service.state.status !== 'available'; attempt++) await new Promise(resolve => setTimeout(resolve, 5));
+        assert.equal(f.service.state.status, 'available');
+    } finally {release();}
+    await Promise.all([configure, checking]);
+    const saved = JSON.parse(await fs.readFile(f.service.preferencesFile, 'utf8'));
+    assert.equal(saved.autoCheck, false);
+    assert.equal(saved.lastChecked, f.service.now());
+    assert.equal(f.service.preferences.lastChecked, saved.lastChecked);
+    assert.equal(f.service.status().lastChecked, saved.lastChecked);
+});
+
 test('transient requests retry, while rate limits and validation failures fail once',async()=>{
     const controller=new AbortController();let attempts=0;
     const bytes=await requestWithRetry(async()=>{if(++attempts<3)throw Object.assign(Error('reset'),{code:'ECONNRESET'});return Buffer.from('ok');},[],controller.signal,[0,1,1]);

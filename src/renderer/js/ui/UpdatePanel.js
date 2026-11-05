@@ -36,6 +36,14 @@ export function mountUpdatePanel(container, {banner = false} = {}) {
     const buttons = Object.fromEntries([...section.querySelectorAll('[data-update]')].map(button => [button.dataset.update, button]));
     let disposed = false, current = {status: 'idle', supported: false}, cooldown,localError='';
     const pending=new Set();
+    let statusRevision = 0;
+    async function refresh() {
+        const revision = ++statusRevision;
+        try {
+            const value = await api?.getUpdateStatus?.();
+            if (!disposed && revision === statusRevision && value) render(value);
+        } catch { if (!disposed) render(); }
+    }
     function render(value = current) {
         if (disposed) return;
         current = value;
@@ -84,17 +92,17 @@ export function mountUpdatePanel(container, {banner = false} = {}) {
             else if (name === 'download' && current.manualInstall) await api?.openExternal?.(current.downloadUrl);
             else { button.disabled = true; await api?.[operations[name]]?.(); }
         } catch {localError='Не удалось выполнить действие. Повторите попытку.';}
-        finally {pending.delete(name);if (!disposed) { try { render(await api?.getUpdateStatus?.() || current); } catch { render(); } } }
+        finally {pending.delete(name);if (!disposed) { render();await refresh(); } }
     });
     section.querySelectorAll('[data-update-preference]').forEach(input => input.addEventListener('change',async () => {
         const key=input.dataset.updatePreference,value=input.checked;
         localError='';pending.add(key);input.disabled=true;
-        try {current=await api.configureUpdates({[key]:value});}
+        try {await api.configureUpdates({[key]:value});}
         catch {localError='Не удалось сохранить настройки обновлений.';}
-        finally{pending.delete(key);render();}
+        finally{pending.delete(key);render();await refresh();}
     }));
-    const stop = api?.onUpdateStatus?.(render);
-    void api?.getUpdateStatus?.().then(render).catch(() => render());
+    const stop = api?.onUpdateStatus?.(value => {statusRevision++;render(value);});
+    void refresh();
     const language = () => render();
     document.addEventListener('molly-language-changed',language);
     render();
