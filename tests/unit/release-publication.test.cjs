@@ -31,12 +31,12 @@ async function fixture(t) {
     return {root, bytes, name, env, publicKey};
 }
 
-function mockApi({sourcePrivate = true, targetPrivate = false, existing = false, badDigest = false, uploadUrl} = {}) {
+function mockApi({sourcePrivate = false, sourceName = 'Nagivka/MollyStudio', targetPrivate = false, existing = false, badDigest = false, uploadUrl} = {}) {
     const calls = [];
     const response = (body, status = 200) => ({ok: status < 400, status, json: async () => body});
     return {calls, fetchImpl: async (url, options) => {
         calls.push({url, ...options});
-        if (url === 'https://api.github.com/repos/Nagivka/MollyStudio') return response({full_name: 'Nagivka/MollyStudio', private: sourcePrivate});
+        if (url === 'https://api.github.com/repos/Nagivka/MollyStudio') return response({full_name: sourceName, private: sourcePrivate});
         if (url === 'https://api.github.com/repos/Nagivka/MollyStudio-Releases') return response({full_name: 'Nagivka/MollyStudio-Releases', private: targetPrivate, permissions: {push: true}});
         if (url.endsWith('/tags/v1.4.1')) return existing ? response({id: 42}) : response(null, 404);
         if (url.startsWith('https://uploads.github.com/')) return response({state: 'uploaded', size: options.body.length,
@@ -66,7 +66,7 @@ test('publication uploads only installer, update metadata, checksum and signed m
 });
 
 for (const [name, options, pattern] of [
-    ['public source', {sourcePrivate: false}, /must remain private/],
+    ['wrong source', {sourceName: 'someone/MollyStudio'}, /Unexpected source/],
     ['private destination', {targetPrivate: true}, /Unexpected public/],
     ['existing release', {existing: true}, /will not be overwritten/],
     ['wrong digest', {badDigest: true}, /verification failed/],

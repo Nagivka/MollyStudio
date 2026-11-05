@@ -4,7 +4,7 @@ permissions:
   contents: read
 jobs:
   check:
-    if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
+    if: github.repository == 'Nagivka/MollyStudio'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     environment: UPDATES_REPO_TOKEN

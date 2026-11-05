@@ -22,7 +22,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   windows-project-fixtures:
-    if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
+    if: github.repository == 'Nagivka/MollyStudio'
     runs-on: windows-latest
     timeout-minutes: 18
     steps:
@@ -50,7 +50,7 @@ jobs:
           retention-days: 7
   native:
     needs: windows-project-fixtures
-    if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
+    if: github.repository == 'Nagivka/MollyStudio'
     strategy:
       fail-fast: false
       matrix:

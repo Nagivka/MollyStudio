@@ -1,0 +1,17 @@
+# Reviewed false positives: asset SHA256 manifests and keyboard accelerator fixtures.
+61a9cc3d1c32d8f1bd41b3ac6ed027a54315b369:tests/unit/native-menu.test.cjs:generic-api-key:7
+bed4e6ed7ee50b4f6d575adb474c7c9a9f621e5d:src/renderer/assets/title_generator/manifest.json:discord-api-token:437
+bed4e6ed7ee50b4f6d575adb474c7c9a9f621e5d:src/renderer/assets/title_generator/manifest.json:discord-api-token:450
+a07221c409e24bfd944c122afc931be74dab798d:src/renderer/assets/blocks_minecraft/manifest.json:generic-api-key:1840
+a07221c409e24bfd944c122afc931be74dab798d:src/renderer/assets/blocks_minecraft/manifest.json:generic-api-key:1841
+a07221c409e24bfd944c122afc931be74dab798d:src/renderer/assets/blocks_minecraft/manifest.json:generic-api-key:2086
+a07221c409e24bfd944c122afc931be74dab798d:src/renderer/assets/blocks_minecraft/manifest.json:generic-api-key:2087
+a07221c409e24bfd944c122afc931be74dab798d:src/renderer/assets/blocks_minecraft/manifest.json:generic-api-key:2088
+a07221c409e24bfd944c122afc931be74dab798d:src/renderer/assets/blocks_minecraft/manifest.json:generic-api-key:2089
+a07221c409e24bfd944c122afc931be74dab798d:src/renderer/js/core/Shortcuts.mjs:generic-api-key:6
+43c801d7eaedf526f9c28b9b0a443f08d793fe04:www/assets/blocks_minecraft/manifest.json:generic-api-key:1840
+43c801d7eaedf526f9c28b9b0a443f08d793fe04:www/assets/blocks_minecraft/manifest.json:generic-api-key:1841
+43c801d7eaedf526f9c28b9b0a443f08d793fe04:www/assets/blocks_minecraft/manifest.json:generic-api-key:2086
+43c801d7eaedf526f9c28b9b0a443f08d793fe04:www/assets/blocks_minecraft/manifest.json:generic-api-key:2087
+43c801d7eaedf526f9c28b9b0a443f08d793fe04:www/assets/blocks_minecraft/manifest.json:generic-api-key:2088
+43c801d7eaedf526f9c28b9b0a443f08d793fe04:www/assets/blocks_minecraft/manifest.json:generic-api-key:2089

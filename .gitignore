@@ -48,3 +48,17 @@ tests/.molly-*/
 
 # Local quarantine for files reviewed as obsolete
 TO_DELETE-2026-10-29/
+
+# Local promotional materials and historical design/audit captures
+forum-description.html
+forum-media/
+design/reference/
+design/references/
+docs/*audit*.md
+docs/designs-and-motion-*.md
+docs/linux-and-polish-*.md
+scripts/capture-forum-*.cjs
+scripts/create-forum-page.cjs
+scripts/forum-page-check.cjs
+scripts/data/forum-media.json
+scripts/data/forum-post.html

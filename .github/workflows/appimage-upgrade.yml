@@ -1,4 +1,4 @@
-name: Private two-version AppImage upgrade
+name: Two-version AppImage upgrade
 on:
   workflow_dispatch:
   push:
@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   upgrade:
-    if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
+    if: github.repository == 'Nagivka/MollyStudio'
     strategy:
       fail-fast: false
       matrix:

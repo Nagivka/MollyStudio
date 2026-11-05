@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   audit:
-    if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
+    if: github.repository == 'Nagivka/MollyStudio'
     strategy:
       fail-fast: false
       max-parallel: 8

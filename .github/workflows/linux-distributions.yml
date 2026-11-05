@@ -5,7 +5,7 @@ permissions:
   contents: read
 jobs:
   build:
-    if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
+    if: github.repository == 'Nagivka/MollyStudio'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -57,7 +57,7 @@ jobs:
             -v "$PWD:/work" -v "$node_root:/opt/node:ro" -w /work "$DISTRO_IMAGE" \
             bash scripts/linux-distro-check.sh
   flatpak:
-    if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
+    if: github.repository == 'Nagivka/MollyStudio'
     strategy:
       fail-fast: false
       matrix:

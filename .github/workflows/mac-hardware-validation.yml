@@ -11,7 +11,7 @@ permissions:
   contents: read
 jobs:
   mac:
-    if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
+    if: github.repository == 'Nagivka/MollyStudio'
     runs-on: [self-hosted, macOS, mollystudio-qa]
     timeout-minutes: 45
     steps:

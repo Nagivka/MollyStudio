@@ -12,7 +12,7 @@ const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 const artifacts = prepareReleaseBundle;
 
 async function publish({root, env = process.env, fetchImpl = fetch, checkAccessOnly = false, publicKey = PUBLIC_KEY}) {
-    if (env.GITHUB_REPOSITORY !== SOURCE) throw Error('Publishing must run from the private source repository.');
+    if (env.GITHUB_REPOSITORY !== SOURCE) throw Error('Publishing must run from the official source repository.');
     if (!env.RELEASES_TOKEN || !env.SOURCE_TOKEN) {
         throw Error('Add Actions secret UPDATES_REPO_TOKEN (Contents: read/write for MollyStudio-Releases only). Private build artifacts are retained.');
     }
@@ -35,11 +35,11 @@ async function publish({root, env = process.env, fetchImpl = fetch, checkAccessO
     }
     const source = await api(`/repos/${SOURCE}`, {token: env.SOURCE_TOKEN});
     const target = await api(`/repos/${TARGET}`);
-    if (source.private !== true || source.full_name !== SOURCE) throw Error('Source repository must remain private.');
+    if (source.full_name !== SOURCE) throw Error('Unexpected source repository.');
     if (target.private !== false || target.full_name !== TARGET) throw Error('Unexpected public release repository.');
     if (target.permissions?.push !== true) throw Error('Release token has no push access to the release repository.');
     if (checkAccessOnly) {
-        console.log('Source is private; release token has push access; release signing key matches the application. No release was changed.');
+        console.log('Official source verified; release token has push access; release signing key matches the application. No release was changed.');
         return {checked: true};
     }
     const releasesPath = `/repos/${TARGET}/releases`;
