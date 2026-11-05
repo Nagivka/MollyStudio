@@ -43,7 +43,7 @@ async function checkProjectAssociation(executable, fixture) {
     const profile=wayland?path.join(directory,'config','MollyStudio'):path.join(directory,'profile');
     const fixture=path.join(await fs.realpath(directory),'Проект проверки.mlst');
     const installed=wayland||process.argv[3]==='installed';
-    const suffix=wayland?'-wayland':appImage?'-appimage':installed?'-installed':'';
+    const suffix=wayland?'-wayland':appImage?'-appimage':installed?'-installed':process.argv[3]==='rpm'?'-rpm':'';
     await fs.mkdir(profile,{recursive:true});await fs.writeFile(path.join(profile,'update-preferences.json'),JSON.stringify({autoCheck:false,autoDownload:false}));
     await fs.writeFile(fixture,JSON.stringify({mollyVersion:2,type:'canvas',name:'Native smoke',config:{width:64,height:64},layers:[]}));
     const server=net.createServer();server.listen(0,'127.0.0.1');await once(server,'listening');const port=server.address().port;await new Promise(resolve=>server.close(resolve));

@@ -5,7 +5,7 @@ on:
       targets:
         description: Platforms to check
         type: choice
-        options: [all, macOS, Linux, Windows]
+        options: [all, macOS, Linux, Windows, RPM]
         default: all
 permissions:
   contents: read
@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJSON(inputs.targets == 'macOS' && '["macos-26-intel","macos-26"]' || inputs.targets == 'Linux' && '["ubuntu-24.04","ubuntu-24.04-arm"]' || inputs.targets == 'Windows' && '["windows-latest"]' || '["windows-latest","macos-26-intel","macos-26","ubuntu-24.04","ubuntu-24.04-arm"]') }}
+        os: ${{ fromJSON(inputs.targets == 'macOS' && '["macos-26-intel","macos-26"]' || (inputs.targets == 'Linux' || inputs.targets == 'RPM') && '["ubuntu-24.04","ubuntu-24.04-arm"]' || inputs.targets == 'Windows' && '["windows-latest"]' || '["windows-latest","macos-26-intel","macos-26","ubuntu-24.04","ubuntu-24.04-arm"]') }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
@@ -55,7 +55,7 @@ jobs:
           codesign --verify --deep --strict "$bundle"
           node scripts/packaged-platform-smoke.cjs "$bundle/Contents/MacOS/MollyStudio" installed
       - name: Install published Linux DEB and check AppImage
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && inputs.targets != 'RPM'
         shell: bash
         run: |
           sudo apt-get update -o Acquire::Retries=3 -o Acquire::http::Timeout=30
@@ -76,6 +76,15 @@ jobs:
             launch=(aa-exec -p mollystudio-public-appimage --)
           fi
           "${launch[@]}" xvfb-run -a node scripts/packaged-platform-smoke.cjs "$(realpath dist/*linux.AppImage)" appimage
+      - name: Install published RPM on Fedora
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          node_root=$(dirname "$(dirname "$(command -v node)")")
+          docker run --rm --cap-add=SYS_ADMIN --security-opt seccomp=unconfined --shm-size=1g \
+            -e CI=true -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \
+            -v "$PWD:/work" -v "$node_root:/opt/node:ro" -w /work fedora:43 \
+            bash scripts/published-rpm-check.sh
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         if: always()
         with:
