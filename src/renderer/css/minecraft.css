@@ -179,7 +179,7 @@
     }
     /* The pixel font is wider: let menu items wrap before reaching actions. */
     & .top-bar { height: auto; min-height: var(--md-topbar-height); padding-block: 4px; }
-    & .top-menu { flex: 1 0 auto; flex-wrap: wrap; }
+    & .top-menu { flex: 1 1 auto; flex-wrap: wrap; }
     & .top-menu .menu-item { flex: 0 0 auto; }
     & .md-panel-props .inspector-tab { flex-direction: row; gap: 6px; }
     & .menu-dropdown { max-width: calc(100vw - 24px); }
