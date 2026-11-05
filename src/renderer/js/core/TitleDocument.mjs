@@ -64,7 +64,9 @@ export function normalizeTitleDocument(value={}) {
 }
 
 export function titleRowSettings(data,index){
-    const row=data.rows?.[index],role=data.layout==='logo'?(index===0?'top':index===1?'bottom':'small'):'top';
+    const row=index<0?null:data.rows?.[index];
+    index=Math.max(0,index);
+    const role=data.layout==='logo'?(index===0?'top':index===1?'bottom':'small'):'top';
     const value={...data,texture:index>0&&data.subtitleTexture!=='same'?data.subtitleTexture:data.texture,...row,role:row?.role&&row.role!=='auto'?row.role:role};
     const language=titleLanguageForLine(data.text.split('\n')[index]||'',data.rowLanguages?.[index],value.font);
     const font=titleFontForLanguage(value.font,language)||TITLE_TEXT_LANGUAGES[language].font;

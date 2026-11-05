@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {normalizeTitleDocument,normalizeTitleTransform,TITLE_FONTS,titleMaterials} from '../../src/renderer/js/core/TitleDocument.mjs';
+import {normalizeTitleDocument,normalizeTitleTransform,TITLE_FONTS,titleMaterials,titleRowSettings} from '../../src/renderer/js/core/TitleDocument.mjs';
 import {TITLE_FONT_CATALOG} from '../../src/renderer/js/core/TitleFontCatalog.mjs';
 import {createProjectFromForm,buildEditorUrl} from '../../src/renderer/js/core/ProjectFactory.mjs';
 import {readDocumentState} from '../../src/renderer/js/core/typed/DocumentState.mjs';
@@ -14,6 +14,14 @@ test('title settings bound malformed files and preserve Cyrillic',()=>{
  assert.equal(data.depth,22);assert.equal(data.pitch,-80);assert.equal(data.top,'#BEB9AA');assert.equal(data.font,'minecraft-ten-cyrillic');
  assert.equal(normalizeTitleDocument().projection,'perspective');assert.equal(normalizeTitleDocument({projection:'orthographic'}).projection,'orthographic');
  assert.deepEqual(normalizeTitleDocument(data),data);
+});
+
+test('whole-title settings read the shared defaults independently of a first-row override',()=>{
+ const data=normalizeTitleDocument({text:'MOLLY\nSTUDIO',font:'minecraft-ten',texture:'stone',spacing:2,rows:[{font:'minecraft-five-bold',texture:'gold',spacing:5,appearance:{source:'gradient'}},null,null]});
+ const before=structuredClone(data),shared=titleRowSettings(data,-1),first=titleRowSettings(data,0);
+ assert.equal(shared.font,data.font);assert.equal(shared.texture,data.texture);assert.equal(shared.spacing,2);assert.equal(shared.appearance.source,'texture');
+ assert.equal(first.font,'minecraft-five-bold');assert.equal(first.texture,'gold');assert.equal(first.spacing,5);assert.equal(first.appearance.source,'gradient');
+ assert.equal(titleRowSettings(data,1).font,shared.font);assert.deepEqual(data,before);
 });
 
 test('the complete reference catalog uses real, independently authored font models',()=>{

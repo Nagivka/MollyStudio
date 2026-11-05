@@ -14,9 +14,9 @@ export default class TitleViewport {
         this.editor=editor;this.states=new WeakMap();
         this.element=document.createElement('section');this.element.className='title-viewport';this.element.id='title-viewport';this.element.setAttribute('role','tabpanel');this.element.hidden=true;
         this.element.innerHTML=`<div class="title-viewport-toolbar" role="toolbar" aria-label="3D">
-            <div class="title-mode-buttons">${modes.map(([id,icon,label])=>`<button class="md-icon-btn" type="button" data-title-mode="${id}" title="${label}" aria-label="${label}"><i class="material-symbols-rounded">${icon}</i></button>`).join('')}</div>
-            <div class="title-view-buttons"><button class="md-btn outlined" type="button" data-title-view="edit">${labelHTML('Правка')}</button><button class="md-btn outlined" type="button" data-title-view="render">${labelHTML('Рендер')}</button></div>
-            <div class="title-viewport-actions"><button class="md-icon-btn" type="button" data-title-fit><i class="material-symbols-rounded">fullscreen</i></button></div>
+            <div class="title-mode-buttons">${modes.map(([id,icon,label])=>`<button class="md-btn outlined" type="button" data-title-mode="${id}" title="${label}" aria-label="${label}"><i class="material-symbols-rounded" aria-hidden="true">${icon}</i><span class="title-mode-label">${labelHTML(label)}</span></button>`).join('')}</div>
+            <div class="title-view-buttons"><button class="md-btn outlined" type="button" data-title-view="edit">${labelHTML('Редактор')}</button><button class="md-btn outlined" type="button" data-title-view="render">${labelHTML('Предпросмотр')}</button></div>
+            <div class="title-viewport-actions"><button class="md-icon-btn" type="button" data-title-fit><i class="material-symbols-rounded" aria-hidden="true">restart_alt</i></button></div>
         </div><div class="title-viewport-stage" tabindex="0"><div class="title-output-frame" hidden></div><svg class="title-gizmo" aria-hidden="true"></svg><output class="title-drag-readout" hidden></output></div><p class="title-navigation-hint"></p>`;
         const workspace=document.getElementById('workspace');workspace.append(this.element);
         this.stage=this.element.querySelector('.title-viewport-stage');
@@ -24,6 +24,8 @@ export default class TitleViewport {
         editor.renderer.canvas.addEventListener('webglcontextlost',()=>{if(editor.project())editor.showGraphicsError(Error('3D-контекст временно недоступен.'));});
         editor.renderer.canvas.addEventListener('webglcontextrestored',()=>{this.redraw();});
         bindAttribute(editor.renderer.canvas,'aria-label','Объёмная сцена надписи');bindAttribute(this.element.querySelector('[data-title-fit]'),'title','Сбросить камеру');
+        bindAttribute(this.element.querySelector('[data-title-fit]'),'aria-label','Сбросить камеру');
+        bindAttribute(this.stage,'aria-label','3D-вид надписи');
         for(const [id,,label] of modes){const button=this.element.querySelector(`[data-title-mode="${id}"]`);bindAttribute(button,'aria-label',label);bindAttribute(button,'title',label);}
         this.svg=this.element.querySelector('svg');this.outputFrame=this.element.querySelector('.title-output-frame');this.readout=this.element.querySelector('.title-drag-readout');
         this.element.addEventListener('click',event=>{
@@ -83,7 +85,10 @@ export default class TitleViewport {
             if(frame){const sx=box.width/plan.width,sy=box.height/plan.height;Object.assign(this.outputFrame.style,{left:frame.x*sx+'px',top:frame.y*sy+'px',width:frame.width*sx+'px',height:frame.height*sy+'px'});}
             for(const button of this.element.querySelectorAll('[data-title-mode]')){button.classList.toggle('active',button.dataset.titleMode===state.mode);button.disabled=state.view==='render';button.setAttribute('aria-pressed',String(button.classList.contains('active')));}
             for(const button of this.element.querySelectorAll('[data-title-view]')){button.classList.toggle('active',button.dataset.titleView===state.view);button.setAttribute('aria-pressed',String(button.classList.contains('active')));}
-            bindText(this.element.querySelector('.title-navigation-hint'),state.view==='edit'?'ЛКМ — выбрать · Потяни ось X/Y/Z — изменить · Shift — привязка · Ctrl+ЛКМ — часть · ПКМ — камера':'Рамка PNG · Пропорции и ракурс совпадают с экспортом');
+            const selected=this.node();
+            bindText(this.element.querySelector('.title-navigation-hint'),state.view==='render'?'Предпросмотр надписи. Готовый PNG — кнопка «Экспорт».':
+                selected&&!this.isLocked(selected)?'Потяните ось X, Y или Z · Shift — привязка · Esc — снять выбор · ПКМ — камера':
+                'Щелчок — выбрать букву · ПКМ — повернуть камеру · Колесо — приблизить · Shift+ПКМ — сдвинуть');
         }catch(error){this.editor.showGraphicsError(error);}
     }
     drawGizmo(box){

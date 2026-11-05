@@ -13,7 +13,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
   expect(data().meshMode==='original','New documents use the original generator model geometry');
   for(const tab of ['settings','material','scene']){
    editor.panel.querySelector('[data-title-tab="'+tab+'"]').click();
-   expect(!editor.panel.querySelector('.title-'+(tab==='settings'?'settings':tab)+'-panel').hidden&&editor.panel.querySelector('[data-title-row]').checkVisibility(),'The '+tab+' section opens with the shared row selector visible');
+   expect(!editor.panel.querySelector('.title-'+(tab==='settings'?'settings':tab)+'-panel').hidden&&!editor.panel.querySelector('[data-title-row]').checkVisibility(),'The '+tab+' section opens without an unnecessary scope selector for a single row');
   }
   const lastTab=editor.panel.querySelector('[data-title-tab="scene"]');lastTab.focus();lastTab.dispatchEvent(new KeyboardEvent('keydown',{key:'Home',bubbles:true,cancelable:true}));expect(editor.panel.querySelector('[data-title-tab="settings"]').tabIndex===0&&!editor.panel.querySelector('.title-settings-panel').hidden,'Inspector tabs support keyboard navigation and a single tab stop');
   editor.setTab('settings');editor.panel.querySelector('[data-title-library="fonts"]').click();

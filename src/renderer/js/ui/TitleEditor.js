@@ -13,8 +13,8 @@ import {bindText,labelHTML,bindAttribute,uiLabel,translate} from '../core/Locale
 
 const clone=value=>structuredClone(value);
 const PRESETS=[
-    {name:'Классика',texture:'stone',originalColors:true},
-    {name:'Золото',texture:'gold',originalColors:true},
+    {name:'Классика',texture:'stone',originalColors:true,swatch:['#BEB9AA','#77736A']},
+    {name:'Золото',texture:'gold',originalColors:true,swatch:['#FFE880','#BC790E']},
     {name:'Алмаз',texture:'none',originalColors:false,top:'#D8FFFF',bottom:'#34C7DC',side:'#155D83'},
     {name:'Изумруд',texture:'none',originalColors:false,top:'#D6FFBF',bottom:'#39B765',side:'#155037'},
     {name:'Незерит',texture:'none',originalColors:false,top:'#D4C5D4',bottom:'#6D6172',side:'#29212E'},
@@ -30,6 +30,10 @@ const appearanceNumber=(key,label,min,max)=>numeric(key,label,min,max).replace('
 const appearanceToggle=(key,label)=>toggle(key,label).replace('data-title-field=','data-title-appearance=');
 const appearanceColor=(key,label)=>`<label>${text(label)}<input type="color" data-title-appearance="${key}"></label>`;
 const toggle=(key,label)=>`<label class="md-switch"><input type="checkbox" data-title-field="${key}"><span class="md-switch-track"><span class="md-switch-thumb"></span></span><span>${text(label)}</span></label>`;
+const icon=name=>`<i class="material-symbols-rounded" aria-hidden="true">${name}</i>`;
+const group=(label,symbol,content)=>`<section class="title-control-group"><h4>${icon(symbol)}${text(label)}</h4>${content}</section>`;
+const disclosure=(label,symbol,content)=>`<details class="title-details"><summary>${icon(symbol)}${text(label)}${icon('expand_more')}</summary><div class="title-details-body">${content}</div></details>`;
+const choice=(kind,controls,action)=>`<div class="title-choice-row">${controls}<button type="button" class="md-btn outlined title-visual-choice" ${action}><img data-title-choice="${kind}" alt="">${icon('grid_view')}</button></div>`;
 
 export default class TitleEditor {
     constructor(app){
@@ -37,32 +41,43 @@ export default class TitleEditor {
         this.panel=document.createElement('aside');this.panel.id='title-editor';this.panel.hidden=true;this.panel.className='title-inspector';
         bindAttribute(this.panel,'aria-label','Генератор надписей');
         this.panel.innerHTML=`
-            <h3>${text('3D-генератор надписей')}</h3>
-            <div class="title-inspector-tabs" role="tablist"><button type="button" class="md-btn outlined active" role="tab" aria-selected="true" data-title-tab="settings">${text('Надпись')}</button><button type="button" class="md-btn outlined" role="tab" aria-selected="false" data-title-tab="material">${text('Материал')}</button><button type="button" class="md-btn outlined" role="tab" aria-selected="false" data-title-tab="scene">${text('Сцена')}</button></div>
-            <div class="title-scene-panel" hidden>
-                <div class="title-outliner" role="tree"></div>
-                <p class="field-hint title-selection-hint">${text('Выберите букву или часть модели.')}</p>
-                <fieldset class="title-transform-fields" disabled><legend>${text('Преобразование')}</legend>
-                ${[['position','Положение'],['rotation','Вращение'],['scale','Масштаб']].map(([key,label])=>`<div class="title-transform-group"><span>${text(label)}</span><div>${['X','Y','Z'].map((axis,i)=>`<label>${axis}<input type="number" class="md-number-input" step="any" min="${key==='scale'?.01:key==='rotation'?-180:-4096}" max="${key==='scale'?20:key==='rotation'?180:4096}" data-title-transform="${key}" data-axis="${i}"></label>`).join('')}</div></div>`).join('')}
-                <button class="md-btn outlined" type="button" data-title-reset-object>${text('Сбросить преобразование')}</button></fieldset>
-            </div>
+            <header class="title-inspector-header">
+                <h3>${text('3D-генератор надписей')}</h3>
+                <div class="title-inspector-tabs" role="tablist">${[['settings','text_fields','Текст'],['material','palette','Оформление'],['scene','deployed_code','Сцена']].map(([id,symbol,label])=>`<button type="button" class="md-btn outlined" role="tab" data-title-tab="${id}">${icon(symbol)}${text(label)}</button>`).join('')}</div>
+                <div class="title-scope" hidden>
+                    <label>${text('Применять к')}<select class="md-select" data-title-row><option value="-1">${text('Вся надпись')}</option><option value="0">${text('Строка 1')}</option><option value="1">${text('Строка 2')}</option><option value="2">${text('Строка 3')}</option></select></label>
+                    <button class="md-icon-btn" type="button" data-title-row-reset hidden>${icon('restart_alt')}</button>
+                    <p class="field-hint" data-title-scope-description hidden></p>
+                </div>
+                <p class="title-warning" role="status"></p>
+                <button class="md-btn outlined" type="button" data-title-retry hidden>${text('Повторить загрузку')}</button>
+            </header>
+            <div class="title-inspector-body">
             <div class="title-settings-panel">
-            <label>${text('Текст · до 3 строк по 64 символа')}<textarea class="md-input" rows="3" maxlength="386" data-title-field="text"></textarea></label>
-            <div class="title-row-languages">${[0,1,2].map(index=>`<label>${text('Язык строки {0}',{0:index+1})}<select class="md-select" data-title-language="${index}"><option value="auto">${text('Авто')}</option>${Object.entries(TITLE_TEXT_LANGUAGES).map(([id,item])=>`<option value="${id}">${text(item.name)}</option>`).join('')}</select></label>`).join('')}</div>
-            <label>${text('Редактировать')}<select class="md-select" data-title-row><option value="-1">${text('Вся надпись')}</option><option value="0">${text('Строка 1')}</option><option value="1">${text('Строка 2')}</option><option value="2">${text('Строка 3')}</option></select></label>
-            <button class="md-btn outlined" type="button" data-title-row-reset>${text('Наследовать общие настройки')}</button>
-            ${select('font','Шрифт',Object.entries(TITLE_FONT_CATALOG).map(([id,font])=>[id,font.name]))}
-            <button class="md-btn outlined" type="button" data-title-library="fonts">${text('Библиотека шрифтов')}</button>
-            <p class="field-hint">${text('Показываются исходные шрифты и оформления для языка выбранной строки.')}</p>
-            ${select('role','Тип строки',[['auto','По компоновке'],['top','Заголовок'],['bottom','Подзаголовок'],['small','Подпись']])}
-            ${select('layout','Компоновка',[['logo','Логотип: заголовок, подзаголовок, подпись'],['stacked','Обычные строки']])}
-            <div class="title-fields">${numeric('spacing','Интервал букв',0,20)}${numeric('lineGap','Между строками',-4,20)}${numeric('depth','Глубина',0,48)}</div>
-            ${toggle('kerning','Оптические интервалы')}${toggle('terminators','Краевые элементы строки')}
-            ${toggle('creeperA','Крипер в букве A')}
-            <h4>${text('Материал')}</h4>
-            ${appearanceSelect('source','Источник',[['texture','Готовый материал'],['gradient','Градиент'],['tileable','Повторяющаяся текстура'],['file','Своё изображение']])}
-            ${select('texture','Материал',[['none','Гладкий']])}
-            <button class="md-btn outlined" type="button" data-title-material-library><i class="material-symbols-rounded">palette</i>${text('Библиотека материалов')}</button>
+            ${group('Текст надписи','text_fields',`
+                <label>${text('Текст')}<textarea class="md-input" rows="3" maxlength="386" data-title-field="text" aria-describedby="title-text-help"></textarea></label>
+                <p id="title-text-help" class="field-hint">${text('До трёх строк, по 64 символа. Enter добавляет строку.')}</p>
+                ${disclosure('Язык строк','translate',`<p class="field-hint">${text('Язык определяется автоматически. Используйте один алфавит в каждой строке.')}</p>
+                    <div class="title-row-languages">${[0,1,2].map(index=>`<label>${text('Язык строки {0}',{0:index+1})}<select class="md-select" data-title-language="${index}"><option value="auto">${text('Авто')}</option>${Object.entries(TITLE_TEXT_LANGUAGES).map(([id,item])=>`<option value="${id}">${text(item.name)}</option>`).join('')}</select></label>`).join('')}</div>`)}
+            `)}
+            ${group('Форма текста','tune',`
+                ${choice('font',select('font','Шрифт',[]),'data-title-library="fonts"')}
+                <div class="title-fields">${numeric('depth','Глубина букв',0,48)}${numeric('spacing','Интервал букв',0,20)}</div>
+                <div class="title-layout-options" hidden>
+                    ${select('layout','Компоновка',[['logo','Заголовок, подзаголовок, подпись'],['stacked','Строки одного размера']])}
+                    <div class="title-fields">${numeric('lineGap','Между строками',-4,20)}${select('role','Роль строки',[['auto','По компоновке'],['top','Заголовок'],['bottom','Подзаголовок'],['small','Подпись']])}</div>
+                </div>
+                ${disclosure('Детали шрифта','tune',`${toggle('kerning','Оптические интервалы')}${toggle('terminators','Краевые элементы строки')}${toggle('creeperA','Крипер в букве A')}`)}
+            `)}
+            </div>
+            <div class="title-material-panel" hidden>
+            ${group('Готовые оформления','palette',`<div class="title-presets">${PRESETS.map((preset,index)=>{
+                const [top,bottom]=preset.swatch||[preset.top,preset.bottom];
+                return `<button class="md-btn outlined" type="button" data-title-preset="${index}"><span class="title-preset-swatch" aria-hidden="true" style="--swatch-top:${top};--swatch-bottom:${bottom}"></span>${text(preset.name)}</button>`;
+            }).join('')}</div>`)}
+            ${group('Поверхность букв','layers',`
+            ${appearanceSelect('source','Тип поверхности',[['texture','Готовый материал'],['gradient','Градиент'],['tileable','Повторяющаяся текстура'],['file','Своё изображение']])}
+            ${choice('texture',select('texture','Материал',[]),'data-title-material-library')}
             ${select('subtitleTexture','Подзаголовок и подпись',[['same','Как основной текст']])}
             <div data-title-source="gradient"><div class="title-gradient-stops"></div><button class="md-btn outlined" type="button" data-title-add-stop>${text('Добавить цвет')}</button>${appearanceToggle('smooth','Плавный градиент')}</div>
             <div data-title-source="tileable">
@@ -70,46 +85,57 @@ export default class TitleEditor {
                 <button class="md-btn outlined" type="button" data-title-library="tileables">${text('Библиотека текстур')}</button>
             </div>
             <div data-title-source="file">${appearanceSelect('fileMode','Тип изображения',[['atlas','Атлас шрифта'],['tileable','Повторяющаяся текстура']])}<button class="md-btn outlined" type="button" data-title-import="image">${text('Выбрать изображение')}</button><p class="field-hint" data-title-file-info></p></div>
-            <div class="title-tile-options"><div class="title-fields">${appearanceNumber('tileScale','Размер текстуры',.05,20)}${appearanceNumber('tileX','Сдвиг текстуры X',-256,256)}${appearanceNumber('tileY','Сдвиг текстуры Y',-256,256)}</div>${appearanceToggle('randomRotation','Случайные повороты')}${appearanceToggle('randomMirror','Случайные отражения')}</div>
-            <div class="title-procedural-options">${appearanceSelect('textureResolution','Разрешение материала',[[1,'1×'],[2,'2×'],[4,'4×']])}${appearanceNumber('edgeBrightness','Яркость боковых граней, %',0,100)}${appearanceToggle('disableFontOverlay','Отключить детали шрифта')}</div>
-            <h4>${text('Наложение')}</h4>
+            ${disclosure('Параметры текстуры','tune',`
+                <div class="title-tile-options"><div class="title-fields">${appearanceNumber('tileScale','Размер текстуры',.05,20)}${appearanceNumber('tileX','Сдвиг текстуры X',-256,256)}${appearanceNumber('tileY','Сдвиг текстуры Y',-256,256)}</div>${appearanceToggle('randomRotation','Случайные повороты')}${appearanceToggle('randomMirror','Случайные отражения')}</div>
+                ${appearanceSelect('textureResolution','Разрешение материала',[[1,'1×'],[2,'2×'],[4,'4×']])}${appearanceNumber('edgeBrightness','Яркость боковых граней, %',0,100)}${appearanceToggle('disableFontOverlay','Отключить детали шрифта')}
+            `)}
+            `)}
+            ${disclosure('Наложение','layers',`
             ${appearanceSelect('overlay','Текстура наложения',[['none','Нет']])}
             <button class="md-btn outlined" type="button" data-title-library="overlays">${text('Библиотека наложений')}</button>
             <button class="md-btn outlined" type="button" data-title-import="overlayImage">${text('Загрузить своё наложение')}</button>
             <button class="md-btn outlined" type="button" data-title-clear-overlay hidden>${text('Удалить своё наложение')}</button>
             <div class="title-overlay-options">${appearanceNumber('overlayOpacity','Непрозрачность, %',0,100)}${appearanceSelect('overlayBlend','Режим наложения',blendOptions)}${appearanceColor('overlayColor','Цвет наложения')}${appearanceSelect('overlayColorBlend','Смешивание цвета наложения',blendOptions)}</div>
-            <h4>${text('Коррекция материала')}</h4>
+            `)}
+            ${disclosure('Цвет и грани','tune',`
             <div class="title-fields">${appearanceNumber('hue','Тон, °',-180,180)}${appearanceNumber('saturation','Насыщенность, %',0,200)}${appearanceNumber('brightness','Яркость, %',0,200)}${appearanceNumber('contrast','Контраст, %',0,200)}</div>
             ${appearanceColor('tint','Тонирование')}${appearanceNumber('tintOpacity','Сила тонирования, %',0,100)}${appearanceSelect('tintBlend','Смешивание цвета',blendOptions)}
             ${appearanceToggle('customBorder','Свой цвет контура')}${appearanceColor('borderColor','Цвет контура')}
             ${appearanceToggle('customEdge','Свой цвет боковых граней')}${appearanceColor('edgeColor','Цвет боковых граней')}${appearanceToggle('fadeToBorder','Переход к цвету контура')}
             ${toggle('originalColors','Оригинальные цвета материала')}
             <div class="title-fields" data-title-custom-colors>${[['top','Верх текста'],['bottom','Низ текста'],['side','Боковые грани']].map(([key,label])=>`<label>${text(label)}<input type="color" data-title-field="${key}"></label>`).join('')}</div>
-            <div class="title-presets">${PRESETS.map((preset,index)=>`<button class="md-btn outlined" type="button" data-title-preset="${index}">${text(preset.name)}</button>`).join('')}</div>
-            <h4>${text('Камера')}</h4>
-            ${select('projection','Проекция',[['perspective','Перспективная'],['orthographic','Ортогональная']])}
-            <div class="title-fields">${numeric('yaw','Поворот Y, °',-180,180)}${numeric('pitch','Поворот X, °',-80,80)}${numeric('zoom','Приближение, %',10,600)}</div>
-            <button type="button" class="md-btn outlined" data-title-reset-camera>${text('Сбросить камеру')}</button>
-            <p class="title-warning" role="status"></p>
+            `)}
+            </div>
+            <div class="title-scene-panel" hidden>
+                ${group('Выбранный объект','select_all',`
+                    <p class="field-hint title-selection-hint"></p>
+                    <fieldset class="title-transform-fields" disabled hidden><legend>${text('Преобразование')}</legend>
+                    ${[['position','Положение'],['rotation','Вращение'],['scale','Масштаб']].map(([key,label])=>`<div class="title-transform-group"><span>${text(label)}</span><div>${['X','Y','Z'].map((axis,i)=>`<label>${axis}<input type="number" class="md-number-input" step="any" min="${key==='scale'?.01:key==='rotation'?-180:-4096}" max="${key==='scale'?20:key==='rotation'?180:4096}" data-title-transform="${key}" data-axis="${i}"></label>`).join('')}</div></div>`).join('')}
+                    <button class="md-btn outlined" type="button" data-title-reset-object>${text('Сбросить преобразование')}</button></fieldset>
+                    <button class="md-btn outlined" type="button" data-title-edit-selection hidden>${text('Оформить эту строку')}</button>
+                `)}
+                ${group('Камера','photo_camera',`
+                    ${select('projection','Проекция',[['perspective','Перспективная'],['orthographic','Ортогональная']])}
+                    <button type="button" class="md-btn outlined" data-title-reset-camera>${icon('restart_alt')}${text('Сбросить камеру')}</button>
+                    ${disclosure('Точный ракурс','tune',`<div class="title-fields">${numeric('yaw','Поворот Y, °',-180,180)}${numeric('pitch','Поворот X, °',-80,80)}${numeric('zoom','Приближение, %',10,600)}</div>`)}
+                `)}
+                ${group('Строки и буквы','layers','<div class="title-outliner" role="tree"></div>')}
+            </div>
             </div>`;
-        // Keep the shared row scope outside the three inspector sections.
-        const tabs=this.panel.querySelector('.title-inspector-tabs'),settings=this.panel.querySelector('.title-settings-panel'),scene=this.panel.querySelector('.title-scene-panel');
-        tabs.after(this.panel.querySelector('[data-title-row]').closest('label'),this.panel.querySelector('[data-title-row-reset]'));
-        this.panel.querySelector('[data-title-row]').closest('label').after(this.panel.querySelector('.title-row-languages'));
-        const material=document.createElement('div');material.className='title-material-panel';material.hidden=true;
-        const headings=[...settings.querySelectorAll('h4')],materialStart=headings[0],cameraStart=headings.find(node=>node.nextElementSibling?.querySelector?.('[data-title-field="projection"]'));
-        let current=materialStart;
-        while(current&&current!==cameraStart){const next=current.nextSibling;material.append(current);current=next;}
-        while(current){const next=current.nextSibling;scene.append(current);current=next;}
-        settings.after(material);
-        const warning=this.panel.querySelector('.title-warning');tabs.after(warning);
-        this.organizeInspector(settings,material,scene,tabs,warning);
-        const retry=document.createElement('button');retry.type='button';retry.className='md-btn outlined';retry.hidden=true;retry.dataset.titleRetry='';bindText(retry,'Повторить загрузку');warning.after(retry);
+        const tabs=this.panel.querySelector('.title-inspector-tabs');
+        const retry=this.panel.querySelector('[data-title-retry]');
+        for(const [selector,label] of [['[data-title-library="fonts"]','Библиотека шрифтов'],['[data-title-material-library]','Библиотека материалов'],['[data-title-row-reset]','Наследовать общие настройки']]){
+            const button=this.panel.querySelector(selector);bindAttribute(button,'title',label);bindAttribute(button,'aria-label',label);
+        }
+        bindAttribute(tabs,'aria-label','Параметры надписи');
+        bindAttribute(this.panel.querySelector('.title-outliner'),'aria-label','Строки и буквы');
         retry.onclick=async()=>{const project=this.project();if(!project||this.opening)return;retry.disabled=true;try{await this.show(project);}finally{retry.disabled=false;}};
-        for(const [name,section] of [['settings',settings],['material',material],['scene',scene]]){
+        for(const name of ['settings','material','scene']){
+            const section=this.panel.querySelector(`.title-${name}-panel`);
             const button=tabs.querySelector('[data-title-tab="'+name+'"]');button.id='title-tab-'+name;button.setAttribute('aria-controls','title-section-'+name);button.tabIndex=name==='settings'?0:-1;
             section.id='title-section-'+name;section.setAttribute('role','tabpanel');section.setAttribute('aria-labelledby',button.id);
         }
+        this.setTab('settings');
         tabs.addEventListener('keydown',event=>{
             if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
             const buttons=[...tabs.querySelectorAll('[data-title-tab]')],index=buttons.indexOf(event.target.closest('[data-title-tab]'));if(index<0)return;
@@ -125,6 +151,10 @@ export default class TitleEditor {
         this.panel.addEventListener('input',event=>this.edit(event));
         this.panel.addEventListener('change',event=>{if(event.target.matches('[data-title-row]')){if(this.commitPendingEdit()===false){this.sync();return;}this.currentRow=Number(event.target.value);this.sync();}else this.commitPendingEdit();});
         this.panel.addEventListener('focusout',()=>this.commitPendingEdit());
+        this.panel.addEventListener('keydown',event=>{
+            if(event.key!=='Escape'||!event.target.matches('[aria-invalid="true"]'))return;
+            event.preventDefault();event.stopPropagation();event.target.removeAttribute('aria-invalid');event.target.blur();this.sync(true);this.syncTransform(true);this.syncRenderStatus();
+        });
         this.panel.addEventListener('click',event=>{
             const library=event.target.closest('[data-title-library]');if(library){this.openMaterialLibrary(library.dataset.titleLibrary);return;}
             if(event.target.closest('[data-title-material-library]')){this.openMaterialLibrary();return;}
@@ -145,12 +175,18 @@ export default class TitleEditor {
                 return;
             }
             if(event.target.closest('[data-title-reset-object]')){const id=this.viewport.state.selection;if(id)this.change(data=>{const transform=normalizeTitleTransform(data.transforms[id]);data.transforms[id]={...normalizeTitleTransform(),visible:transform.visible,locked:transform.locked};});return;}
+            if(event.target.closest('[data-title-edit-selection]')){
+                if(this.commitPendingEdit()===false)return;
+                const node=this.viewport.node();if(!node)return;
+                const project=this.project();this.currentRow=project.titleData.text.includes('\n')||project.titleData.rows[0]?node.row:-1;
+                this.setTab('material');this.sync();this.panel.querySelector('[data-title-tab="material"]').focus();return;
+            }
 
             if(event.target.closest('[data-title-reset-camera]')){
                 this.viewport.resetCamera();return;
             }
             const button=event.target.closest('[data-title-preset]');if(!button)return;
-            this.changeSettings(value=>{const {name,...preset}=PRESETS[Number(button.dataset.titlePreset)];Object.assign(value,preset);value.appearance=normalizeTitleAppearance();});
+            this.changeSettings(value=>{const {name,swatch,...preset}=PRESETS[Number(button.dataset.titlePreset)];Object.assign(value,preset);value.appearance=normalizeTitleAppearance();});
         });
         window.addEventListener('pagehide',()=>this.renderer.dispose());
     }
@@ -160,47 +196,18 @@ export default class TitleEditor {
         this.rendered.delete(project);this.viewport.states.delete(project);
         if(!this.app.projects.some(item=>item.type==='title'))this.renderer.releaseSceneResources();
     }
-    organizeInspector(settings,material,scene,tabs,warning){
-        const group=(parent,label,icon,elements)=>{
-            const section=document.createElement('section');section.className='title-control-group';
-            const heading=document.createElement('h4'),symbol=document.createElement('i'),name=document.createElement('span');symbol.className='material-symbols-rounded';symbol.textContent=icon;symbol.setAttribute('aria-hidden','true');bindText(name,label);heading.append(symbol,name);section.append(heading,...elements.filter(Boolean));parent.append(section);return section;
-        };
-        const control=selector=>this.panel.querySelector(selector)?.closest('label');
-        const row=this.panel.querySelector('[data-title-row]').closest('label'),reset=this.panel.querySelector('[data-title-row-reset]');
-        const scope=document.createElement('div');scope.className='title-scope';
-        const description=document.createElement('p');description.className='field-hint';description.dataset.titleScopeDescription='';scope.append(row,description,reset);
-        const header=document.createElement('div');header.className='title-inspector-header';header.append(this.panel.querySelector('h3'),tabs,scope,warning);
-        const body=document.createElement('div');body.className='title-inspector-body';body.append(settings,material,scene);this.panel.append(header,body);
-        const fontHint=control('[data-title-field="font"]').nextElementSibling.nextElementSibling;
-        group(settings,'Текст надписи','text_fields',[control('[data-title-field="text"]'),this.panel.querySelector('.title-row-languages')]);
-        group(settings,'Шрифт','text_fields',[control('[data-title-field="font"]'),this.panel.querySelector('[data-title-library="fonts"]'),fontHint,control('[data-title-field="creeperA"]')]);
-        group(settings,'Компоновка','grid_view',[control('[data-title-field="layout"]'),control('[data-title-field="role"]'),control('[data-title-field="spacing"]').parentElement,control('[data-title-field="kerning"]'),control('[data-title-field="terminators"]')]);
-        for(const parent of [material,scene]){
-            const children=[...parent.children],headings=parent===material?['Материал','Наложение','Коррекция материала']:['Камера'];let section=null,index=0;
-            for(const child of children){
-                if(child.tagName==='H4'){const heading=headings[index++];child.remove();section=group(parent,heading,parent===material?'palette':'photo_camera',[]);}
-                else if(section)section.append(child);
-            }
-        }
-        for(const [selector,kind,label] of [['[data-title-library="fonts"]','font','Выбрать шрифт'],['[data-title-material-library]','texture','Выбрать материал']]){
-            const button=this.panel.querySelector(selector);button.classList.add('title-visual-choice');button.replaceChildren();
-            const image=document.createElement('img');image.alt='';image.dataset.titleChoice=kind;
-            const caption=document.createElement('span'),action=document.createElement('span'),name=document.createElement('small');bindText(action,label);name.dataset.titleChoiceName=kind;caption.append(action,name);button.append(image,caption);
-        }
-        for(const [id,label] of [['settings','Текст'],['material','Оформление']])bindText(tabs.querySelector('[data-title-tab="'+id+'"]'),label);
-        const selected=document.createElement('button');selected.type='button';selected.className='md-btn outlined';selected.dataset.titleEditSelection='';bindText(selected,'Оформление выбранного');
-        this.panel.querySelector('.title-selection-hint').after(selected);
-        selected.onclick=()=>{if(this.commitPendingEdit()===false)return;let node=this.viewport.node();if(!node)return;while(node.parent)node=this.viewport.node(node.parent);this.currentRow=node.row;this.setTab('material');this.sync();};
-    }
     setTab(name){
+        if(!['settings','material','scene'].includes(name))return;
+        const changed=this.panel.dataset.titleActiveTab!==name;this.panel.dataset.titleActiveTab=name;
         for(const button of this.panel.querySelectorAll('[data-title-tab]')){const active=button.dataset.titleTab===name;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));button.tabIndex=active?0:-1;}
         this.panel.querySelector('.title-scene-panel').hidden=name!=='scene';this.panel.querySelector('.title-settings-panel').hidden=name!=='settings';this.panel.querySelector('.title-material-panel').hidden=name!=='material';
+        if(changed){this.panel.querySelector('.title-inspector-body').scrollTop=0;this.panel.scrollTop=0;}
     }
     async show(project){
         const visible=project.type==='title';this.panel.hidden=!visible;document.body.classList.toggle('title-project',visible);
         if(!visible||this.displayedProject!==project)for(const dialog of document.querySelectorAll('.title-material-library'))dialog.close();
         if(!visible){this.opening=null;this.displayedProject=null;this.syncAvailability();this.viewport.show(false);return;}
-        if(this.displayedProject!==project){this.displayedProject=project;this.currentRow=-1;this.materialFont=null;for(const input of this.panel.querySelectorAll('[aria-invalid]'))input.removeAttribute('aria-invalid');}
+        if(this.displayedProject!==project){this.displayedProject=project;this.currentRow=-1;this.materialFont=null;for(const input of this.panel.querySelectorAll('[aria-invalid]'))input.removeAttribute('aria-invalid');this.setTab('settings');}
         project.titleData=normalizeTitleDocument(project.titleData);
         this.app.tools.setTool('hand');
         const opening={project};this.opening=opening;this.syncAvailability();this.viewport.show(true);
@@ -335,7 +342,7 @@ export default class TitleEditor {
     editTextLanguage(project){
         const input=this.panel.querySelector('[data-title-field="text"]'),rowLanguages=[...this.panel.querySelectorAll('[data-title-language]')].map(select=>select.value);
         const lines=input.value.normalize('NFC').replace(/\r/g,'').split('\n');
-        for(const select of this.panel.querySelectorAll('[data-title-language]'))select.closest('label').hidden=Number(select.dataset.titleLanguage)>=lines.length||(this.currentRow>=0&&Number(select.dataset.titleLanguage)!==this.currentRow);
+        for(const select of this.panel.querySelectorAll('[data-title-language]'))select.closest('label').hidden=Number(select.dataset.titleLanguage)>=lines.length;
         if(lines.length>3||lines.some(line=>[...line].length>64)){input.setAttribute('aria-invalid','true');bindText(this.panel.querySelector('.title-warning'),'Не более 3 строк и 64 символов в строке.');return;}
         const issues=titleLanguageIssues(input.value,rowLanguages);
         if(issues.length){input.setAttribute('aria-invalid','true');const issue=issues[0];bindText(this.panel.querySelector('.title-warning'),'Строка {0}: используйте один язык — {1}.',{0:issue.index+1,1:uiLabel(TITLE_TEXT_LANGUAGES[issue.language].name)});return;}
@@ -357,7 +364,10 @@ export default class TitleEditor {
         this.viewport.finishDrag();
         this.viewport.flushCamera();
         const invalid=this.panel.querySelector('[aria-invalid="true"]');
-        if(invalid&&this.project()){invalid.focus();return false;}
+        if(invalid&&this.project()){
+            for(let details=invalid.closest('details');details;details=details.parentElement.closest('details'))details.open=true;
+            invalid.focus();return false;
+        }
         if(!this.pending)return true;
         const {project,before}=this.pending;this.pending=null;
         if(!this.app.projects.includes(project))return true;
@@ -374,9 +384,9 @@ export default class TitleEditor {
         const project=this.project();if(!project)return;
         const value=normalizeTitleDocument(this.loading?.project===project?this.loading.next:project.titleData);
         if(this.currentRow>=value.text.split('\n').length)this.currentRow=-1;
-        const settings=this.currentRow<0?{...titleRowSettings(value,0),role:'auto'}:titleRowSettings(value,this.currentRow);
+        const settings=titleRowSettings(value,this.currentRow);
         this.syncAvailability();
-        const a=settings.appearance;
+        const a=settings.appearance,defaultAppearance=JSON.stringify(a)===JSON.stringify(normalizeTitleAppearance({},settings.font));
         const materialFont=settings.font+':'+settings.language;
         if(this.materialFont!==materialFont){
             this.materialFont=materialFont;
@@ -390,35 +400,44 @@ export default class TitleEditor {
         const catalog=titleMaterialCatalog(settings.font),fontRecord=TITLE_FONT_CATALOG[settings.font],texture=catalog.textures.find(item=>item.id===settings.texture)||catalog.textures[0];
         for(const [kind,record] of [['font',catalog.textures[0]],['texture',texture]]){
             const image=this.panel.querySelector('[data-title-choice="'+kind+'"]'),url=new URL('../../assets/title_generator/'+(record.preview||record.asset),import.meta.url).href;
-            if(image.src!==url)image.src=url;this.panel.querySelector('[data-title-choice-name="'+kind+'"]').textContent=kind==='font'?fontRecord.name:texture.name;
+            if(image.src!==url)image.src=url;
+            bindAttribute(image.parentElement,'title',kind==='font'?'Библиотека шрифтов · {0}':'Библиотека материалов · {0}',{0:kind==='font'?fontRecord.name:translate(texture.name)});
         }
-        bindText(this.panel.querySelector('[data-title-scope-description]'),this.currentRow<0?'Общие параметры · язык первой строки':'Параметры строки {0}',{0:this.currentRow+1});
+        const description=this.panel.querySelector('[data-title-scope-description]'),overrides=value.rows.some(row=>row!==null);
+        description.hidden=this.currentRow<0?!overrides:!value.rows[this.currentRow];
+        bindText(description,this.currentRow<0?'У некоторых строк свои настройки. Выберите строку, чтобы изменить их.':'У этой строки свои настройки шрифта и оформления.');
         for(const input of this.panel.querySelectorAll('[data-title-field]'))if((force||document.activeElement!==input||input.dataset.titleField==='text'&&input.value.normalize('NFC').replace(/\r/g,'')!==value.text)&&!input.hasAttribute('aria-invalid')){
-            const key=input.dataset.titleField,local=['font','texture','spacing','lineGap','kerning','terminators','role','originalColors','top','bottom','side'].includes(key),current=(local?settings:value)[key];
+            const key=input.dataset.titleField,local=['font','texture','spacing','lineGap','kerning','terminators','role','originalColors','top','bottom','side'].includes(key),current=key==='role'?value.rows[this.currentRow]?.role||'auto':(local?settings:value)[key];
             if(input.type==='checkbox')input.checked=Boolean(current);else input.value=current;
         }
         for(const input of this.panel.querySelectorAll('[data-title-appearance]'))if((force||document.activeElement!==input)&&!input.hasAttribute('aria-invalid')){const current=a[input.dataset.titleAppearance];if(input.type==='checkbox')input.checked=Boolean(current);else input.value=current;}
         const textInput=this.panel.querySelector('[data-title-field="text"]'),invalidText=textInput.hasAttribute('aria-invalid');
         for(const select of this.panel.querySelectorAll('[data-title-language]')){
             const index=Number(select.dataset.titleLanguage);if(!invalidText&&document.activeElement!==select)select.value=value.rowLanguages[index];
-            select.closest('label').hidden=index>=(invalidText?textInput.value:value.text).split('\n').length||(this.currentRow>=0&&index!==this.currentRow);
+            select.closest('label').hidden=index>=(invalidText?textInput.value:value.text).split('\n').length;
         }
         const languageIssues=titleLanguageIssues(invalidText?textInput.value:value.text,invalidText?[...this.panel.querySelectorAll('[data-title-language]')].map(select=>select.value):value.rowLanguages);
         if(languageIssues.length){textInput.setAttribute('aria-invalid','true');const issue=languageIssues[0];bindText(this.panel.querySelector('.title-warning'),'Строка {0}: используйте один язык — {1}.',{0:issue.index+1,1:uiLabel(TITLE_TEXT_LANGUAGES[issue.language].name)});}
-        this.panel.querySelector('[data-title-field="role"]').disabled=this.currentRow<0;
+        this.panel.querySelector('[data-title-field="role"]').closest('label').hidden=this.currentRow<0;
         const available=titleControlAvailability(value,this.currentRow);
         for(const key of ['kerning','terminators','creeperA'])this.panel.querySelector('[data-title-field="'+key+'"]').closest('label').hidden=!available[key];
-        this.panel.querySelector('[data-title-row-reset]').hidden=this.currentRow<0;
+        this.panel.querySelector('[data-title-row-reset]').hidden=this.currentRow<0||!value.rows[this.currentRow];
         this.panel.querySelector('[data-title-field="subtitleTexture"]').closest('label').hidden=!available.subtitleTexture;
-        for(const button of this.panel.querySelectorAll('[data-title-preset]')){const preset=PRESETS[Number(button.dataset.titlePreset)];button.hidden=!catalog.textures.some(item=>item.id===preset.texture||item.sourceId===preset.texture);}
+        for(const button of this.panel.querySelectorAll('[data-title-preset]')){
+            const preset=PRESETS[Number(button.dataset.titlePreset)];button.hidden=!catalog.textures.some(item=>item.id===preset.texture||item.sourceId===preset.texture);
+            const selected=!button.hidden&&defaultAppearance&&texture.sourceId===preset.texture&&settings.originalColors===preset.originalColors&&(preset.originalColors||['top','bottom','side'].every(key=>settings[key].toUpperCase()===preset[key].toUpperCase()));
+            button.classList.toggle('active',selected);button.setAttribute('aria-pressed',String(selected));
+        }
         const scope=this.panel.querySelector('[data-title-row]'),lines=value.text.split('\n');
+        this.panel.querySelector('.title-scope').hidden=lines.length<2&&!overrides;
+        this.panel.querySelector('.title-layout-options').hidden=lines.length<2;
+        const fontDetails=this.panel.querySelector('[data-title-field="kerning"]').closest('details');fontDetails.hidden=!available.kerning&&!available.terminators&&!available.creeperA;
         for(const option of scope.options){const index=Number(option.value);option.disabled=index>=lines.length;if(index>=0)bindText(option,'Строка {0}: {1}',{0:index+1,1:lines[index]?.slice(0,20)||'—'});}
         scope.value=String(this.currentRow);
         for(const group of this.panel.querySelectorAll('[data-title-source]'))group.hidden=group.dataset.titleSource!==a.source;
-        this.panel.querySelector('[data-title-field="texture"]').closest('label').hidden=a.source!=='texture';
-        this.panel.querySelector('[data-title-material-library]').hidden=a.source!=='texture';
+        this.panel.querySelector('[data-title-material-library]').closest('.title-choice-row').hidden=a.source!=='texture';
         const tiled=a.source==='tileable'||a.source==='file'&&a.fileMode==='tileable';
-        this.panel.querySelector('.title-tile-options').hidden=!tiled;this.panel.querySelector('.title-procedural-options').hidden=!(tiled||a.source==='gradient');
+        this.panel.querySelector('.title-tile-options').hidden=!tiled;this.panel.querySelector('.title-tile-options').closest('details').hidden=!(tiled||a.source==='gradient');
         this.panel.querySelector('.title-overlay-options').hidden=a.overlay==='none'&&!a.overlayImage;
         this.panel.querySelector('[data-title-clear-overlay]').hidden=!a.overlayImage;
         this.panel.querySelector('[data-title-appearance="borderColor"]').closest('label').hidden=!a.customBorder;
@@ -444,7 +463,7 @@ export default class TitleEditor {
         if(this.commitPendingEdit()===false)return;
         const project=this.project();if(!project)return;
         for(const existing of document.querySelectorAll('.title-material-library')){if(existing.open){existing.querySelector('input')?.focus();return;}existing.remove();}
-        const settings=titleRowSettings(project.titleData,this.currentRow<0?0:this.currentRow);
+        const settings=titleRowSettings(project.titleData,this.currentRow);
         const items=kind==='fonts'?titleFontsForLanguage(settings.language).map(id=>{const font=TITLE_FONT_CATALOG[id];return {id,name:font.name,category:'',author:font.author,asset:TITLE_MATERIAL_CATALOG.fonts[id].textures.find(item=>item.id==='none').asset,preview:TITLE_MATERIAL_CATALOG.fonts[id].textures.find(item=>item.id==='none').preview};}):kind==='tileables'?Object.entries(TITLE_MATERIAL_CATALOG.tileables).map(([id,item])=>({id,...item})):titleMaterialCatalog(settings.font)[kind];
         const dialog=document.createElement('dialog');dialog.className='title-material-library';
         const heading=document.createElement('h2');bindText(heading,kind==='fonts'?'Шрифты надписи':kind==='overlays'?'Наложения':kind==='tileables'?'Текстуры':'Материалы надписи');
@@ -483,8 +502,8 @@ export default class TitleEditor {
         const state=this.viewport.state;if(!state)return;
         const node=this.viewport.node(),value=normalizeTitleTransform(this.project().titleData.transforms[state.selection]);
         this.panel.querySelector('.title-transform-fields').disabled=!node||this.viewport.isLocked(node);this.panel.querySelector('.title-transform-fields').hidden=!node;
-        this.panel.querySelector('[data-title-edit-selection]').disabled=!node;
-        bindText(this.panel.querySelector('.title-selection-hint'),node?(node.type==='row'?'Строка: {0}':node.type==='glyph'?'Буква: {0}':node.part==='source'?'Куб: {0}':node.part==='outline'?'Контур буквы':'Основа буквы'):'Выберите букву или часть модели.',{0:node?.label||''});
+        this.panel.querySelector('[data-title-edit-selection]').hidden=!node;
+        bindText(this.panel.querySelector('.title-selection-hint'),node?(node.type==='row'?'Строка: {0}':node.type==='glyph'?'Буква: {0}':node.part==='source'?'Куб: {0}':node.part==='outline'?'Контур буквы':'Основа буквы'):'Щёлкните букву в 3D-виде, чтобы изменить её положение, поворот или размер.',{0:node?.label||''});
         for(const input of this.panel.querySelectorAll('[data-title-transform]'))if((force||document.activeElement!==input)&&!input.hasAttribute('aria-invalid'))input.value=value[input.dataset.titleTransform][Number(input.dataset.axis)];
     }
     syncScene(){

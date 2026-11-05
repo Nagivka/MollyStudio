@@ -4,7 +4,7 @@ import {titleRowSettings} from './TitleDocument.mjs';
 
 /** Expose controls only where a native model or layout actually uses them. */
 export function titleControlAvailability(data,rowIndex=-1){
- const row=titleRowSettings(data,rowIndex<0?0:rowIndex),font=TITLE_FONT_CATALOG[row.font],model=TITLE_FONT_MODELS[row.font];
+ const row=titleRowSettings(data,rowIndex),font=TITLE_FONT_CATALOG[row.font],model=TITLE_FONT_MODELS[row.font];
  const rows=data.text.split('\n').map((_,index)=>titleRowSettings(data,index));
  return {
   kerning:Object.keys(font.shifts||{}).length>0,
