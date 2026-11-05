@@ -18,9 +18,10 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
             }
             const card=document.createElement('article');card.className='m3-recent-card';card.style.cssText='position:fixed;left:400px;top:400px;width:200px;height:150px;z-index:500';document.body.append(card);
             for(const theme of ['dark','minecraft']){
-                e.settingsManager.set('theme',theme);card.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerType:'mouse',clientX:560,clientY:430}));
-                expect(theme==='minecraft'?card.style.transform==='translateY(-2px)':card.style.transform.includes('rotateX'),theme+': live card uses crisp theme-appropriate movement');
-                card.dispatchEvent(new PointerEvent('pointerout',{bubbles:true,relatedTarget:document.body}));expect(!card.style.transform,'Card resets on pointer exit');
+                e.settingsManager.set('theme',theme);await wait(30);card.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerType:'mouse',clientX:560,clientY:430}));
+                expect(theme==='minecraft'?card.style.transform.startsWith('translateY('):card.style.transform.includes('rotateX'),theme+': live card uses crisp theme-appropriate movement');
+                const first=card.style.transform;await wait(120);expect(card.style.transform!==first,'Card spring follows the pointer over time');
+                card.dispatchEvent(new PointerEvent('pointerout',{bubbles:true,relatedTarget:document.body}));await wait(1600);expect(!card.style.transform&&!card.hasAttribute('data-card-physics'),'Card settles after pointer exit and releases animation resources');
             }
             expect(document.querySelector('.doc-tab.active').getAnimations().some(a=>a.animationName==='ui-accent-breathe'),'Active accents have a running color animation');
             e.settingsManager.set('theme','dark');

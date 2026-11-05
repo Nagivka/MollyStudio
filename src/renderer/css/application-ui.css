@@ -570,8 +570,7 @@ input[type="color"]::-webkit-color-swatch {
     #btn-export-png > span { display: none; }
     #btn-export-png { width: 40px; min-width: 40px; padding-inline: 2px; }
 }
-.options-bar { height: auto; min-height: max(var(--md-optbar-height), 40px); padding-block: 4px; overflow: hidden; }
-.options-bar.is-empty { display: none; }
+.options-bar { height: var(--md-optbar-height); min-height: var(--md-optbar-height); max-height: var(--md-optbar-height); padding-block: 4px; overflow: hidden; }
 .options-bar .opt-group { min-width: 0; width: 100%; max-width: 100%; flex-shrink: 1; flex-wrap: nowrap; padding: 0; }
 .options-bar .opt-slider { flex: 0 1 120px; width: 120px; max-width: 100%; min-width: 0; }
 .tool-option { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; min-width: 0; }

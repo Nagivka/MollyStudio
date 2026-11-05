@@ -1,6 +1,7 @@
 import {motionEnabled} from './IconDisclosure.js';
 import {animateUI} from './Motion.mjs';
 import {translate} from '../core/Locale.mjs';
+import {advanceCardSpring} from './CardMotion.mjs';
 
 const pixelTheme=()=>document.documentElement.dataset.theme?.includes('minecraft');
 let transition,themeRequest=0,installed=false;
@@ -31,7 +32,23 @@ export function revealTheme(apply,button){
 export function installVisualEffects(){
     if(installed)return;installed=true;
     const active=new Set();let hovered=null,bounds=null;
-    const clean=()=>{for(const node of active)node.remove();active.clear();hovered?.style.removeProperty('transform');hovered=null;bounds=null;if(!motionEnabled())transition?.skipTransition();};
+    const cards=new Map();let cardFrame=0,lastFrame=0;
+    const clearCard=card=>{card.style.removeProperty('transform');delete card.dataset.cardPhysics;cards.delete(card);};
+    const paint=(card,state)=>{const [x,y,lift]=state.position;card.style.transform=pixelTheme()?`translateY(${Math.round(lift*devicePixelRatio)/devicePixelRatio}px)`:`perspective(900px) rotateX(${x.toFixed(3)}deg) rotateY(${y.toFixed(3)}deg) translateY(${lift.toFixed(3)}px)`;};
+    const tick=time=>{
+        cardFrame=0;const dt=lastFrame?(time-lastFrame)/1000:1/60;lastFrame=time;
+        for(const [card,state] of cards){
+            if(!card.isConnected){clearCard(card);continue;}
+            const settled=advanceCardSpring(state,state.target,dt);
+            if(settled){state.position=[...state.target];state.velocity.fill(0);}
+            if(settled&&card!==hovered)clearCard(card);else paint(card,state);
+        }
+        if([...cards.values()].some(state=>state.velocity.some(v=>Math.abs(v)>.03)||state.position.some((v,i)=>Math.abs(v-state.target[i])>.015)))cardFrame=requestAnimationFrame(tick);
+        else lastFrame=0;
+    };
+    const wake=()=>{if(!cardFrame)cardFrame=requestAnimationFrame(tick);};
+    const release=()=>{if(hovered){const state=cards.get(hovered);if(state){state.target=[0,0,0];wake();}else hovered.style.removeProperty('transform');}hovered=null;bounds=null;};
+    const clean=()=>{for(const node of active)node.remove();active.clear();for(const card of cards.keys())clearCard(card);hovered?.style.removeProperty('transform');hovered=null;bounds=null;cancelAnimationFrame(cardFrame);cardFrame=0;lastFrame=0;if(!motionEnabled())transition?.skipTransition();};
     document.addEventListener('pointerdown',event=>{
         const target=event.target.closest?.('button,[role="button"],[role="tab"],.doc-tab');
         if(event.button!==0||!motionEnabled()||document.documentElement.classList.contains('no-click-effects')||!target||target.disabled||target.closest('[inert],[aria-disabled="true"]')||event.target.closest('input,textarea,select'))return;
@@ -45,15 +62,16 @@ export function installVisualEffects(){
     });
     document.addEventListener('pointermove',event=>{
         const card=event.target.closest?.('.m3-recent-card');
-        if(hovered&&hovered!==card){hovered.style.removeProperty('transform');hovered=null;}
-        if(!card||!motionEnabled()||document.documentElement.classList.contains('no-card-motion')||event.pointerType==='touch'||event.buttons)return;
+        if(hovered&&hovered!==card)release();
+        if(!card||!motionEnabled()||document.documentElement.classList.contains('no-card-motion')||event.pointerType==='touch'||event.buttons){release();return;}
         if(hovered!==card||!bounds)bounds=card.getBoundingClientRect();hovered=card;
         // Keep pixel art on the physical grid in Minecraft themes.
-        if(pixelTheme()){card.style.transform='translateY(-2px)';return;}
         const r=bounds,x=(event.clientX-r.left)/Math.max(1,r.width)-.5,y=(event.clientY-r.top)/Math.max(1,r.height)-.5;
-        card.style.transform=`perspective(900px) rotateX(${-Math.max(-.5,Math.min(.5,y))*12}deg) rotateY(${Math.max(-.5,Math.min(.5,x))*12}deg) translateY(-2px)`;
+        let state=cards.get(card);
+        if(!state){state={position:[0,0,0],velocity:[0,0,0],target:[0,0,0]};cards.set(card,state);card.dataset.cardPhysics='true';paint(card,state);}
+        state.target=pixelTheme()?[0,0,-4]:[-Math.max(-.5,Math.min(.5,y))*16,Math.max(-.5,Math.min(.5,x))*16,-4];wake();
     });
-    document.addEventListener('pointerout',event=>{if(hovered&&!hovered.contains(event.relatedTarget)){hovered.style.removeProperty('transform');hovered=null;}});
+    document.addEventListener('pointerout',event=>{if(hovered&&!hovered.contains(event.relatedTarget))release();});
     document.addEventListener('molly-project-saved',event=>{
         if(document.documentElement.classList.contains('no-save-feedback'))return;
         const tab=document.getElementById('doc-tab-'+event.detail?.id),icon=tab?.querySelector('.doc-tab-icon');if(!icon)return;
@@ -62,7 +80,7 @@ export function installVisualEffects(){
         if(motionEnabled())animateUI(icon,pixelTheme()?{opacity:[.4,1]}:{scale:[.6,1.2,1]},{duration:360},{feature:'no-save-feedback'});
         clearTimeout(icon.saveFeedbackTimer);icon.saveFeedbackTimer=setTimeout(()=>{icon.textContent=old;delete icon.dataset.savedOriginal;delete tab.dataset.savedFeedback;icon.removeAttribute('aria-label');},1600);
     });
-    new MutationObserver(()=>{if(!motionEnabled()||document.documentElement.classList.contains('no-card-motion')||document.documentElement.classList.contains('no-click-effects'))clean();if(document.documentElement.classList.contains('no-theme-transition'))transition?.skipTransition();}).observe(document.documentElement,{attributes:true,attributeFilter:['class','data-theme']});
+    new MutationObserver(records=>{if(records.some(record=>record.attributeName==='data-theme')||!motionEnabled()||document.documentElement.classList.contains('no-card-motion')||document.documentElement.classList.contains('no-click-effects'))clean();if(document.documentElement.classList.contains('no-theme-transition'))transition?.skipTransition();}).observe(document.documentElement,{attributes:true,attributeFilter:['class','data-theme']});
     matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',clean);
     window.addEventListener('blur',clean);document.addEventListener('visibilitychange',()=>{if(document.hidden)clean();});
     window.addEventListener('resize',clean);document.addEventListener('scroll',()=>{if(hovered)clean();},{capture:true,passive:true});

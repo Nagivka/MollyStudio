@@ -19,6 +19,7 @@ suites.push('brand-logo-scenarios');
 suites.push('update-scenarios');
 suites.push('title-scenarios','title-precision-scenarios','title-fonts-scenarios','title-materials-scenarios','title-cyrillic-scenarios','title-audit-scenarios','title-workspace-scenarios','title-edge-scenarios');
 suites.splice(suites.indexOf('tool-scenarios')+1,0,'move-picking-scenarios');
+suites.splice(suites.indexOf('tool-scenarios')+1,0,'tool-options-scenarios');
 suites.splice(suites.indexOf('property-scenarios')+1,0,'button-properties-scenarios');
 suites.splice(suites.indexOf('ui-motion-scenarios')+1,0,'minecraft-range-scenarios');
 suites.splice(suites.indexOf('minecraft-range-scenarios')+1,0,'minecraft-controls-scenarios','minecraft-theme-audit');

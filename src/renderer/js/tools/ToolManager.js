@@ -297,7 +297,6 @@ export default class ToolManager {
         };
 
         const targetId = map[toolId];
-        document.querySelector('.options-bar')?.classList.toggle('is-empty', ['hand', 'circle-filled'].includes(toolId));
         document.querySelectorAll('[data-wand-options]').forEach(node=>node.hidden=toolId!=='wand');
         document.querySelectorAll('[data-selection-hint]').forEach(node=>bindText(node, ['lasso','wand'].includes(toolId)?'Shift — добавить · Alt — вычесть · M — двигать область':'B — рисовать внутри · Ctrl+D — снять'));
         if (targetId) {

@@ -74,6 +74,7 @@
     *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
 .no-card-motion .m3-recent-card {transform:none !important;transition:none !important;}
+.m3-recent-card[data-card-physics] {transition-property:background-color,border-color,box-shadow;will-change:transform;}
 :root.no-animated-accents {--ui-accent-animation:none;}
 .no-click-effects :is(.ui-click-response,.md-ripple-wave) {display:none !important;}
 :root:is([data-theme="minecraft"],[data-theme="light-minecraft"]) {--ui-tab-animation:ui-popover-enter;}

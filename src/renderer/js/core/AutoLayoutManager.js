@@ -122,7 +122,7 @@ export default class AutoLayoutManager {
         // 2. Compute Responsive Dimensions with safe ergonomic margins
         const tbHeight = Math.max(30, Math.round(30 * scale));
         const topHeight = Math.max(40, Math.round(40 * scale));
-        const optHeight = Math.max(36, Math.round(36 * scale));
+        const optHeight = 48;
         const docBarHeight = Math.max(36, Math.round(36 * scale));
         const toolBtnSize = Math.max(32, Math.min(38, Math.round(34 * scale)));
         const toolWidth = toolBtnSize + 16; // Guarantees 8px margin on both sides of toolbar buttons
