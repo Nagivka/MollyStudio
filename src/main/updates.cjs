@@ -22,14 +22,15 @@ class UpdateService {
             const updater = require('electron-updater');
             return this.target?.format === 'AppImage' ? new updater.AppImageUpdater() : updater.autoUpdater;
         });
-        this.supported = !testMode && app.isPackaged && !!this.target && !portable && (platform==='win32'||platform==='linux'&&!!appImage||platform==='darwin'&&macSigned);
-        const unavailableReason=testMode||!app.isPackaged?'development':portable?'portable':!this.target?'platform':platform==='darwin'&&!macSigned?'mac-signing':platform==='linux'&&!appImage?'linuxNative':'';
+        this.manualInstall = platform === 'darwin' && !macSigned;
+        this.supported = !testMode && app.isPackaged && !!this.target && !portable && (platform==='win32'||platform==='linux'&&!!appImage||platform==='darwin');
+        const unavailableReason=testMode||!app.isPackaged?'development':portable?'portable':!this.target?'platform':platform==='linux'&&!appImage?'linuxNative':'';
         this.preferencesFile = path.join(app.getPath('userData'), 'update-preferences.json');
         this.writePreferences = createQueue();
         this.configureQueue = createQueue();
         this.preferences = {autoCheck: true, autoDownload: false, lastChecked: 0};
         this.state = {status: 'idle', currentVersion: app.getVersion(), version: '', notes: '', percent: 0,
-            downloaded: 0, total: 0, error: '', supported: this.supported,unavailableReason, releaseUrl: security.RELEASES_URL, ...this.preferences};
+            downloaded: 0, total: 0, error: '', supported: this.supported, manualInstall: this.manualInstall, downloadUrl: '', unavailableReason, releaseUrl: security.RELEASES_URL, ...this.preferences};
         this.ready = this.load();
     }
     async load() {
@@ -59,7 +60,7 @@ class UpdateService {
             this.set(this.preferences);
             if (data.autoCheck === false) clearTimeout(this.timer);
             else if (data.autoCheck === true) this.schedule(1000);
-            if(data.autoDownload===true){this.cancelledVersion=null;if(this.state.status==='available')void this.download().catch(error=>this.fail(error));}
+            if(data.autoDownload===true&&!this.manualInstall){this.cancelledVersion=null;if(this.state.status==='available')void this.download().catch(error=>this.fail(error));}
             return this.status();
         });
     }
@@ -112,13 +113,13 @@ class UpdateService {
         this.set({nextCheckAt: this.lastAttempt + 30000});
         this.checking = this.performCheck().finally(() => {
             this.checking = null;
-            if (this.preferences.autoDownload && this.state.version!==this.cancelledVersion && this.state.status === 'available' && !this.disposed) void this.download().catch(error => this.fail(error));
+            if (!this.manualInstall && this.preferences.autoDownload && this.state.version!==this.cancelledVersion && this.state.status === 'available' && !this.disposed) void this.download().catch(error => this.fail(error));
         });
         return this.checking;
     }
     async performCheck() {
         this.manifest = null; this.installer = null;
-        this.set({status: 'checking', error: '', version: '', notes: '', percent: 0, downloaded: 0});
+        this.set({status: 'checking', error: '', version: '', notes: '', downloadUrl: '', percent: 0, downloaded: 0});
         this.checkAbort = new AbortController();
         const signal=this.checkAbort.signal;
         const read=(url,limit)=>requestWithRetry(this.request,[url,limit],signal,this.retryDelays);
@@ -134,6 +135,19 @@ class UpdateService {
                 await this.savePreferences().catch(()=>{}); return this.status();
             }
             const base = security.downloadBase(version);
+            if (this.manualInstall) {
+                const name = security.releaseNames(version, this.target)[0].replace(/\.zip$/, '.dmg');
+                const candidates = Array.isArray(release.assets) ? release.assets.filter(asset => asset.name === name) : [];
+                const asset = candidates[0];
+                if (candidates.length !== 1 || asset.browser_download_url !== base + name ||
+                    !Number.isSafeInteger(asset.size) || asset.size < 1_000_000 || asset.size > 1_000_000_000 || asset.state !== 'uploaded') throw Error('UPDATE_NOT_PUBLISHED');
+                this.preferences.lastChecked = this.now();
+                this.set({status: 'available', version, notes: typeof release.body === 'string' ? release.body.slice(0, 10000) : '',
+                    downloadUrl: base + name, total: asset.size, lastChecked: this.preferences.lastChecked,
+                    releaseUrl: `https://github.com/${security.REPOSITORY}/releases/tag/v${version}`});
+                await this.savePreferences().catch(() => {});
+                return this.status();
+            }
             const names = [...security.releaseNames(version,this.target), this.target.manifest];
             if (!Array.isArray(release.assets) || names.some(name => release.assets.filter(asset => asset.name === name && asset.browser_download_url === base + name).length !== 1)) throw Error('UPDATE_UNSIGNED_RELEASE');
             const manifest = security.readManifest((await read(base+this.target.manifest,64*1024)).toString('utf8'),version,this.publicKey,this.target);
@@ -159,7 +173,7 @@ class UpdateService {
     async download() {
         await this.ready;
         if (this.downloading) return this.downloading;
-        if (this.disposed || !this.supported || this.checking || !this.manifest || !['available', 'error'].includes(this.state.status)) return this.status();
+        if (this.disposed || !this.supported || this.manualInstall || this.checking || !this.manifest || !['available', 'error'].includes(this.state.status)) return this.status();
         this.downloading = this.performDownload().finally(() => { this.downloading = null; });
         return this.downloading;
     }
@@ -194,7 +208,7 @@ class UpdateService {
     }
     cancelDownload() {this.cancelledVersion=this.state.version;this.downloadToken?.cancel();return this.status();}
     async install() {
-        if (this.disposed || !this.supported || this.state.status !== 'downloaded' || !this.installer || !this.manifest || this.installing) return false;
+        if (this.disposed || !this.supported || this.manualInstall || this.state.status !== 'downloaded' || !this.installer || !this.manifest || this.installing) return false;
         const main = this.windows.get('main');
         if (!main || this.windows.closing.has(main.id)) return false;
         this.installing = true;

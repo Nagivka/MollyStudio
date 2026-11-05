@@ -49,6 +49,9 @@ export function mountUpdatePanel(container, {banner = false} = {}) {
             ? errorMessages[value.error] || 'Не удалось проверить или загрузить обновление. Проверьте подключение к интернету.' : labels[state] || labels.idle, {0:value.version});
         if(localError)bindText(status,localError);
         if (downloading) bindText(detail, 'Загружено {0}% · {1} МБ из {2} МБ', {0:Math.floor(value.percent || 0),1:((value.downloaded || 0)/1e6).toFixed(1),2:((value.total || 0)/1e6).toFixed(1)});
+        else if (value.supported && value.manualInstall) bindText(detail, available
+            ? 'Скачайте DMG, закройте MollyStudio и перенесите новую версию в «Программы», выбрав «Заменить». Проекты и настройки сохранятся.'
+            : 'На macOS обновление устанавливается заменой приложения из DMG.');
         else if (state === 'downloaded') bindText(detail,'Перед установкой редактор сохранит автокопии. При отмене закрытия обновление не установится.');
         else if (value.supported && value.lastChecked) bindText(detail,'Последняя проверка: {0}',{0:new Date(value.lastChecked).toLocaleString(getLocale())});
         else bindText(detail,'Проекты и настройки сохраняются при обновлении.');
@@ -62,10 +65,13 @@ export function mountUpdatePanel(container, {banner = false} = {}) {
         clearTimeout(cooldown);
         if (buttons.check.disabled && value.nextCheckAt > Date.now()) cooldown = setTimeout(() => render(),value.nextCheckAt-Date.now()+10);
         buttons.download.hidden = !value.supported || !available || !['available','error'].includes(state);
+        if (value.manualInstall && !value.downloadUrl) buttons.download.hidden = true;
+        bindText(buttons.download.querySelector('span'), value.manualInstall ? 'Скачать DMG' : 'Скачать обновление');
         buttons.install.hidden = !value.supported || state !== 'downloaded';
         buttons.cancel.hidden = !downloading;
         buttons.release.disabled = installing||pending.has('release');
         for (const input of section.querySelectorAll('[data-update-preference]')) {
+            input.closest('label').hidden = value.manualInstall && input.dataset.updatePreference === 'autoDownload';
             input.checked = value[input.dataset.updatePreference] === true;
             input.disabled = !value.supported || installing||pending.has(input.dataset.updatePreference);
         }
@@ -75,6 +81,7 @@ export function mountUpdatePanel(container, {banner = false} = {}) {
         if(pending.has(name))return;localError='';pending.add(name);render();
         try {
             if (name === 'release') await api?.openExternal?.(current.releaseUrl || 'https://github.com/Nagivka/MollyStudio-Releases/releases/latest');
+            else if (name === 'download' && current.manualInstall) await api?.openExternal?.(current.downloadUrl);
             else { button.disabled = true; await api?.[operations[name]]?.(); }
         } catch {localError='Не удалось выполнить действие. Повторите попытку.';}
         finally {pending.delete(name);if (!disposed) { try { render(await api?.getUpdateStatus?.() || current); } catch { render(); } } }

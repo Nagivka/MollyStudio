@@ -14,6 +14,14 @@ const {app,root,ready,makeWindow,settle,evaluateMain,command}=require('./lib/ele
         await settings.page.waitForFunction(()=>document.querySelector('.update-status')?.textContent.includes('Доступна версия 1.4.2'));
         await main.page.waitForFunction(()=>document.querySelector('.update-banner')&&!document.querySelector('.update-banner').hidden);
         expect(true,'Startup automatically checks the signed release and shows availability in both windows without a manual check');
+        await evaluateMain(()=>globalThis.__mollyTestRuntime.updates.set({manualInstall:true,
+            downloadUrl:'https://github.com/Nagivka/MollyStudio-Releases/releases/download/v1.4.2/MollyStudio-1.4.2.0-arm64-mac.dmg'}));
+        await settings.page.waitForFunction(()=>document.querySelector('[data-update="download"] span')?.textContent==='Скачать DMG');
+        expect(await settings.page.locator('[data-update-preference="autoDownload"]').isHidden(),'Manual Mac updates hide automatic downloading');
+        await settings.page.locator('[data-update="download"]').click();
+        expect((await command('update-status')).status==='available','Manual Mac download opens an external link without starting the installer');
+        expect(await main.page.locator('.update-banner [data-update="download"]').isVisible(),'The main menu offers the Mac update download');
+        await evaluateMain(()=>globalThis.__mollyTestRuntime.updates.set({manualInstall:false,downloadUrl:''}));
         const themes=['dark','light','minecraft','light-minecraft'];
         for(const theme of themes){
             await settings.page.locator('[data-tab="appearance"]').click();await settings.page.locator(`[data-theme="${theme}"].settings-theme-card`).click();

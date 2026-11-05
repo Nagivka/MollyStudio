@@ -31,8 +31,38 @@ for(const platform of ['darwin','linux'])for(const arch of ['x64','arm64'])test(
 });
 test('unsupported native packaging is explicit and does not query updates',async t=>{
     const directory=await fs.mkdtemp(path.join(os.tmpdir(),'molly-native-capability-'));t.after(()=>fs.rm(directory,{recursive:true,force:true}));
-    for(const [platform,options,reason] of [['darwin',{macSigned:false},'mac-signing'],['linux',{appImage:''},'linuxNative']]){
+    for(const [platform,options,reason] of [['linux',{appImage:''},'linuxNative']]){
         let requests=0;const service=new UpdateService({app:{isPackaged:true,getPath:()=>directory,getVersion:()=> '1.4.5'},windows:{broadcast(){}},platform,arch:'arm64',portable:false,...options,request:async()=>{requests++;throw Error('Unexpected request');}});
         await service.start();assert.equal(service.status().supported,false);assert.equal(service.status().unavailableReason,reason);assert.equal(requests,0);service.dispose();
+    }
+});
+
+for (const arch of ['x64', 'arm64']) test(`unsigned Mac ${arch} checks updates without creating an installer`, async t => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'molly-manual-mac-'));
+    t.after(() => fs.rm(directory, {recursive: true, force: true}));
+    await fs.writeFile(path.join(directory, 'update-preferences.json'), JSON.stringify({autoCheck: true, autoDownload: true}));
+    const version = '1.4.6', name = `MollyStudio-${version}.0-${arch}-mac.dmg`;
+    const asset = {name, size: 1234567, state: 'uploaded', browser_download_url: security.downloadBase(version) + name};
+    let assets = [asset], calls = 0;
+    const service = new UpdateService({platform: 'darwin', arch, portable: false, macSigned: false,
+        app: {isPackaged: true, getVersion: () => '1.4.5', getPath: () => directory}, windows: {broadcast() {}},
+        engineFactory() {throw Error('Manual Mac updates must not create Squirrel');},
+        request: async url => {
+            assert.equal(url, 'https://api.github.com/repos/Nagivka/MollyStudio-Releases/releases/latest');calls++;
+            return Buffer.from(JSON.stringify({tag_name: 'v' + version, draft: false, prerelease: false, assets}));
+        }});
+    t.after(() => service.dispose());
+    await service.start();
+    assert.equal(calls, 1);
+    assert.equal(service.status().manualInstall, true);
+    assert.equal(service.status().supported, true);
+    assert.equal(service.status().status, 'available');
+    assert.equal(service.status().downloadUrl, asset.browser_download_url);
+    await service.download();assert.equal(await service.install(), false);
+    for (const invalid of [[], [{...asset, state: 'new'}], [{...asset, name: name.replace(arch, 'other')}], [{...asset, browser_download_url: 'https://example.org/file.dmg'}], [asset, asset]]) {
+        assets = invalid;
+        await service.performCheck();
+        assert.equal(service.status().status, 'error');
+        assert.equal(service.status().downloadUrl, '');
     }
 });

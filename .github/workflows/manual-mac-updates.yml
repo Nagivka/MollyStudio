@@ -1,0 +1,34 @@
+name: Manual Mac update checks
+on:
+  workflow_dispatch:
+  push:
+    branches: ['codex/mac-manual-updates']
+permissions:
+  contents: read
+jobs:
+  updates:
+    if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
+    runs-on: windows-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: node node_modules/electron/install.js
+      - run: npm run typecheck
+      - run: npm run core:verify
+      - run: npm test
+      - run: npm run audit
+      - run: npm run test:updates
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        if: always()
+        with:
+          name: manual-mac-updates-${{ github.sha }}
+          path: .test-output/update-scenarios.json
+          include-hidden-files: true
+          retention-days: 7
