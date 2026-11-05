@@ -67,7 +67,7 @@ for(const [name,args] of tasks.slice(results.length)){
     const entry={name,passed:result.status===0&&!result.error&&!sourceChanged,durationMs:Date.now()-start,...(sourceChanged?{error:'Исходники изменились во время проверки. Запустите проверки заново.'}:{})};results.push(entry);
     writeReport();
     console.log(`${entry.passed?'PASS':'FAIL'} ${name} (${entry.durationMs} ms)`);
-    if(!entry.passed){console.error(entry.error||result.error?.message||result.stderr||result.stdout);process.exitCode=1;if(sourceChanged||!process.argv.includes('--continue'))break;}
+    if(!entry.passed){console.error([entry.error,result.error?.message,result.stdout,result.stderr].filter(Boolean).join('\n'));process.exitCode=1;if(sourceChanged||!process.argv.includes('--continue'))break;}
 }
 finishedAt=new Date().toISOString();
 writeReport();

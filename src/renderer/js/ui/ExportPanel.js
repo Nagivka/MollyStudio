@@ -72,11 +72,11 @@ export default class ExportPanel {
         this.get('source').closest('label').hidden=project.type==='title';
         this.get('trim').closest('label').hidden=project.type==='title';
         this.returnFocus=document.activeElement;this.get('error').hidden=true;this.get('progress-panel').hidden=true;
-        if(!this.dialog.open)this.dialog.showModal();this.get('source').focus();await this.preview();return true;
+        if(!this.dialog.open)this.dialog.showModal();this.get(project.type==='title'?'titleResolution':'source').focus();await this.preview();return true;
     }
 
     read(){
-        if(this.get('format').value==='sheet')for(const control of this.dialog.querySelectorAll('input[type="number"]'))if(!control.closest('[hidden]')&&numberValue(control)===null)throw Error('Проверьте числовые параметры экспорта.');
+        if(this.get('format').value==='sheet')for(const key of ['columns','gap'])if(numberValue(this.get(key))===null)throw Error('Проверьте числовые параметры экспорта.');
         const result={};for(const key of ['source','scale','trim','format','columns','gap','prefix','numbered','names','block']){const input=this.get(key);result[key]=input.type==='checkbox'?input.checked:input.value;}
         for(const key of ['scale','columns','gap','block'])result[key]=Number(result[key]);
         if(this.context?.type==='title'){
