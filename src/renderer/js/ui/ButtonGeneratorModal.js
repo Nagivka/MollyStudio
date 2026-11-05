@@ -384,6 +384,7 @@ export default class ButtonGeneratorModal extends ButtonGeneratorModel {
 
         document.body.appendChild(overlay);
         this.modalEl = overlay;
+        this.setupInspector(overlay,'button-generator-modal');
         this.canvas = overlay.querySelector('#modalPreviewCanvas');
         this.ctx = this.canvas?.getContext('2d');
         this.canvasWrap = overlay.querySelector('#modalCanvasWrapper');
@@ -507,7 +508,7 @@ export default class ButtonGeneratorModal extends ButtonGeneratorModel {
         });
 
         // Zoom
-        o.querySelectorAll('.viewport-toolbar .icon-btn').forEach(btn => {
+        o.querySelectorAll('.viewport-toolbar .icon-btn[data-z]').forEach(btn => {
             btn.addEventListener('click', () => this.setZoom(parseInt(btn.dataset.z, 10)));
         });
 
@@ -772,6 +773,7 @@ export default class ButtonGeneratorModal extends ButtonGeneratorModel {
 
 
     setZoom(z) {
+        this.autoFitPreview=false;
         z = Math.max(1, Math.min(8, Math.round(Number(z) || 3)));
         this.currentZoom = z;
         if (!this.modalEl) return;
@@ -787,6 +789,7 @@ export default class ButtonGeneratorModal extends ButtonGeneratorModel {
 
     renderGuiView() {
         if (!this.canvas || !this.ctx) return;
+        this.syncPreviewZoom();
 
         this.canvas.width = 176;
         this.canvas.height = 222;

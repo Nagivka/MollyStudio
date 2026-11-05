@@ -68,7 +68,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
             const layer=app.layerManager.addTextLayer('Drag text',{text:'AB',fontId:'minecraft',x:2,y:2,colorMode:'gradient',gradientColors:['#FF0000','#0000FF']});
             app.tools.setTool('text');app.tools.tools.text.renderTextLayer(layer);app.tools.tools.text.syncUIWithLayer(layer);app.history.clear();
             await new Promise(resolve=>requestAnimationFrame(resolve));app.propertiesInspector.tabs.select('object');
-            expect(document.getElementById('font-select').getClientRects().length&&!document.getElementById('text-wrap-width').getClientRects().length,'Main properties keep text and color visible while detailed layout is in its own tab');
+            expect(document.querySelector('#prop-group-text .bitmap-font-choices').getClientRects().length&&!document.getElementById('font-select').getClientRects().length&&!document.getElementById('text-wrap-width').getClientRects().length,'Main properties expose direct font samples without a duplicate dropdown while detailed layout stays in its own tab');
             app.propertiesInspector.tabs.tabs[0].button.focus();document.activeElement.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));
             expect(app.propertiesInspector.tabs.active==='geometry'&&document.getElementById('text-wrap-width').getClientRects().length,'Main property tabs reveal layout and preserve native arrow-key navigation');app.propertiesInspector.tabs.select('object');
             const beforePanels=JSON.stringify(app.projectManager.serializeProject());

@@ -88,7 +88,7 @@ async function createPrefix(){
         await win.page.evaluate(()=>window.mollyEditor.designGallery.dialog.close());await settle(win);
         buttons=makeWindow(1920,1080,{label:'buttons'});await buttons.loadFile(path.join(root,'src/renderer/buttons.html'));await settle(buttons);
         await evaluateMain(()=>globalThis.__mollyTestRuntime.windows.get('buttons').setFullScreen(true));
-        await buttons.page.evaluate(()=>{const g=window.buttonGenApp;g.setCols(3);g.setZoom(4);g.gradientColors=['#2355A7','#28B5C4'];g.autoShadeEnabled=true;g.tintedBorderEnabled=true;g.setStyle('ten');g.setColorMode('gradient');document.querySelector('.buttons-sidebar-scroll-area').scrollTop=360;});
+        await buttons.page.evaluate(()=>{const g=window.buttonGenApp;g.setCols(3);g.setZoom(4);g.gradientColors=['#2355A7','#28B5C4'];g.autoShadeEnabled=true;g.tintedBorderEnabled=true;g.setStyle('ten');g.setColorMode('gradient');g.inspectorTabs.select('color');});
         await settle(buttons);await fs.writeFile(path.join(destination,'04-buttons.png'),(await buttons.webContents.capturePage()).toPNG());buttons.destroy();buttons=null;
         await win.page.evaluate(createPrefix);await snap('05-prefix.png');
         await win.page.evaluate(()=>{mollyEditor.prefixEditor.tabs.select('background');document.querySelector('.prefix-scroll').scrollTop=0;});

@@ -2,6 +2,7 @@ import ButtonRenderer,{BUTTON_STYLES,normalizeButtonStyle} from '../graphics/But
 import {bindText,bindAttribute} from '../core/Locale.mjs';
 import {removeColorStop} from '../core/GradientStops.mjs';
 import {normalizeButtonData} from '../core/ButtonDocument.mjs';
+import InspectorTabs from './InspectorTabs.js';
 
 /** Shared color state; the window and modal provide their own DOM renderers. */
 export default class ButtonGeneratorModel extends ButtonRenderer {
@@ -13,7 +14,34 @@ export default class ButtonGeneratorModel extends ButtonRenderer {
         this.gradientColors = ['#3B82F6', '#1D4ED8'];
         this.activeGradientStopIndex = 0;
         this.gradientAngle = 90;
+        this.autoFitPreview=true;
         this.colors = {border: '#000000', highlight: '#ECECEC', shadow: '#7C7C7C', surface: '#C5C5C5'};
+    }
+
+    setupInspector(root,id){
+        if(this.inspectorTabs)return;
+        const scroll=root.querySelector('.buttons-sidebar-scroll-area'),cards=[...scroll.querySelectorAll(':scope > .m3-card')];
+        this.inspectorTabs=new InspectorTabs(scroll,[
+            {key:'size',label:'Размер',icon:'grid_on',nodes:[cards[0]]},
+            {key:'style',label:'Стиль',icon:'smart_button',nodes:[cards[1]]},
+            {key:'color',label:'Цвет',icon:'palette',nodes:[cards[2]]}
+        ],{id});
+        this.previewRoot=root;this.previewStage=root.querySelector('.canvas-stage');
+        const fit=document.createElement('button');fit.type='button';fit.className='icon-btn';fit.dataset.generatorFit='true';bindText(fit,'По экрану');
+        fit.addEventListener('click',()=>{this.autoFitPreview=true;this.updateView();});
+        root.querySelector('.viewport-toolbar .toolbar-group').append(fit);
+        this.previewResizeObserver=new ResizeObserver(()=>{if(this.autoFitPreview)this.updateView();});this.previewResizeObserver.observe(this.previewStage);
+    }
+
+    syncPreviewZoom(){
+        if(this.autoFitPreview&&this.previewStage.clientWidth&&this.previewStage.clientHeight){
+            const style=getComputedStyle(this.previewStage),width=this.previewStage.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight)-4,height=this.previewStage.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom)-4;
+            this.currentZoom=Math.max(1,Math.min(4,Math.floor(Math.min(width/176,height/222))));
+        }
+        for(const button of this.previewRoot.querySelectorAll('.viewport-toolbar .icon-btn')){
+            const active=button.hasAttribute('data-generator-fit')?this.autoFitPreview:!this.autoFitPreview&&Number(button.dataset.z)===this.currentZoom;
+            button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));
+        }
     }
 
     syncStyleControls(root,prefix='') {
@@ -25,6 +53,7 @@ export default class ButtonGeneratorModel extends ButtonRenderer {
         }
         const contour=['outline','double'].includes(this.currentStyle),chin=get('chinInput');
         if(chin)chin.closest('.control-group').hidden=this.currentStyle!=='ten';
+        const tinted=get('tintedBorderCheck');if(tinted)tinted.closest('.m3-switch-row').hidden=this.currentStyle==='outline';
         const thickness=get('shadowInput');
         if(thickness){
             bindText(thickness.closest('.control-group').querySelector('.control-label-row > span'),contour?'Толщина контура:':'Толщина фаски:');

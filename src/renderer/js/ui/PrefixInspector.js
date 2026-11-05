@@ -1,9 +1,11 @@
 import {labelHTML, attributeHTML, uiLabel} from '../core/Locale.mjs';
+import {iconDisclosure} from './IconDisclosure.js';
+import {BITMAP_FONTS} from '../core/BitmapFonts.mjs';
 const field = (label, key, input) => `<label class="prefix-field"><span>${labelHTML(label)}</span>${input.replace('>', ` data-prefix-field="${key}">`)}</label>`;
 const number = (label, key, min, max) => field(label, key, `<input class="md-input" type="number" min="${min}" max="${max}" step="1">`);
 const select = (label, key, options) => {
     const choices=options.map(([value,name])=>`<option value="${value}">${labelHTML(name)}</option>`).join('');
-    return key==='font'?`<div class="prefix-field"><label for="prefix-font-select">${labelHTML(label)}</label><select class="md-select" id="prefix-font-select" data-prefix-field="font">${choices}</select></div>`:field(label,key,`<select class="md-select">${choices}</select>`);
+    return key==='font'?`<div class="prefix-field"><span>${labelHTML(label)}</span><select class="md-select" id="prefix-font-select" data-prefix-field="font"${attributeHTML('aria-label',label)}>${choices}</select></div>`:field(label,key,`<select class="md-select">${choices}</select>`);
 };
 const toggle = (label, key) => `<label class="md-switch prefix-toggle"><input type="checkbox" data-prefix-field="${key}"><span class="md-switch-track"><span class="md-switch-thumb"></span></span><span class="md-switch-label">${labelHTML(label)}</span></label>`;
 const icon = name => `<i class="material-symbols-rounded" aria-hidden="true">${name}</i>`;
@@ -28,10 +30,10 @@ function colorEditor(key, label, modeKey, angleKey, showModes = true) {
                 <label class="prefix-angle-label"><span><!--i18n-->Направление градиента</span><output data-prefix-angle-value="${angleKey}"></output><input type="range" class="m3-slider" min="0" max="360" step="1" data-prefix-field="${angleKey}" ${attributeHTML('aria-label','{0}: направление градиента',{0:uiLabel(label)})}></label>
                 <div class="m3-chip-row" role="group" ${attributeHTML('aria-label','{0}: угол градиента',{0:uiLabel(label)})}>${[0, 45, 90, 135, 180, 270].map(angle => `<button type="button" class="m3-chip" data-prefix-angle-preset="${angleKey}:${angle}" aria-pressed="false">${angle}°</button>`).join('')}</div>
             </div>
-            <div class="prefix-palette" data-prefix-palette="${key}">
+            ${iconDisclosure({label:'Палитры',icon:'palette',className:'prefix-palette-library',content:`<div class="prefix-palette" data-prefix-palette="${key}">
                 <label class="prefix-field"><span>${labelHTML({textColors:'Палитра текста',textShadowColors:'Палитра тени',backgroundColors:'Палитра фона'}[key])}</span><select class="md-select" data-prefix-palette-select="${key}">${palettes.map(([id, name]) => `<option value="${id}">${labelHTML(name)}</option>`).join('')}</select></label>
                 <div class="color-palette-grid" data-prefix-palette-swatches="${key}" role="group" ${attributeHTML('aria-label','Готовые цвета {0}',{0:uiLabel(target)})}></div>
-            </div>
+            </div>`})}
         </div>
     </div>`;
 }
@@ -50,9 +52,9 @@ export function prefixInspectorMarkup() {
             <div class="prefix-grid prefix-shadow-position">${number('Смещение X, px', 'textShadowX', -16, 16)}${number('Смещение Y, px', 'textShadowY', -16, 16)}</div>
             ${number('Непрозрачность тени, %', 'textShadowOpacity', 0, 100)}
         </div>`;
-    const text = `<button class="md-btn outlined" type="button" data-prefix-designs>${icon('palette')}${labelHTML('Готовые оформления')}</button>${field('Текст блока', 'text', "<input class=\"md-input\" type=\"text\" maxlength=\"64\" autocomplete=\"off\" placeholder=\"Например, VIP\" data-i18n-placeholder=\"%D0%9D%D0%B0%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80%2C%20VIP\">")}
+    const text = `${field('Текст блока', 'text', "<input class=\"md-input\" type=\"text\" maxlength=\"64\" autocomplete=\"off\" placeholder=\"Например, VIP\" data-i18n-placeholder=\"%D0%9D%D0%B0%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80%2C%20VIP\">")}
         <p id="prefix-warning" class="prefix-hint" role="status"></p>
-        <div class="prefix-grid">${select('Шрифт', 'font', [['smallcaps', 'Капитель'], ['minecraft', 'Minecraft'], ['square', 'Square'], ['minecraft-ten', 'Minecraft Ten']])}${number('Интервал букв, px', 'letterSpacing', 0, 8)}</div>
+        <div class="prefix-grid">${select('Шрифт', 'font', BITMAP_FONTS.map(font=>[font.id,font.name]))}${number('Интервал букв, px', 'letterSpacing', 0, 8)}</div>
         ${subsection('Цвет текста', colorEditor('textColors', 'Цвет текста', 'textMode', 'textAngle'))}
         ${subsection('Тень текста', textShadow)}`;
     const background = `${subsection('Заливка фона', colorEditor('backgroundColors', 'Фон блока', 'background', 'backgroundAngle'))}
@@ -65,8 +67,8 @@ export function prefixInspectorMarkup() {
             <div data-prefix-manual-border>${color('Цвет обводки', 'borderColor')}</div>
             <div data-prefix-manual-bevel>${color('Светлая фаска', 'highlightColor')}${color('Тёмная фаска', 'bevelShadowColor')}</div></div>`, 'data-prefix-bevel-options')}
         ${subsection('Тень фона', `${toggle('Тень фона', 'shadow')}<div data-prefix-background-shadow-options><div class="prefix-grid">${number('Смещение X, px', 'shadowX', -8, 8)}${number('Смещение Y, px', 'shadowY', -8, 8)}</div>${color('Цвет тени фона', 'shadowColor')}${number('Непрозрачность тени, %', 'shadowOpacity', 0, 100)}</div>`)}`;
-    return `<div class="prefix-scroll" aria-label="Параметры префикса" data-i18n-aria-label="%D0%9F%D0%B0%D1%80%D0%B0%D0%BC%D0%B5%D1%82%D1%80%D1%8B%20%D0%BF%D1%80%D0%B5%D1%84%D0%B8%D0%BA%D1%81%D0%B0">
-        ${section('text', 'Текст', 'text_fields', `<label class="prefix-field" data-prefix-existing-blocks hidden><span><!--i18n-->Редактируемый блок</span><select class="md-select" data-prefix-existing-block aria-label="Редактируемый блок" data-i18n-aria-label="%D0%A0%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D1%83%D0%B5%D0%BC%D1%8B%D0%B9%20%D0%B1%D0%BB%D0%BE%D0%BA"></select></label>`+text)}
+    return `<header class="prefix-inspector-header"><label class="prefix-field" data-prefix-existing-blocks hidden><span><!--i18n-->Редактируемый блок</span><select class="md-select" data-prefix-existing-block aria-label="Редактируемый блок" data-i18n-aria-label="%D0%A0%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D1%83%D0%B5%D0%BC%D1%8B%D0%B9%20%D0%B1%D0%BB%D0%BE%D0%BA"></select></label><button class="md-btn outlined" type="button" data-prefix-designs>${icon('palette')}${labelHTML('Готовые оформления')}</button></header><div class="prefix-scroll" aria-label="Параметры префикса" data-i18n-aria-label="%D0%9F%D0%B0%D1%80%D0%B0%D0%BC%D0%B5%D1%82%D1%80%D1%8B%20%D0%BF%D1%80%D0%B5%D1%84%D0%B8%D0%BA%D1%81%D0%B0">
+        ${section('text', 'Текст', 'text_fields', text)}
         ${section('background', 'Фон и геометрия', 'format_color_fill', background)}
     </div><div class="prefix-error" hidden><span role="alert"></span><button type="button" class="md-btn flat" data-prefix-action="discard-invalid"><!--i18n-->Отменить неверный ввод</button></div>`;
 }

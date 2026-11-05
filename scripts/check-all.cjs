@@ -27,6 +27,7 @@ suites.splice(suites.indexOf('weather-occlusion-scenarios')+1,0,'weather-artwork
 suites.splice(suites.indexOf('ui-motion-scenarios')+1,0,'visual-effects-scenarios','ui-sound-scenarios','interface-improvements');
 suites.splice(suites.indexOf('tool-scenarios')+1,0,'pipette-history-scenarios');
 suites.splice(suites.indexOf('usability-scenarios')+1,0,'responsive-scenarios');
+suites.splice(suites.indexOf('usability-scenarios')+1,0,'editor-usability-scenarios');
 suites.push('developer-settings-scenarios','basement-scenarios','weather-important-scenarios','visual-components','visual-interactions');
 suites.push('editor-soak-scenarios','production-window-scenarios','title-export-options-scenarios');
 suites.push('title-headings-scenarios');

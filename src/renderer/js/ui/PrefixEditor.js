@@ -33,7 +33,7 @@ export default class PrefixEditor {
         this.renderPalette();
         this.panel.addEventListener('input',event=>this.editField(event));
         this.panel.addEventListener('change',event=>{
-            if(event.target.matches('[data-prefix-existing-block]')){if(this.commitPendingEdit()!==false){this.selected=Number(event.target.value);this.sync();}return;}
+            if(event.target.matches('[data-prefix-existing-block]')){if(this.commitPendingEdit()!==false){this.selected=Number(event.target.value);this.sync();}else event.target.value=String(this.selected);return;}
             const target=event.target.dataset.prefixPaletteSelect;
             if(target){this.renderPalette(target);return;}
             if(this.commitPendingEdit(false)!==false)this.sync();

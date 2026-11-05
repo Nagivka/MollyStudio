@@ -40,7 +40,7 @@ export default class PropertiesInspector {
         const shown=node=>node&&!node.hidden&&node.style.display!=='none';
         this.buttonProperties=new ButtonProperties(app);
         this.tabs=new InspectorTabs(container,[
-            {key:'object',label:'Объект',icon:'tune',nodes:[this.common,this.buttonProperties.element,get('prop-group-text'),get('prop-group-shape'),get('prop-group-selection'),get('prop-group-color'),this.template],available:()=>[get('prop-group-text'),get('prop-group-shape'),get('prop-group-selection'),get('prop-group-color'),this.template,this.common].some(shown)},
+            {key:'object',label:'Объект',icon:'tune',nodes:[this.buttonProperties.element,get('prop-group-text'),get('prop-group-shape'),get('prop-group-selection'),get('prop-group-color'),this.template,this.common],available:()=>[get('prop-group-text'),get('prop-group-shape'),get('prop-group-selection'),get('prop-group-color'),this.template,this.common].some(shown)},
             {key:'geometry',label:'Геометрия',icon:'transform',nodes:[get('prop-group-coords'),this.textLayout,get('prop-group-align'),get('prop-group-transform')],available:()=>[get('prop-group-coords'),this.textLayout,get('prop-group-align'),get('prop-group-transform')].some(shown)}
         ],{id:'properties',canSwitch:()=>app.tools.tools.text.commitStyleEdit?.()});
         const scopeLabel=document.createElement('label');scopeLabel.className='prop-field-block';
@@ -134,7 +134,13 @@ export default class PropertiesInspector {
         const app=this.app,get=this.get,manager=app.layerManager,layer=manager.getActiveLayer(),move=app.tools.tools.move,m=app.tools.tools.marquee;
         const selection=Boolean(m?.selection&&(['marquee','lasso','wand'].includes(app.tools.currentToolId)||m.hasFloating()||m.isSelecting));
         const spec=describeObject(layer),text=spec.kind==='text',group=spec.kind==='group',base=spec.kind==='template';
+        bindText(this.tabs.tabs[0].button.querySelector('span'),selection?'Выделение':base?'Шаблон':text?'Текст':layer?.buttonData?'Кнопка':spec.shape?'Фигура':'Объект');
         const editable=manager.isEditable(layer),locked=isObjectLocked(layer,manager.getLayers());
+        if(layer&&!base&&!selection){
+            const panel=this.tabs.tabs[0].panel;
+            if(locked||!editable){if(panel.firstElementChild!==this.common)panel.prepend(this.common);}
+            else if(panel.lastElementChild!==this.common)panel.append(this.common);
+        }
         const raster=Boolean(layer&&!base&&!text&&!group),pixelEdit=raster&&editable;
         const units=layer?move.getAlignmentUnits(layer):[];
         const selected=manager.getSelectedLayers().length>1;
@@ -214,7 +220,7 @@ export default class PropertiesInspector {
         this.readOnly(get('prop-group-coords'),selection?get('marquee-transform-mode').value==='pixels'&&!pixelEdit:!editable);
         for(const [input,button] of this.resetButtons||[])button.disabled=input.disabled;
         this.tabs.sync();
-        const context=selection?'selection':spec.kind;
-        if(context!==this.context){this.context=context;this.tabs.select('object',{force:true});}
+        const context=selection?'selection':layer?.buttonData?'button':spec.kind;
+        if(context!==this.context){this.context=context;this.tabs.select('object',{force:true});this.container.scrollTop=0;}
     }
 }

@@ -3,7 +3,11 @@ import assert from 'node:assert/strict';
 import { prefixInspectorMarkup } from '../../src/renderer/js/ui/PrefixInspector.js';
 
 const markup = prefixInspectorMarkup();
-const group = id => markup.match(new RegExp(`<section[^>]*id="prefix-section-${id}"[\\s\\S]*?</section>`))?.[0] || '';
+const group = id => {
+    const start=markup.indexOf(`<section class="prefix-section" id="prefix-section-${id}"`);
+    const next=markup.indexOf('<section class="prefix-section"',start+1);
+    return start<0?'':markup.slice(start,next<0?undefined:next);
+};
 
 test('prefix inspector keeps text settings and background settings in two complete groups', () => {
     assert.doesNotMatch(markup, /data-prefix-target|<details|<summary/);
@@ -13,7 +17,7 @@ test('prefix inspector keeps text settings and background settings in two comple
     assert.doesNotMatch(markup, /data-prefix-field="radius"/);
     assert.ok(group('background').includes('data-prefix-colors="backgroundColors"'));
     assert.doesNotMatch(markup, /data-prefix-field="document\./);
-    assert.equal((markup.match(/<section /g) || []).length, 2);
+    assert.equal((markup.match(/<section class="prefix-section" /g) || []).length, 2);
 });
 
 test('each color editor owns its palette and all label IDs are unique', () => {

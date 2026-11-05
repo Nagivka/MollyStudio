@@ -56,6 +56,7 @@ export class ButtonGeneratorController extends ButtonGeneratorModel {
     init() {
         this.setupWindowControls();
         this.renderDynamicControls();
+        this.setupInspector(document,'button-generator');
         this.setupEventListeners();
         this.setupPalettesUI();
         this.syncStyleControls(document);
@@ -259,7 +260,7 @@ export class ButtonGeneratorController extends ButtonGeneratorModel {
         });
 
         // Zoom buttons
-        document.querySelectorAll('.viewport-toolbar .icon-btn').forEach(btn => {
+        document.querySelectorAll('.viewport-toolbar .icon-btn[data-z]').forEach(btn => {
             btn.addEventListener('click', () => this.setZoom(parseInt(btn.dataset.z, 10)));
         });
 
@@ -528,6 +529,7 @@ export class ButtonGeneratorController extends ButtonGeneratorModel {
 
 
     setZoom(z) {
+        this.autoFitPreview=false;
         z = Math.max(1, Math.min(8, Math.round(Number(z) || 3)));
         this.currentZoom = z;
         document.querySelectorAll('.viewport-toolbar .icon-btn').forEach(btn => {
@@ -542,6 +544,7 @@ export class ButtonGeneratorController extends ButtonGeneratorModel {
 
     renderGuiView() {
         if (!this.canvas || !this.ctx) return;
+        this.syncPreviewZoom();
 
         this.canvas.width = 176;
         this.canvas.height = 222;

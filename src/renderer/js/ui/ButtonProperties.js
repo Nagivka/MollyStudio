@@ -26,19 +26,21 @@ export default class ButtonProperties{
             <label class="prop-field-block"><span>${labelHTML('Цвет кнопки')}</span><select class="md-select" data-button-field="colorMode"><option value="solid">${labelHTML('Сплошной')}</option><option value="gradient">${labelHTML('Градиент')}</option></select></label>
             <div data-button-colors></div>
             ${data.colorMode==='gradient'?field('gradientAngle','Угол градиента',0,360):''}
-            ${switchHTML('data-button-field','Автошейдинг',data.autoShade,'autoShade')}
-            ${switchHTML('data-button-field','Цветная обводка',data.tintedBorder,'tintedBorder')}
+            <div class="prop-section-label">${labelHTML('Обводка и фаски')}</div>
             <div class="prop-coord-grid">${field('bevel',['outline','double'].includes(data.style)?'Толщина контура, px':'Толщина фаски, px',1,5)}${data.style==='ten'?field('chin','Подбородок, px',1,5):''}</div>
+            ${switchHTML('data-button-field','Автошейдинг',data.autoShade,'autoShade')}
+            <div data-button-manual-colors></div>
+            ${switchHTML('data-button-field','Цветная обводка',data.tintedBorder,'tintedBorder')}
             ${field('opacity','Непрозрачность заливки, %',0,100)}
             ${switchHTML('data-button-field','Прозрачная обводка',data.transparentBorder,'transparentBorder')}`;
         for(const key of ['style','colorMode'])this.element.querySelector(`[data-button-field="${key}"]`).value=data[key];
         const colors=this.element.querySelector('[data-button-colors]');
-        const addColor=(color,label,change)=>{
-            const row=createGradientRow(colors.querySelectorAll('.grad-stop-row').length),preview=createColorPreview(color),hex=createHexInput(color);
+        const addColor=(color,label,change,container=colors)=>{
+            const row=createGradientRow(container.querySelectorAll('.grad-stop-row').length),preview=createColorPreview(color),hex=createHexInput(color);
             preview.input.dataset.gradientRole='color';hex.dataset.gradientRole='hex';
             bindAttribute(preview.input,'aria-label',label);bindAttribute(hex,'aria-label',label);
             const commit=value=>{if(/^#[\da-f]{6}$/i.test(value))change(value.toUpperCase());else hex.value=color;};
-            preview.input.addEventListener('change',()=>commit(preview.input.value));hex.addEventListener('change',()=>commit(hex.value));row.append(preview.circle,hex);colors.append(row);return row;
+            preview.input.addEventListener('change',()=>commit(preview.input.value));hex.addEventListener('change',()=>commit(hex.value));row.append(preview.circle,hex);container.append(row);return row;
         };
         if(data.colorMode==='solid')addColor(data.baseColor,'Цвет кнопки',baseColor=>this.edit({baseColor}));
         else{
@@ -48,10 +50,13 @@ export default class ButtonProperties{
             });
             if(data.gradientColors.length<8){const add=document.createElement('button');add.type='button';add.className='md-btn outlined';add.innerHTML=`<i class="material-symbols-rounded" aria-hidden="true">add</i>${labelHTML('Добавить цвет')}`;add.onclick=()=>this.edit({gradientColors:[...data.gradientColors,data.gradientColors.at(-1)]});colors.append(add);}
         }
-        if(!data.autoShade)for(const [key,label] of [['border','Цвет обводки'],['highlight','Цвет блика'],['shadow','Цвет тени фаски']]){
-            const heading=document.createElement('span');heading.className='prop-field-label';heading.innerHTML=labelHTML(label);colors.append(heading);
-            addColor(data.colors[key],label,value=>this.edit({colors:{...data.colors,[key]:value}}));
+        const manual=this.element.querySelector('[data-button-manual-colors]');manual.hidden=data.autoShade;
+        const shades=data.style==='outline'?[['highlight','Цвет контура']]:[['border','Цвет обводки'],['highlight','Цвет блика'],...(['default','ten'].includes(data.style)?[['shadow','Цвет тени фаски']]:[])];
+        if(!data.autoShade)for(const [key,label] of shades){
+            const heading=document.createElement('span');heading.className='prop-field-label';heading.innerHTML=labelHTML(label);manual.append(heading);
+            addColor(data.colors[key],label,value=>this.edit({colors:{...data.colors,[key]:value}}),manual);
         }
+        this.element.querySelector('[data-button-field="tintedBorder"]').closest('label').hidden=!data.autoShade||data.style==='outline';
         for(const input of this.element.querySelectorAll('input,select,button'))input.disabled=!this.app.layerManager.isEditable(layer);
         if(active)this.element.querySelector(`[data-button-field="${active}"]`)?.focus({preventScroll:true});
         else restoreGradientFocus(this.element,gradientFocus);

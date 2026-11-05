@@ -101,7 +101,7 @@
 :where(.buttons-win-shell, .btn-gen-modal) .buttons-sidebar-scroll-area {
     flex: 1;
     min-height: 0;
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     padding: var(--space-4);
     display: flex;
@@ -109,6 +109,13 @@
     gap: var(--space-3);
     scrollbar-width: thin;
     scrollbar-color: var(--md-outline-variant) transparent;
+}
+
+:where(.buttons-win-shell, .btn-gen-modal) .buttons-sidebar-scroll-area > .inspector-tabs {
+    padding: var(--space-2);
+}
+:where(.buttons-win-shell, .btn-gen-modal) .buttons-sidebar-scroll-area > .inspector-tab-panel {
+    padding-top: var(--space-2);
 }
 
 :where(.buttons-win-shell, .btn-gen-modal) .buttons-sidebar-scroll-area::-webkit-scrollbar {
