@@ -11,7 +11,7 @@ function element(id, [left, top, width, height], parentElement = null, options =
         getClientRects: () => options.hidden ? [] : [{}], getAttribute: () => null,
         closest(selector) { return selector === '[hidden]' && options.hidden ? this : parentElement?.closest(selector) || null; },
         contains(node) { for (let current = node; current; current = current.parentElement) if (current === this) return true; return false; },
-        matches(selector) { return options.sidebar && selector.includes('.settings-win-sidebar'); },
+        matches(selector) { return options.sidebar && selector.includes('.settings-win-sidebar') || options.segments && selector.includes('.m3-segmented-button') || options.titlebar && selector === '.titlebar-btn'; },
         querySelector(selector) { return selector === ':scope > .inspector-tabs' ? options.tabs || null : null; },
         querySelectorAll(selector) { return selector.startsWith('button,') ? options.controls || [] : []; }
     };
@@ -53,6 +53,17 @@ test('interface geometry catches vertical label clipping even when width fits', 
     const result = inspect([element('wrapped-label', [10, 10, 120, 40], null, { scrollHeight: 58 })]);
     assert.equal(result.clipped[0].element, 'wrapped-label');
     assert.equal(result.clipped[0].scrollHeight, 58);
+});
+
+test('shared window edges and segmented borders are allowed, but intersections still fail', () => {
+    for (const options of [{segments: true}, {titlebar: true}]) {
+        const parent = element('group', [0, 0, 300, 100], null, options);
+        const a = element('a', [0, 0, 40, 30], parent, options);
+        const b = element('b', [40, 0, 40, 30], parent, options);
+        assert.deepEqual(inspect([a, b]).touching, []);
+        const intersecting = element('overlap', [35, 0, 40, 30], parent, options);
+        assert.equal(inspect([a, intersecting]).overlaps.length, 1);
+    }
 });
 
 test('controls clipped out by scrolling do not falsely overlap the visible footer', () => {

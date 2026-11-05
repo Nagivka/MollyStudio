@@ -119,7 +119,8 @@ async function exerciseEditor() {
         const layout=await launcher.webContents.executeJavaScript(`(()=>{const d=document.getElementById('utilities-dialog'),b=d.getBoundingClientRect();return {fits:b.width<=innerWidth&&b.height<=innerHeight,overflow:d.scrollWidth>d.clientWidth+1};})()`);
         if(!layout.fits||layout.overflow)throw new Error('Utility modal overflows a small window');checks.push('Utility modal fits an eight-hundred by six-hundred window');
         await fs.writeFile(path.join(root,'.test-output/utilities-small.png'),(await launcher.webContents.capturePage()).toPNG());
-        const editor=makeWindow();windows.push(editor);await editor.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:'canvas',width:'256',height:'256',name:'Utilities QA'}});
+        await launcher.page.evaluate(()=>document.getElementById('utilities-dialog').close());
+        const editor=launcher;await editor.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:'canvas',width:'256',height:'256',name:'Utilities QA'}});
         checks.push(...await editor.webContents.executeJavaScript(`(${exerciseEditor.toString()})()`));
         for(const win of windows)if(win.__testErrors.length)throw new Error(win.__testErrors.join('\n'));
         await settle(editor);await fs.writeFile(path.join(root,'.test-output/block-library.png'),(await editor.webContents.capturePage()).toPNG());

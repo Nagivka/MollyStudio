@@ -12,6 +12,7 @@ try{
  });
  const pixels=()=>editor.page.evaluate(()=>mollyEditor.layerManager.layers.map(layer=>layer.canvas?.toDataURL()||null));
  const original=await pixels();
+ await editor.page.evaluate(()=>document.fonts.ready);await settle(editor);
  const dimensions=await editor.page.locator('.top-bar').boundingBox();
  const baseline=await editor.page.locator('.top-bar').evaluate(node=>({background:getComputedStyle(node).backgroundImage,filter:getComputedStyle(node).backdropFilter}));
  const menuPosition=async()=>{
@@ -45,8 +46,9 @@ try{
  await settings.page.locator('.liquid-glass-setting .md-switch-track').click();
  await editor.page.waitForFunction(()=>!document.documentElement.hasAttribute('data-liquid-glass'));
  expect(JSON.stringify(await editor.page.locator('.top-bar').evaluate(node=>({background:getComputedStyle(node).backgroundImage,filter:getComputedStyle(node).backdropFilter})))===JSON.stringify(baseline),'Disabling restores original styles');
+ await editor.page.evaluate(()=>document.fonts.ready);await settle(editor);
  const after=await editor.page.locator('.top-bar').boundingBox();
- expect(after.width===dimensions.width&&after.height===dimensions.height,'Glass preserves toolbar dimensions');
+ expect(after.width===dimensions.width&&after.height===dimensions.height,'Glass preserves toolbar dimensions '+JSON.stringify({before:dimensions,after}));
  await editor.page.evaluate(()=>mollyEditor.settingsManager.set('liquidGlassEnabled',true));
  expect(JSON.stringify(await pixels())===JSON.stringify(original),'Glass does not change document pixels');
  await editor.cdp.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-transparency',value:'reduce'}]});

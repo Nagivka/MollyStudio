@@ -121,7 +121,7 @@ function inspect(page, theme, inspectGeometry) {
     const action = document.querySelector(page === 'editor' ? '#btn-export-png' : page === 'new-project' ? '#btn-create' : page === 'buttons' ? '#btnImportProject' : '#btn-win-close');
     if (!action || action.getBoundingClientRect().width < 10) throw new Error('Primary action missing');
     const box = action.getBoundingClientRect();
-    if (box.left < -1 || box.top < -1 || box.right > innerWidth + 1 || box.bottom > innerHeight + 1) throw new Error('Primary action outside the viewport');
+    if (box.left < -1 || box.top < -1 || box.right > innerWidth + 1 || box.bottom > innerHeight + 1) throw new Error('Primary action outside the viewport '+JSON.stringify({id:action.id,box:box.toJSON(),viewport:[innerWidth,innerHeight]}));
     return { title: document.title, width: innerWidth, height: innerHeight };
 }
 

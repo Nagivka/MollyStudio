@@ -120,6 +120,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
             const box=surface.obstacles.index.shapes[0];surface.obstacles.update();expect(surface.obstacles.index.shapes[0]===box,'Static geometry is cached between particle frames');
             return checks;
         }));
+        await fs.mkdir(path.join(root,'.test-output/weather'),{recursive:true});
         await fs.writeFile(path.join(root,'.test-output/weather/occlusion-report.json'),JSON.stringify({passed:checks.length,checks},null,2));
         if(win.__testErrors.length)throw Error(win.__testErrors.join('\n'));console.log(JSON.stringify({passed:checks.length,checks},null,2));
     }catch(error){console.error(error);process.exitCode=1;}finally{clearTimeout(timer);win?.destroy();app.exit(process.exitCode||0);}

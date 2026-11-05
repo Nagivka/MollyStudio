@@ -38,7 +38,11 @@ export function inspectInterfaceGeometry() {
         const x = Math.min(a.box.right, b.box.right) - Math.max(a.box.left, b.box.left);
         const y = Math.min(a.box.bottom, b.box.bottom) - Math.max(a.box.top, b.box.top);
         if (x > 1.5 && y > 1.5) overlaps.push({ a: label(a.element), b: label(b.element), width: Math.round(x), height: Math.round(y) });
-        else if (a.element.parentElement === b.element.parentElement && !a.element.parentElement.matches('.settings-win-sidebar,.settings-tabs-sidebar')
+        // Window buttons meet at their edges, and segmented controls share a
+        // frame. Their actual intersections are still checked above.
+        else if (a.element.parentElement === b.element.parentElement
+            && !(a.element.matches('.titlebar-btn') && b.element.matches('.titlebar-btn'))
+            && !a.element.parentElement.matches('.settings-win-sidebar,.settings-tabs-sidebar,.m3-segmented-button,.inspector-tabs,.utility-tabs')
             && ((y > 8 && x >= -.5) || (x > 8 && y >= -.5))) touching.push({ a: label(a.element), b: label(b.element) });
     }
     const clipped = controls.filter(({ element }) => element.clientWidth > 0 && !element.matches('input,textarea')
