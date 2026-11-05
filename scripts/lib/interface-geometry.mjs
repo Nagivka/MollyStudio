@@ -3,7 +3,8 @@
 export function inspectInterfaceGeometry() {
     const label = element => element.id || element.getAttribute('aria-label')
         || element.textContent.trim().replace(/\s+/g, ' ').slice(0, 70) || element.className;
-    const shown = element => element.getClientRects().length && !element.closest('[hidden]')
+    // Closed details can retain layout boxes for their unpainted content.
+    const shown = element => element.checkVisibility() && element.getClientRects().length && !element.closest('[hidden]')
         && getComputedStyle(element).visibility !== 'hidden';
     const overlays = [...document.querySelectorAll('dialog[open],.modal-overlay.show,[popover]:popover-open')].filter(shown);
     const root = overlays.at(-1) || document.querySelector('.menu-dropdown.show,.m3-layer-context-menu.show') || document;

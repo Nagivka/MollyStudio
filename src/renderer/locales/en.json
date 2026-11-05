@@ -1920,6 +1920,7 @@
   "Автообновления доступны в установленной версии или AppImage.": "Automatic updates are available in the installed version or AppImage.",
   "Меняет только украшение главного меню. Системная дата остаётся прежней.": "Changes only the main menu decoration. The system date stays unchanged.",
   "Применять к": "Apply to",
+  "Редактор": "Editor",
   "До трёх строк, по 64 символа. Enter добавляет строку.": "Up to three rows of 64 characters. Press Enter for a new row.",
   "Язык строк": "Row languages",
   "Язык определяется автоматически. Используйте один алфавит в каждой строке.": "Language is detected automatically. Use one alphabet per row.",

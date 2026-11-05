@@ -9,6 +9,7 @@ function element(id, [left, top, width, height], parentElement = null, options =
         style: { visibility: 'visible', overflowX: 'visible', overflowY: 'visible', maskImage: 'none', ...options.style },
         getBoundingClientRect: () => ({ left, top, right: left + width, bottom: top + height }),
         getClientRects: () => options.hidden ? [] : [{}], getAttribute: () => null,
+        checkVisibility: () => !options.hidden && !options.unpainted && (!parentElement || parentElement.checkVisibility()),
         closest(selector) { return selector === '[hidden]' && options.hidden ? this : parentElement?.closest(selector) || null; },
         contains(node) { for (let current = node; current; current = current.parentElement) if (current === this) return true; return false; },
         matches(selector) { return options.sidebar && selector.includes('.settings-win-sidebar') || options.segments && selector.includes('.m3-segmented-button') || options.titlebar && selector === '.titlebar-btn'; },
@@ -72,6 +73,15 @@ test('controls clipped out by scrolling do not falsely overlap the visible foote
     const footer = element('footer', [10, 100, 100, 30]);
     assert.equal(inspect([out, footer]).controls, 1);
     assert.deepEqual(inspect([out, footer]).overlaps, []);
+});
+
+test('unpainted details content is excluded even when its stored layout overlaps a visible control', () => {
+    const closedContent = element('closed-details-content', [0, 0, 250, 180], null, {unpainted: true});
+    const hidden = element('unpainted-input', [10, 20, 100, 30], closedContent);
+    const visible = element('visible-action', [10, 20, 100, 30]);
+    assert.equal(hidden.getClientRects().length, 1);
+    const result = inspect([hidden, visible]);
+    assert.equal(result.controls, 1);assert.deepEqual(result.overlaps, []);
 });
 
 test('pinned inspector tabs occlude scrolled content but real intersections below remain detectable', () => {

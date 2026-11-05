@@ -201,7 +201,7 @@
 
     /* TEN actions. Palette swatches and theme previews keep their actual colors. */
     & :is(button, [role="button"], [role="tab"]):not(
-        [role="tab"], .doc-tab, .inspector-tab, .menu-btn, .titlebar-btn,
+        [role="tab"], .doc-tab, .inspector-tab, .menu-btn, .titlebar-btn, .title-node-label,
         .settings-theme-card, .settings-accent-swatch, .color-square-slot,
         .palette-swatch, .color-swatch, .swatch-btn, .shading-ramp-slot, .md-swatch,
         .md-color-chip, .ui-disclosure-trigger, .md-panel-header, [data-color], [data-hex]) {

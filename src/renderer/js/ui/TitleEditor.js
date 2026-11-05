@@ -43,7 +43,7 @@ export default class TitleEditor {
         this.panel.innerHTML=`
             <header class="title-inspector-header">
                 <h3>${text('3D-генератор надписей')}</h3>
-                <div class="title-inspector-tabs" role="tablist">${[['settings','text_fields','Текст'],['material','palette','Оформление'],['scene','deployed_code','Сцена']].map(([id,symbol,label])=>`<button type="button" class="md-btn outlined" role="tab" data-title-tab="${id}">${icon(symbol)}${text(label)}</button>`).join('')}</div>
+                <div class="title-inspector-tabs" role="tablist">${[['settings','text_fields','Текст'],['material','palette','Оформление'],['scene','deployed_code','Сцена']].map(([id,symbol,label])=>`<button type="button" class="inspector-tab" role="tab" data-title-tab="${id}">${icon(symbol)}${text(label)}</button>`).join('')}</div>
                 <div class="title-scope" hidden>
                     <label>${text('Применять к')}<select class="md-select" data-title-row><option value="-1">${text('Вся надпись')}</option><option value="0">${text('Строка 1')}</option><option value="1">${text('Строка 2')}</option><option value="2">${text('Строка 3')}</option></select></label>
                     <button class="md-icon-btn" type="button" data-title-row-reset hidden>${icon('restart_alt')}</button>
@@ -57,7 +57,7 @@ export default class TitleEditor {
             ${group('Текст надписи','text_fields',`
                 <label>${text('Текст')}<textarea class="md-input" rows="3" maxlength="386" data-title-field="text" aria-describedby="title-text-help"></textarea></label>
                 <p id="title-text-help" class="field-hint">${text('До трёх строк, по 64 символа. Enter добавляет строку.')}</p>
-                ${disclosure('Язык строк','translate',`<p class="field-hint">${text('Язык определяется автоматически. Используйте один алфавит в каждой строке.')}</p>
+                ${disclosure('Язык строк','text_fields',`<p class="field-hint">${text('Язык определяется автоматически. Используйте один алфавит в каждой строке.')}</p>
                     <div class="title-row-languages">${[0,1,2].map(index=>`<label>${text('Язык строки {0}',{0:index+1})}<select class="md-select" data-title-language="${index}"><option value="auto">${text('Авто')}</option>${Object.entries(TITLE_TEXT_LANGUAGES).map(([id,item])=>`<option value="${id}">${text(item.name)}</option>`).join('')}</select></label>`).join('')}</div>`)}
             `)}
             ${group('Форма текста','tune',`
@@ -403,7 +403,7 @@ export default class TitleEditor {
             if(image.src!==url)image.src=url;
             bindAttribute(image.parentElement,'title',kind==='font'?'Библиотека шрифтов · {0}':'Библиотека материалов · {0}',{0:kind==='font'?fontRecord.name:translate(texture.name)});
         }
-        const description=this.panel.querySelector('[data-title-scope-description]'),overrides=value.rows.some(row=>row!==null);
+        const lines=value.text.split('\n'),description=this.panel.querySelector('[data-title-scope-description]'),overrides=value.rows.slice(0,lines.length).some(row=>row!==null);
         description.hidden=this.currentRow<0?!overrides:!value.rows[this.currentRow];
         bindText(description,this.currentRow<0?'У некоторых строк свои настройки. Выберите строку, чтобы изменить их.':'У этой строки свои настройки шрифта и оформления.');
         for(const input of this.panel.querySelectorAll('[data-title-field]'))if((force||document.activeElement!==input||input.dataset.titleField==='text'&&input.value.normalize('NFC').replace(/\r/g,'')!==value.text)&&!input.hasAttribute('aria-invalid')){
@@ -428,7 +428,7 @@ export default class TitleEditor {
             const selected=!button.hidden&&defaultAppearance&&texture.sourceId===preset.texture&&settings.originalColors===preset.originalColors&&(preset.originalColors||['top','bottom','side'].every(key=>settings[key].toUpperCase()===preset[key].toUpperCase()));
             button.classList.toggle('active',selected);button.setAttribute('aria-pressed',String(selected));
         }
-        const scope=this.panel.querySelector('[data-title-row]'),lines=value.text.split('\n');
+        const scope=this.panel.querySelector('[data-title-row]');
         this.panel.querySelector('.title-scope').hidden=lines.length<2&&!overrides;
         this.panel.querySelector('.title-layout-options').hidden=lines.length<2;
         const fontDetails=this.panel.querySelector('[data-title-field="kerning"]').closest('details');fontDetails.hidden=!available.kerning&&!available.terminators&&!available.creeperA;

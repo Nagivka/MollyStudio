@@ -57,9 +57,10 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
   editor.setTab('material');
   return checks;
  });
- const fileChooser=win.page.waitForEvent('filechooser');await win.page.locator('[data-title-import="image"]').click();await(await fileChooser).setFiles(path.join(root,'src/renderer/assets/weather/snow.png'));
+ const [fileChooser]=await Promise.all([win.page.waitForEvent('filechooser'),win.page.locator('[data-title-import="image"]').click()]);await fileChooser.setFiles(path.join(root,'src/renderer/assets/weather/snow.png'));
  await win.page.waitForFunction(()=>!mollyEditor.titleEditor.loading&&mollyEditor.getActiveProject().titleData.appearance.image?.startsWith('data:image/png;base64,'));checks.push('Importing a local image embeds it in the title without a network dependency');
- const overlayChooser=win.page.waitForEvent('filechooser');await win.page.locator('[data-title-import="overlayImage"]').click();await(await overlayChooser).setFiles(path.join(root,'src/renderer/assets/weather/snow.png'));
+ await win.page.locator('details:has([data-title-import="overlayImage"]) > summary').click();
+ const [overlayChooser]=await Promise.all([win.page.waitForEvent('filechooser'),win.page.locator('[data-title-import="overlayImage"]').click()]);await overlayChooser.setFiles(path.join(root,'src/renderer/assets/weather/snow.png'));
  await win.page.waitForFunction(()=>!mollyEditor.titleEditor.loading&&!!mollyEditor.getActiveProject().titleData.appearance.overlayImage);checks.push('A custom overlay is embedded independently of the base image');
  await win.page.locator('[data-title-clear-overlay]').click();await win.page.waitForFunction(()=>!mollyEditor.getActiveProject().titleData.appearance.overlayImage);checks.push('A custom overlay can be removed even when the preset selector is already set to None');
  const catalogResult=await win.page.evaluate(async()=>{
