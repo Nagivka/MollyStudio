@@ -176,9 +176,9 @@ export default class TitleEditor {
         group(settings,'Шрифт','text_fields',[control('[data-title-field="font"]'),this.panel.querySelector('[data-title-library="fonts"]'),fontHint,control('[data-title-field="creeperA"]')]);
         group(settings,'Компоновка','grid_view',[control('[data-title-field="layout"]'),control('[data-title-field="role"]'),control('[data-title-field="spacing"]').parentElement,control('[data-title-field="kerning"]'),control('[data-title-field="terminators"]')]);
         for(const parent of [material,scene]){
-            const children=[...parent.children],headings=parent===material?['Материал','Наложение','Коррекция материала']:['Камера','Изображение'];let section=null,index=0;
+            const children=[...parent.children],headings=parent===material?['Материал','Наложение','Коррекция материала']:['Камера'];let section=null,index=0;
             for(const child of children){
-                if(child.tagName==='H4'){const heading=headings[index++];child.remove();section=group(parent,heading,parent===material?'palette':heading==='Камера'?'photo_camera':'image',[]);}
+                if(child.tagName==='H4'){const heading=headings[index++];child.remove();section=group(parent,heading,parent===material?'palette':'photo_camera',[]);}
                 else if(section)section.append(child);
             }
         }
@@ -308,10 +308,10 @@ export default class TitleEditor {
         }).catch(error=>{if(serial!==this.requestSerial)return;this.loading=null;this.commitPendingEdit();this.sync(true);this.app.showToast(error.message,'error');});
     }
     edit(event){
-        const input=event.target,key=input.dataset.titleField,appearanceKey=input.dataset.titleAppearance,scaleAxis=input.dataset.titleScale,stopIndex=input.dataset.titleStop,transformKey=input.dataset.titleTransform,project=this.project();
+        const input=event.target,key=input.dataset.titleField,appearanceKey=input.dataset.titleAppearance,stopIndex=input.dataset.titleStop,transformKey=input.dataset.titleTransform,project=this.project();
         if(this.loading?.before){this.sync();return;}
         if(input.dataset.titleLanguage!==undefined&&project){this.editTextLanguage(project);return;}
-        if((!key&&!appearanceKey&&scaleAxis===undefined&&stopIndex===undefined&&!transformKey)||!project)return;
+        if((!key&&!appearanceKey&&stopIndex===undefined&&!transformKey)||!project)return;
         if(key==='text'){
             this.editTextLanguage(project);return;
         }
@@ -325,10 +325,9 @@ export default class TitleEditor {
             const applied=this.safeApply(project,{...project.titleData,transforms:{...project.titleData.transforms,[id]:transform}});this.syncTransform(!applied);return;
         }
         const next=clone(this.loading?.project===project?this.loading.next:project.titleData);
-        const globalKeys=['text','layout','meshMode','subtitleTexture','depth','creeperA','outline','projection','yaw','pitch','zoom','resolution','output','padding'];
+        const globalKeys=['layout','subtitleTexture','depth','creeperA','projection','yaw','pitch','zoom'];
         const target=globalKeys.includes(key)?next:this.targetSettings(next);
         if(appearanceKey){target.appearance={...target.appearance,[appearanceKey]:value};if(appearanceKey==='overlay')target.appearance.overlayImage=null;}
-        else if(scaleAxis!==undefined){target.scale=[...target.scale];target.scale[Number(scaleAxis)]=value;}
         else if(stopIndex!==undefined){target.appearance=clone(target.appearance);target.appearance.stops[Number(stopIndex)][input.dataset.stopProperty]=input.dataset.stopProperty==='at'?Number(value)/100:value;}
         else{target[key]=value;if(key==='font')target.spacing=TITLE_FONT_CATALOG[value].characterSpacing||0;}
         this.requestApply(project,normalizeTitleDocument(next));
@@ -399,7 +398,6 @@ export default class TitleEditor {
             if(input.type==='checkbox')input.checked=Boolean(current);else input.value=current;
         }
         for(const input of this.panel.querySelectorAll('[data-title-appearance]'))if((force||document.activeElement!==input)&&!input.hasAttribute('aria-invalid')){const current=a[input.dataset.titleAppearance];if(input.type==='checkbox')input.checked=Boolean(current);else input.value=current;}
-        for(const input of this.panel.querySelectorAll('[data-title-scale]'))if((force||document.activeElement!==input)&&!input.hasAttribute('aria-invalid'))input.value=settings.scale[Number(input.dataset.titleScale)];
         const textInput=this.panel.querySelector('[data-title-field="text"]'),invalidText=textInput.hasAttribute('aria-invalid');
         for(const select of this.panel.querySelectorAll('[data-title-language]')){
             const index=Number(select.dataset.titleLanguage);if(!invalidText&&document.activeElement!==select)select.value=value.rowLanguages[index];

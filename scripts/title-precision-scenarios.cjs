@@ -20,7 +20,7 @@ const {app,root,profile,ready,makeWindow,settle}=require('./lib/electron-harness
   for(const [text,yaw] of [['MINECRAFT',0],['МОЛЛИ\nSTUDIO',24.125]]){
    e.change(data=>Object.assign(data,{text,projection:'perspective',output:'auto',resolution:2048,yaw,pitch:-28,zoom:100,cameraTarget:[0,0,0],transforms:{}}));for(let i=0;e.loading&&i<500;i++)await new Promise(resolve=>setTimeout(resolve,20));e.viewport.state.view='edit';e.viewport.select(null);e.viewport.draw();
    const editing=Object.assign(document.createElement('canvas'),{width:r.canvas.width,height:r.canvas.height});editing.getContext('2d').drawImage(r.canvas,0,0);const editingBounds=bounds(editing),eye=r.lastPlan.distance;
-   await app.exportPanel.open('project');app.exportPanel.get('scale').value='1';app.exportPanel.get('trim').checked=false;const saved=await app.exportPanel.run();expect(!!saved,'The reference title saves through the real PNG dialog');app.exportPanel.dialog.close();
+   await app.exportPanel.open('project');const saved=await app.exportPanel.run();expect(!!saved,'The reference title saves through the real PNG dialog');app.exportPanel.dialog.close();
    const base64=await window.desktopAPI.readFile(fixtureDirectory+'/'+saved.file,'base64'),image=new Image();image.src='data:image/png;base64,'+base64;await image.decode();
    const png=Object.assign(document.createElement('canvas'),{width:image.width,height:image.height});png.getContext('2d').drawImage(image,0,0);const nativeBounds=bounds(png);
    expect(r.exportRenderer.lastPlan.distance===eye,text+': saved PNG keeps the editing camera eye distance');
@@ -60,8 +60,24 @@ const {app,root,profile,ready,makeWindow,settle}=require('./lib/electron-harness
  const zoomBeforeWheel=await win.page.evaluate(()=>mollyEditor.getActiveProject().titleData.zoom);await win.page.mouse.wheel(0,-65);
  const flushed=await win.page.evaluate(async()=>{const a=mollyEditor;await a.exportPanel.open('project');const matches=a.getActiveProject().titleData.zoom===a.titleEditor.viewport.state.zoom&&a.exportPanel.context.titleData.zoom===a.getActiveProject().titleData.zoom;a.exportPanel.dialog.close();return matches;});if(!flushed)throw Error('Export used stale wheel zoom');checks.push('Opening export flushes the latest wheel gesture before its debounce timer');
  await win.page.evaluate(()=>mollyEditor.history.undo());await settle(win);if(await win.page.evaluate(()=>mollyEditor.titleEditor.viewport.state.zoom)!==zoomBeforeWheel)throw Error('Wheel zoom undo did not restore the shared camera');checks.push('Wheel navigation is committed and undone as one camera gesture');
- const exportResult=await win.page.evaluate(async()=>{const a=mollyEditor,e=a.titleEditor;e.viewport.state.view='render';e.viewport.draw();const size={width:e.renderer.canvas.width,height:e.renderer.canvas.height};await a.exportPanel.open('project');a.exportPanel.get('scale').value='2';a.exportPanel.get('trim').checked=false;await a.exportPanel.preview();const result=await a.exportPanel.run();if(!result)throw Error(a.exportPanel.get('error').textContent);if(e.renderer.canvas.width!==size.width||e.renderer.canvas.height!==size.height)throw Error('Native export resized the viewport');a.exportPanel.dialog.close();return {file:result.file,width:a.config.width*2,height:a.config.height*2};});
- const bytes=await fs.readFile(path.join(profile,exportResult.file));if(bytes.readUInt32BE(16)!==exportResult.width||bytes.readUInt32BE(20)!==exportResult.height)throw Error('Saved PNG dimensions differ from the native export frame');checks.push('Native save writes the exact 2x PNG dimensions without resizing the workspace');
+ const exportSize=1024;
+ const file=await win.page.evaluate(async exportSize=>{
+  const editor=mollyEditor,{viewport,renderer}=editor.titleEditor,panel=editor.exportPanel;
+  viewport.state.view='render';viewport.draw();
+  const {width,height}=renderer.canvas,before=JSON.stringify(editor.getActiveProject().titleData);
+  await panel.open('project');
+  panel.get('titleResolution').value=String(exportSize);
+  panel.get('titleOutput').value='square';panel.get('titlePadding').value='48';
+  await panel.preview();
+  if(panel.get('dimensions').textContent!==`${exportSize} × ${exportSize} px`)throw Error('Export preview does not show the selected PNG size');
+  const result=await panel.run();if(!result)throw Error(panel.get('error').textContent);
+  if(renderer.canvas.width!==width||renderer.canvas.height!==height)throw Error('Native export resized the viewport');
+  if(JSON.stringify(editor.getActiveProject().titleData)!==before)throw Error('Native export modified the title document');
+  panel.dialog.close();return result.file;
+ },exportSize);
+ const bytes=await fs.readFile(path.join(profile,file)),savedWidth=bytes.readUInt32BE(16),savedHeight=bytes.readUInt32BE(20);
+ if(savedWidth!==exportSize||savedHeight!==exportSize)throw Error(`Expected a ${exportSize} px square, got ${savedWidth} × ${savedHeight} px`);
+ checks.push('Native save writes the selected PNG dimensions without resizing the workspace');
  for(const size of [[1000,700],[1280,900],[1920,1080]]){win.setContentSize(...size);await settle(win);const fits=await win.page.evaluate(()=>{const e=mollyEditor.titleEditor,box=e.viewport.stage.getBoundingClientRect(),f=e.outputFrame||e.viewport.outputFrame;return !f.hidden&&f.getBoundingClientRect().left>=box.left-1&&f.getBoundingClientRect().right<=box.right+1&&document.documentElement.scrollWidth<=innerWidth;});if(!fits)throw Error('PNG frame overflow at '+size);checks.push('PNG frame fits the '+size.join('x')+' window');}
  await win.page.evaluate(()=>{const e=mollyEditor.titleEditor;e.viewport.state.view='edit';e.viewport.select(e.renderer.mesh.nodes.find(n=>n.type==='glyph').id);e.viewport.draw();});await settle(win);
  await fs.writeFile(path.join(root,'.test-output/title-precision.png'),(await win.webContents.capturePage()).toPNG());

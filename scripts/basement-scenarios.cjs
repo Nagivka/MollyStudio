@@ -24,11 +24,11 @@ await win.page.evaluate(theme=>document.documentElement.dataset.theme=theme,them
 for(const [width,height]of [[1000,850],[800,600]]){win.setContentSize(width,height);await settle(win);expect(await win.page.evaluate(()=>{const d=document.querySelector('.studio-basement'),r=d.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight&&d.scrollWidth<=d.clientWidth+1;}),'Room fits '+theme+' '+width);}
 }
 await fs.mkdir(path.join(root,'.test-output/basement'),{recursive:true});await fs.writeFile(path.join(root,'.test-output/basement/room.png'),(await win.webContents.capturePage()).toPNG());
-await win.page.keyboard.press('Escape');expect(await win.page.locator('.studio-basement').count()===0,'Escape removes dialog');
+await win.page.keyboard.press('Escape');await win.page.locator('.studio-basement').waitFor({state:'detached'});checks++;
 expect(await logo.evaluate(node=>document.activeElement===node),'Focus returns to logo');
 for(let i=0;i<7;i++)await logo.click({modifiers:['Shift']});expect(await win.page.locator('.studio-basement').count()===1,'Secret can be reopened');
 expect(await win.page.locator('[data-basement-add]').isDisabled(),'Reopening cannot add duplicate palette');
-await win.page.locator('[data-basement-close]').click();expect(await win.page.locator('.studio-basement').count()===0,'Exit button cleans dialog');
+await win.page.locator('[data-basement-close]').click();await win.page.locator('.studio-basement').waitFor({state:'detached'});checks++;
 await win.page.reload();await settle(win);
 expect(await win.page.evaluate(async()=>{const {PaletteOptions}=await import(new URL('js/utils/Palettes.js',location.href));return PaletteOptions.filter(([id])=>id==='basement').length===1;}),'Secret palette survives a reload');
 if(win.__testErrors.length)throw Error(win.__testErrors.join('\n'));console.log(JSON.stringify({passed:true,checks}));

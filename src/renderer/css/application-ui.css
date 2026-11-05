@@ -838,6 +838,8 @@ input[type="color"]::-webkit-color-swatch {
 @media (max-width: 520px) { .shortcut-command { grid-template-columns: minmax(0,1fr) 36px; } .shortcut-command-name { grid-column: 1 / -1; } }
 .export-controls textarea { resize: vertical; min-height: 96px; }
 .export-fields { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; }
+.title-export [data-export="title-fields"]:not([hidden]) { display: grid; gap: 12px; }
+.title-export [data-export="format-fields"] { grid-template-columns: minmax(0,1fr); }
 .export-image-box { display: flex; align-items: center; justify-content: center; min-height: 140px; max-height: 300px; padding: 12px; background: repeating-conic-gradient(#b9b9b933 0% 25%,transparent 0% 50%) 0 0 / 16px 16px; border: 1px solid var(--md-outline-variant); border-radius: 12px; overflow: hidden; }
 .export-preview { min-width: 0; overflow-wrap: anywhere; }
 .export-preview canvas { max-width: 100%; max-height: 270px; object-fit: contain; image-rendering: pixelated; }

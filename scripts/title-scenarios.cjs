@@ -61,7 +61,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
   const buffers=[...renderer.exportRenderer.batches].map(batch=>batch.buffer);renderer.render({text:'TITLE',resolution:4096,output:'square',yaw:30});
   expect(buffers.every((buffer,i)=>renderer.exportRenderer.batches[i].buffer===buffer),'Camera changes reuse GPU mesh buffers');
   const empty=renderer.render({text:'',resolution:1024});expect(!empty.canvas.getContext('2d').getImageData(0,0,empty.canvas.width,empty.canvas.height).data.some(value=>value),'Empty text produces a transparent result');empty.canvas.width=empty.canvas.height=1;
-  await app.exportPanel.open('project');app.exportPanel.get('scale').value='1';app.exportPanel.get('trim').checked=false;
+  await app.exportPanel.open('project');
   const exported=await app.exportPanel.run();expect(exported?.count===1&&exported.manifest.images[0].width===app.config.width,'Title exports through the existing PNG dialog at document resolution');app.exportPanel.dialog.close();
   const active=app.getActiveProject();app.addProject('Other','none',32,32,false,'canvas');await app.getActiveProject().prefixLoadPromise;
   expect(editor.panel.hidden&&!document.body.classList.contains('title-project'),'Switching to a canvas restores the ordinary editor');app.switchProject(active.id);await active.prefixLoadPromise;expect(!editor.panel.hidden&&active.titleData.text.includes('ПРИВЕТ'),'Returning to the title preserves model parameters');

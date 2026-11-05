@@ -27,7 +27,7 @@ export default class ExportPanel {
             <label class="prop-field-block"><span><!--i18n-->Форма изображения</span><select class="md-select" data-export="titleOutput"><option value="auto"><!--i18n-->По надписи</option><option value="square"><!--i18n-->Квадрат</option></select></label></div>
             ${numberFieldHTML({label:'Поля изображения, px',attribute:'data-export',attributeValue:'titlePadding',min:0,max:128,value:24})}
         </div>
-        <div class="export-fields"><label class="prop-field-block"><span><!--i18n-->Масштаб PNG</span><select class="md-select" data-export="scale">${[1,2,3,4,8,16].map(n=>`<option value="${n}">${n}×</option>`).join('')}</select></label><label class="prop-field-block"><span><!--i18n-->Результат</span><select class="md-select" data-export="format"><option value="png"><!--i18n-->Одно изображение PNG</option><option value="zip"><!--i18n-->Архив с PNG</option><option value="sheet"><!--i18n-->Спрайт-лист в архиве</option></select></label></div>
+        <div class="export-fields" data-export="format-fields"><label class="prop-field-block"><span><!--i18n-->Масштаб PNG</span><select class="md-select" data-export="scale">${[1,2,3,4,8,16].map(n=>`<option value="${n}">${n}×</option>`).join('')}</select></label><label class="prop-field-block"><span><!--i18n-->Результат</span><select class="md-select" data-export="format"><option value="png"><!--i18n-->Одно изображение PNG</option><option value="zip"><!--i18n-->Архив с PNG</option><option value="sheet"><!--i18n-->Спрайт-лист в архиве</option></select></label></div>
         ${switchHTML("data-export","Обрезать прозрачные поля",false,"trim")}
         <div class="export-fields" data-export="sheet-fields">${numberFieldHTML({label:"Столбцы",attribute:"data-export",attributeValue:"columns",min:1,max:32,value:4})}${numberFieldHTML({label:"Промежуток, px",attribute:"data-export",attributeValue:"gap",min:0,max:64,value:1})}</div>
         <label class="prop-field-block"><span><!--i18n-->Начало имени файла</span><input class="md-input" data-export="prefix" maxlength="40" placeholder="Например, server_" data-i18n-placeholder="%D0%9D%D0%B0%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80%2C%20server_"></label>
@@ -60,7 +60,7 @@ export default class ExportPanel {
         const defaults={source,scale:project.type==='title'?1:this.app.settingsManager.get('exportScale')||1,trim:this.app.settingsManager.get('exportTrim')===true,format:source==='selected'?'zip':'png',columns:4,gap:1,prefix:'',numbered:false,names:'',block:this.app.prefixEditor?.selected||0,
             titleResolution:project.titleData?.resolution||2048,titleOutput:project.titleData?.output||'auto',titlePadding:project.titleData?.padding??24,...this.titleOptions.get(project)};
         const options=repeat&&this.last?{...defaults,...this.last}:defaults;
-        if(project.type==='title'){options.scale=1;options.trim=false;}
+        if(project.type==='title'){options.source='project';options.scale=1;options.trim=false;}
         if(project.type!=='prefix'&&options.source==='prefixes')options.source='project';
         if(['prefix','title'].includes(project.type)&&['active','selected'].includes(options.source))options.source='project';
         const block=this.get('block');block.replaceChildren();
@@ -80,6 +80,7 @@ export default class ExportPanel {
         const result={};for(const key of ['source','scale','trim','format','columns','gap','prefix','numbered','names','block']){const input=this.get(key);result[key]=input.type==='checkbox'?input.checked:input.value;}
         for(const key of ['scale','columns','gap','block'])result[key]=Number(result[key]);
         if(this.context?.type==='title'){
+            result.source='project';result.scale=1;result.trim=false;
             result.titleResolution=Number(this.get('titleResolution').value);result.titleOutput=this.get('titleOutput').value;
             result.titlePadding=numberValue(this.get('titlePadding'));
             if(result.titlePadding===null||![1024,2048,4096].includes(result.titleResolution)||!['auto','square'].includes(result.titleOutput))throw Error('Проверьте числовые параметры экспорта.');
@@ -104,12 +105,11 @@ export default class ExportPanel {
         if(!result.length)throw Error('Нет выбранных слоёв для экспорта.');return result;
     }
 
-    source(entry,options,fullResolution=false){
+    source(entry,options){
         this.assertContext();
         const c=this.context;
         if(c.type==='title')return this.app.titleEditor.renderer.render({...c.titleData,
-            resolution:options.titleResolution??c.titleData.resolution,output:options.titleOutput??c.titleData.output,padding:options.titlePadding??c.titleData.padding},
-            {scale:fullResolution?options.scale:1}).canvas;
+            resolution:options.titleResolution??c.titleData.resolution,output:options.titleOutput??c.titleData.output,padding:options.titlePadding??c.titleData.padding}).canvas;
         if(options.source==='prefixes'){
             const data=structuredClone(c.prefixData);data.blocks[options.block].text=entry.text;
             return this.app.prefixEditor.renderer.render(data).canvas;
@@ -198,9 +198,9 @@ export default class ExportPanel {
                 this.assertRunning();
                 bindText(this.get('status'), "Подготовка {0} из {1}: {2}", {0: index+1, 1: entries.length, 2: names[index]});this.get('progress').value=index/entries.length;await frame();
                 this.assertRunning();
-                const source=this.source(entries[index],options,true);let output;
+                const source=this.source(entries[index],options);let output;
                 try{
-                    const region=getExportRegion(source,options.trim);output=prepareExportCanvas(source,{scale:this.context.type==='title'?1:options.scale,region});
+                    const region=getExportRegion(source,options.trim);output=prepareExportCanvas(source,{scale:options.scale,region});
                     source.width=source.height=1;
                     const blob=await blobOf(output);this.assertRunning();payloadBytes+=blob.size;
                     if(payloadBytes>96*1024*1024)throw Error('Набор превышает 96 МБ. Экспортируйте меньшими частями.');
