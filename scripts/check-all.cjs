@@ -28,11 +28,23 @@ suites.splice(suites.indexOf('ui-motion-scenarios')+1,0,'visual-effects-scenario
 suites.splice(suites.indexOf('tool-scenarios')+1,0,'pipette-history-scenarios');
 suites.splice(suites.indexOf('usability-scenarios')+1,0,'responsive-scenarios');
 suites.push('developer-settings-scenarios','basement-scenarios','weather-important-scenarios','visual-components','visual-interactions');
-suites.push('editor-soak-scenarios');
-const tasks=[['types',['node_modules/typescript/bin/tsc','-p','tsconfig.json','--noEmit']],['generated',['scripts/verify-core.cjs']],['unit',['scripts/run-unit.cjs']],['static',['scripts/audit-project.mjs']],...suites.map(name=>[name,['scripts/run-electron-check.cjs',`scripts/${name}.cjs`]])];
+suites.push('editor-soak-scenarios','production-window-scenarios');
+let tasks=[['types',['node_modules/typescript/bin/tsc','-p','tsconfig.json','--noEmit']],['generated',['scripts/verify-core.cjs']],['unit',['scripts/run-unit.cjs']],['static',['scripts/audit-project.mjs']],...suites.map(name=>[name,['scripts/run-electron-check.cjs',`scripts/${name}.cjs`]])];
 tasks.push(['title-unavailable',['scripts/run-electron-check.cjs','scripts/title-edge-scenarios.cjs','--without-webgl']]);
+if (process.argv.includes('--full-visual')) for (const page of ['index','editor','settings','new-project','buttons']) {
+    tasks.push([`visual-capture-${page}`, ['scripts/run-electron-check.cjs','scripts/visual-regression.cjs','--capture',`--page=${page}`]]);
+}
+const shard = process.argv.find(argument => argument.startsWith('--shard='));
+let suffix = '';
+if (shard) {
+    const match = /^--shard=([1-9]\d*)\/([1-9]\d*)$/.exec(shard);
+    if (!match || Number(match[1]) > Number(match[2]) || Number(match[2]) > tasks.length) throw Error('Invalid audit shard');
+    const index = Number(match[1]) - 1, count = Number(match[2]);
+    tasks = tasks.filter((_task, position) => position % count === index);
+    suffix = `-${index + 1}-of-${count}`;
+}
 fs.mkdirSync(path.join(root,'.test-output'),{recursive:true});
-const report=path.join(root,'.test-output/check-all.json');
+const report=path.join(root,`.test-output/check-all${suffix}.json`);
 const context=checkContext(root,tasks),startedAt=new Date().toISOString();
 let finishedAt=null;
 if(process.argv.includes('--resume')){
@@ -49,13 +61,13 @@ const writeReport=()=>{
 };
 writeReport();
 for(const [name,args] of tasks.slice(results.length)){
-    const start=Date.now(),result=spawnSync(process.execPath,args,{cwd:root,encoding:'utf8',windowsHide:true,timeout:name.startsWith('visual-')?600000:name==='minecraft-theme-audit'?360000:name==='native'?900000:180000,maxBuffer:8*1024*1024});
+    const start=Date.now(),result=spawnSync(process.execPath,args,{cwd:root,encoding:'utf8',windowsHide:true,timeout:name.startsWith('visual-')?600000:name==='minecraft-theme-audit'?360000:name==='editor-soak-scenarios'?300000:name==='native'?900000:180000,maxBuffer:8*1024*1024});
     fs.writeFileSync(path.join(root,'.test-output',`check-${name}.log`),(result.stdout||'')+(result.stderr||''));
     const sourceChanged=checkInputs(root).sha256!==context.inputs.sha256;
     const entry={name,passed:result.status===0&&!result.error&&!sourceChanged,durationMs:Date.now()-start,...(sourceChanged?{error:'Исходники изменились во время проверки. Запустите проверки заново.'}:{})};results.push(entry);
     writeReport();
     console.log(`${entry.passed?'PASS':'FAIL'} ${name} (${entry.durationMs} ms)`);
-    if(!entry.passed){console.error(entry.error||result.error?.message||result.stderr||result.stdout);process.exitCode=1;break;}
+    if(!entry.passed){console.error(entry.error||result.error?.message||result.stderr||result.stdout);process.exitCode=1;if(sourceChanged||!process.argv.includes('--continue'))break;}
 }
 finishedAt=new Date().toISOString();
 writeReport();

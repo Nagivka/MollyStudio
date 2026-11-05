@@ -1,0 +1,39 @@
+name: Complete system audit
+on:
+  workflow_dispatch:
+  push:
+    branches: ['codex/system-audit']
+permissions:
+  contents: read
+concurrency:
+  group: system-audit-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  audit:
+    if: github.repository == 'Nagivka/MollyStudio' && github.event.repository.private == true
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    runs-on: windows-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: node node_modules/electron/install.js
+      - name: Check systems and capture all themes
+        run: node scripts/check-all.cjs --continue --full-visual --shard=${{ matrix.shard }}/8
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        if: always()
+        with:
+          name: system-audit-${{ matrix.shard }}-${{ github.sha }}
+          path: .test-output/
+          include-hidden-files: true
+          retention-days: 7
