@@ -8,14 +8,23 @@ async function downloadPublished({version=require('../package.json').version,pla
  const headers={Accept:'application/vnd.github+json',...(process.env.GITHUB_TOKEN?{Authorization:'Bearer '+process.env.GITHUB_TOKEN}:{})};
  const response=await fetch(`https://api.github.com/repos/Nagivka/MollyStudio-Releases/releases/tags/v${version}`,{headers,signal:AbortSignal.timeout(30000)});if(!response.ok)throw Error('Release API HTTP '+response.status);const release=await response.json();
  if(release.draft||release.prerelease||release.tag_name!==`v${version}`)throw Error('Stable release not found');
- const primary=targetReleaseNames(version,target)[0],names=platform==='darwin'?[primary,primary.replace(/\.zip$/,'.dmg')]:platform==='linux'?[primary,...['deb','rpm','tar.gz'].map(ext=>primary.replace(/\.AppImage$/,'.'+ext))]:[primary,primary+'.blockmap'];
+ const primary=targetReleaseNames(version,target)[0],names=platform==='darwin'?[primary.replace(/\.zip$/,'.dmg')]:platform==='linux'?[primary,...['deb','rpm'].map(ext=>primary.replace(/\.AppImage$/,'.'+ext))]:[primary,primary+'.blockmap'];
+ const optional=platform==='darwin'?primary:platform==='linux'?primary.replace(/\.AppImage$/,'.tar.gz'):null;
+ if(optional&&release.assets.some(a=>a.name===optional))names.push(optional);
+ const checksums=new Map();if(release.assets.some(a=>a.name==='SHA256SUMS.txt')){
+  const c=await fetch(base+'SHA256SUMS.txt',{signal:AbortSignal.timeout(30000)});if(!c.ok)throw Error('Published checksum list is unavailable');
+  for(const line of (await c.text()).trim().split(/\r?\n/)){const match=/^([a-f0-9]{64})  ([^/\\]+)$/.exec(line);if(!match||checksums.has(match[2]))throw Error('Invalid checksum list');checksums.set(match[2],match[1]);}
+ }
  const verified=[];
  for(const name of names){
   const asset=release.assets.find(a=>a.name===name);if(!asset||asset.state!=='uploaded'||asset.size<1||!/^sha256:[a-f0-9]{64}$/.test(asset.digest)||asset.browser_download_url!==base+name)throw Error('Missing or invalid release asset: '+name);
   const final=path.join(directory,name),temporary=final+'.download';const r=await fetch(asset.browser_download_url,{signal:AbortSignal.timeout(600000)});if(!r.ok)throw Error('Package download HTTP '+r.status);
   const hash=crypto.createHash('sha256');let bytes=0;async function* chunks(){for await(const chunk of Readable.fromWeb(r.body)){bytes+=chunk.length;if(bytes>asset.size)throw Error('Package size exceeded');hash.update(chunk);yield chunk;}}
   await pipeline(chunks(),fss.createWriteStream(temporary));const sha256=hash.digest('hex');if(bytes!==asset.size||'sha256:'+sha256!==asset.digest)throw Error('Published package hash mismatch');await fs.rename(temporary,final);if(platform==='linux'&&name.endsWith('.AppImage'))await fs.chmod(final,0o755);
-  if(!name.endsWith('.blockmap')){const c=await fetch(base+name+'.sha256');if(!c.ok||(await c.text()).trim()!==`${sha256}  ${name}`)throw Error('Published checksum mismatch');}
+  if(!name.endsWith('.blockmap')){
+   if(checksums.size){if(checksums.get(name)!==sha256)throw Error('Published checksum list mismatch');}
+   else{const c=await fetch(base+name+'.sha256',{signal:AbortSignal.timeout(30000)});if(!c.ok||(await c.text()).trim()!==`${sha256}  ${name}`)throw Error('Published checksum mismatch');}
+  }
   verified.push({name,size:bytes,sha256});
  }
  if(platform!=='darwin'){

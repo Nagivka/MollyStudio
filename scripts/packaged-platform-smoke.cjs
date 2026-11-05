@@ -47,7 +47,7 @@ async function checkProjectAssociation(executable, fixture) {
     await fs.mkdir(profile,{recursive:true});await fs.writeFile(path.join(profile,'update-preferences.json'),JSON.stringify({autoCheck:false,autoDownload:false}));
     await fs.writeFile(fixture,JSON.stringify({mollyVersion:2,type:'canvas',name:'Native smoke',config:{width:64,height:64},layers:[]}));
     const server=net.createServer();server.listen(0,'127.0.0.1');await once(server,'listening');const port=server.address().port;await new Promise(resolve=>server.close(resolve));
-    const executable=process.argv[2]||distributionLayout(path.join(root,report.unpacked),process.platform).executable;
+    const executable=process.argv[2]?path.resolve(process.argv[2]):distributionLayout(path.join(root,report.unpacked),process.platform).executable;
     const env={...process.env};for(const key of ['MOLLY_TEST_PROFILE','MOLLY_MANUAL_CHECK','ELECTRON_RUN_AS_NODE','NODE_OPTIONS'])delete env[key];
     if(wayland){delete env.DISPLAY;env.XDG_CONFIG_HOME=path.dirname(profile);env.WAYLAND_DEBUG='client';}
     if(appImage)env.APPIMAGE_EXTRACT_AND_RUN='1';
