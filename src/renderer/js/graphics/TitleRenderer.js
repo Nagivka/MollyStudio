@@ -14,6 +14,7 @@ const VERTEX=`
 attribute vec3 aPosition;
 attribute vec3 aNormal;
 attribute vec2 aUV;
+attribute vec4 aUVBounds;
 uniform vec2 uAngles;
 uniform vec3 uTarget;
 uniform vec2 uClip;
@@ -22,6 +23,7 @@ uniform vec3 uCamera;
 uniform vec3 uOrtho;
 uniform bool uPerspective;
 varying vec2 vUV;
+varying vec4 vUVBounds;
 varying vec3 vNormal;
 varying float vHeight;
 vec3 turn(vec3 p){
@@ -35,11 +37,12 @@ void main(){
     gl_Position=vec4(p.x*uCamera.x,p.y*uCamera.y,-((far+near)/(far-near))*z-(2.0*far*near)/(far-near),-z);
     gl_Position.xy-=uShift*uCamera.xy*gl_Position.w;
     if(!uPerspective)gl_Position=vec4((p.x-uShift.x)/uOrtho.x,(p.y-uShift.y)/uOrtho.y,-p.z/uOrtho.z,1.0);
-    vUV=aUV;vNormal=aNormal;vHeight=aPosition.y;
+    vUV=aUV;vUVBounds=aUVBounds;vNormal=aNormal;vHeight=aPosition.y;
 }`;
 const FRAGMENT=`
 precision highp float;
 uniform sampler2D uTexture;
+uniform vec2 uTexelSize;
 uniform bool uOriginal;
 uniform vec3 uTop;
 uniform vec3 uBottom;
@@ -47,11 +50,14 @@ uniform vec3 uSide;
 uniform vec2 uRange;
 uniform bool uWire;
 varying vec2 vUV;
+varying vec4 vUVBounds;
 varying vec3 vNormal;
 varying float vHeight;
 void main(){
     if(uWire){gl_FragColor=vec4(0.3,0.68,1.0,1.0);return;}
-    vec4 texel=texture2D(uTexture,vUV);
+    // Adjacent faces share atlas borders. Keep sampling inside their own texels.
+    vec2 inset=min(uTexelSize*0.5,(vUVBounds.zw-vUVBounds.xy)*0.5);
+    vec4 texel=texture2D(uTexture,clamp(vUV,vUVBounds.xy+inset,vUVBounds.zw-inset));
     if(texel.a<0.5)discard;
     vec3 n=normalize(vNormal);
     // The reference preview uses MeshBasicMaterial: preserve authored colors.
@@ -98,7 +104,7 @@ export default class TitleRenderer {
         const data=normalizeTitleDocument(value),states=new Map();
         data.text.split('\n').forEach((line,row)=>{
             const settings=titleRowSettings(data,row),fonts=new Set([settings.font]);
-            for(const input of line)if(input!==' ')fonts.add(resolveTitleGlyph(settings.font,input,data.creeperA).font);
+            for(const input of line)if(input!==' ')fonts.add(resolveTitleGlyph(settings.font,input,settings.creeperA).font);
             for(const font of fonts){const state=titleMaterialState(settings,font);states.set(state.key,state);}
         });
         return [...states.values()];
@@ -152,8 +158,8 @@ export default class TitleRenderer {
         gl.attachShader(program,vertex);gl.attachShader(program,fragment);gl.linkProgram(program);gl.deleteShader(vertex);gl.deleteShader(fragment);
         if(!gl.getProgramParameter(program,gl.LINK_STATUS)){const error=gl.getProgramInfoLog(program);gl.deleteProgram(program);throw Error(error);}
         this.gl=gl;this.program=program;this.batches=[];
-        this.uniforms=Object.fromEntries(['uAngles','uTarget','uClip','uShift','uWire','uCamera','uOrtho','uPerspective','uTexture','uOriginal','uTop','uBottom','uSide','uRange'].map(key=>[key,gl.getUniformLocation(program,key)]));
-        this.attributes=['aPosition','aNormal','aUV'].map(name=>gl.getAttribLocation(program,name));
+        this.uniforms=Object.fromEntries(['uAngles','uTarget','uClip','uShift','uWire','uCamera','uOrtho','uPerspective','uTexture','uTexelSize','uOriginal','uTop','uBottom','uSide','uRange'].map(key=>[key,gl.getUniformLocation(program,key)]));
+        this.attributes=['aPosition','aNormal','aUV','aUVBounds'].map(name=>gl.getAttribLocation(program,name));
         gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);gl.clearColor(0,0,0,0);this.wireBuffer=gl.createBuffer();
     }
     uploadTexture(name){
@@ -173,9 +179,20 @@ export default class TitleRenderer {
         const used=new Set(this.mesh.batches.map(batch=>batch.texture));
         for(const [key,texture] of this.textures)if(!used.has(key)){gl.deleteTexture(texture);this.textures.delete(key);}
         this.batches=this.mesh.batches.map(batch=>{
-            const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(batch.vertices),gl.STATIC_DRAW);
+            const vertices=new Float32Array(batch.vertices.length/8*12);
+            for(let offset=0;offset<batch.vertices.length;offset+=24){
+                const us=[6,14,22].map(index=>batch.vertices[offset+index]),vs=[7,15,23].map(index=>batch.vertices[offset+index]);
+                const bounds=[Math.min(...us),Math.min(...vs),Math.max(...us),Math.max(...vs)];
+                for(let vertex=0;vertex<3;vertex++){
+                    const source=offset+vertex*8,target=(offset/8+vertex)*12;
+                    for(let component=0;component<8;component++)vertices[target+component]=batch.vertices[source+component];
+                    vertices.set(bounds,target+8);
+                }
+            }
+            const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,vertices,gl.STATIC_DRAW);
             const count=batch.vertices.length/8;this.count+=count;
-            return {buffer,count,texture:this.uploadTexture(batch.texture)};
+            const image=this.images.get(batch.texture);
+            return {buffer,count,texture:this.uploadTexture(batch.texture),texelSize:[1/image.width,1/image.height]};
         });
     }
     prepare(value){
@@ -205,15 +222,15 @@ export default class TitleRenderer {
         gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
         const bind=buffer=>{
             gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
-            for(let i=0;i<3;i++){gl.enableVertexAttribArray(this.attributes[i]);gl.vertexAttribPointer(this.attributes[i],i===2?2:3,gl.FLOAT,false,32,i===2?24:i*12);}
+            for(let i=0;i<4;i++){gl.enableVertexAttribArray(this.attributes[i]);gl.vertexAttribPointer(this.attributes[i],[3,3,2,4][i],gl.FLOAT,false,48,[0,12,24,32][i]);}
         };
-        for(const batch of this.batches){bind(batch.buffer);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,batch.texture);gl.drawArrays(gl.TRIANGLES,0,batch.count);}
+        for(const batch of this.batches){bind(batch.buffer);gl.uniform2fv(u.uTexelSize,batch.texelSize);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,batch.texture);gl.drawArrays(gl.TRIANGLES,0,batch.count);}
         const node=this.mesh.nodes.find(node=>node.id===selection);
         if(node){
             const points=boundsCorners(node.bounds),vertices=[];
-            for(let i=0;i<8;i++)for(let axis=0;axis<3;axis++)if(!(i&(1<<axis)))for(const p of [points[i],points[i|(1<<axis)]])vertices.push(...p,0,0,1,0,0);
+            for(let i=0;i<8;i++)for(let axis=0;axis<3;axis++)if(!(i&(1<<axis)))for(const p of [points[i],points[i|(1<<axis)]])vertices.push(...p,0,0,1,0,0,0,0,1,1);
             bind(this.wireBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(vertices),gl.DYNAMIC_DRAW);
-            gl.uniform1i(u.uWire,1);gl.disable(gl.DEPTH_TEST);gl.drawArrays(gl.LINES,0,vertices.length/8);gl.enable(gl.DEPTH_TEST);gl.uniform1i(u.uWire,0);
+            gl.uniform1i(u.uWire,1);gl.disable(gl.DEPTH_TEST);gl.drawArrays(gl.LINES,0,vertices.length/12);gl.enable(gl.DEPTH_TEST);gl.uniform1i(u.uWire,0);
         }
     }
     drawViewport(value,width,height,view,selection){
@@ -224,13 +241,19 @@ export default class TitleRenderer {
         if(!this.exportRenderer){this.exportRenderer=new TitleRenderer();this.exportRenderer.images=this.images;this.exportRenderer.parentRenderer=this;}
         return this.exportRenderer.renderSnapshot(value,options);
     }
-    renderSnapshot(value,{scale=1}={}){
+    renderSnapshot(value,{scale=1,maxSize=null}={}){
         const data=this.prepare(value),output=titleOutputPlan(this.mesh.bounds,data,this.mesh.baseBounds),factor=Math.max(1,Math.min(16,Math.round(Number(scale)||1)));
-        const plan={...output,width:output.width*factor,height:output.height*factor};
-        if(plan.width*plan.height>64*1024*1024||Math.max(plan.width,plan.height)>16384)throw Error('Уменьшите масштаб экспорта: итоговое изображение слишком велико.');
+        const width=output.width*factor,height=output.height*factor;
+        if(width*height>64*1024*1024||Math.max(width,height)>16384)throw Error('Уменьшите масштаб экспорта: итоговое изображение слишком велико.');
+        const maximum=this.gl.getParameter(this.gl.MAX_RENDERBUFFER_SIZE);
+        if(width>maximum||height>maximum)throw Error('Выбранное разрешение не поддерживается видеокартой.');
+        const reduction=maxSize?Math.min(1,maxSize/Math.max(width,height)):1;
+        const plan={...output,width:Math.max(1,Math.round(width*reduction)),height:Math.max(1,Math.round(height*reduction))};
         this.draw(data,plan);
+        if(this.gl.isContextLost())throw Error('3D-контекст временно недоступен.');
+        if(this.gl.getError()!==this.gl.NO_ERROR)throw Error('Не удалось отрисовать PNG. Уменьшите разрешение и повторите экспорт.');
         const canvas=Object.assign(document.createElement('canvas'),{width:plan.width,height:plan.height});canvas.getContext('2d').drawImage(this.canvas,0,0);
-        return {canvas,data,missing:this.mesh.missing,triangles:this.count/3};
+        return {canvas,data,width,height,missing:this.mesh.missing,triangles:this.count/3};
     }
     projectPoint(point){
         const plan=this.lastPlan;if(!plan)return null;
@@ -250,13 +273,18 @@ export default class TitleRenderer {
         const {yaw,pitch}=this.lastPlan,c=Math.cos(-pitch),s=Math.sin(-pitch),a=Math.cos(-yaw),b=Math.sin(-yaw);
         const v=y*c-z*s,w=y*s+z*c;return [x*a+w*b,v,-x*b+w*a];
     }
-    alphaAt(texture,u,v){
+    alphaAt(texture,u,v,bounds=null){
         if(!this.alphaMaps.has(texture)){
             const image=this.images.get(texture),canvas=Object.assign(document.createElement('canvas'),{width:image.width,height:image.height});
             const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);
             this.alphaMaps.set(texture,{width:image.width,height:image.height,pixels:ctx.getImageData(0,0,image.width,image.height).data});canvas.width=canvas.height=1;
         }
-        const {width,height,pixels}=this.alphaMaps.get(texture),x=Math.min(width-1,Math.max(0,Math.floor(u*width))),y=Math.min(height-1,Math.max(0,Math.floor(v*height)));
+        const {width,height,pixels}=this.alphaMaps.get(texture);
+        if(bounds){
+            const insetU=Math.min(.5/width,(bounds[2]-bounds[0])/2),insetV=Math.min(.5/height,(bounds[3]-bounds[1])/2);
+            u=Math.min(bounds[2]-insetU,Math.max(bounds[0]+insetU,u));v=Math.min(bounds[3]-insetV,Math.max(bounds[1]+insetV,v));
+        }
+        const x=Math.min(width-1,Math.max(0,Math.floor(u*width))),y=Math.min(height-1,Math.max(0,Math.floor(v*height)));
         return pixels[(y*width+x)*4+3];
     }
     screenRay(x,y){
@@ -282,7 +310,8 @@ export default class TitleRenderer {
             const hit=intersectTriangle(origin,direction,...triangle.points);
             if(!hit||nearest&&hit.distance>=nearest.distance)continue;
             const uv=[0,1].map(axis=>hit.weights.reduce((sum,w,i)=>sum+w*triangle.uv[i][axis],0));
-            if(this.alphaAt(batch.texture,...uv)<128)continue;
+            const us=triangle.uv.map(point=>point[0]),vs=triangle.uv.map(point=>point[1]);
+            if(this.alphaAt(batch.texture,...uv,[Math.min(...us),Math.min(...vs),Math.max(...us),Math.max(...vs)])<128)continue;
             nearest={...hit,...triangle};
         }
         return nearest;

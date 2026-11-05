@@ -23,8 +23,9 @@ export default class ExportPanel {
         <label class="prop-field-block"><span><!--i18n-->Что экспортировать</span><select class="md-select" data-export="source"><option value="project"><!--i18n-->Весь проект</option><option value="active"><!--i18n-->Активный слой или группа</option><option value="selected"><!--i18n-->Выбранные слои отдельными PNG</option><option value="prefixes"><!--i18n-->Список префиксов</option></select></label>
         <div data-export="prefix-fields"><label class="prop-field-block"><span><!--i18n-->Блок, в котором менять текст</span><select class="md-select" data-export="block"></select></label><label class="prop-field-block"><span><!--i18n-->Названия — по одному в строке</span><textarea class="md-input" data-export="names" maxlength="13000" rows="5" placeholder="VIP&#10;PREMIUM&#10;ADMIN"></textarea></label><p class="prop-help-text"><!--i18n-->До 200 вариантов. Остальные блоки и оформление сохраняются.</p></div>
         <div data-export="title-fields" hidden>
-            <div class="export-fields"><label class="prop-field-block"><span><!--i18n-->Ширина PNG</span><select class="md-select" data-export="titleResolution">${[1024,2048,4096].map(size=>`<option value="${size}">${size} px</option>`).join('')}</select></label>
-            <label class="prop-field-block"><span><!--i18n-->Форма изображения</span><select class="md-select" data-export="titleOutput"><option value="auto"><!--i18n-->По надписи</option><option value="square"><!--i18n-->Квадрат</option></select></label></div>
+            <div class="export-fields">${numberFieldHTML({label:'Ширина PNG',attribute:'data-export',attributeValue:'titleResolution',min:1,max:16384,value:2048})}
+            <label class="prop-field-block"><span><!--i18n-->Форма изображения</span><select class="md-select" data-export="titleOutput"><option value="auto"><!--i18n-->По надписи</option><option value="square"><!--i18n-->Квадрат</option><option value="custom"><!--i18n-->Свой размер</option></select></label></div>
+            <div data-export="title-height" hidden>${numberFieldHTML({label:'Высота PNG',attribute:'data-export',attributeValue:'titleHeight',min:1,max:16384,value:1152})}</div>
             ${numberFieldHTML({label:'Поля изображения, px',attribute:'data-export',attributeValue:'titlePadding',min:0,max:128,value:24})}
         </div>
         <div class="export-fields" data-export="format-fields"><label class="prop-field-block"><span><!--i18n-->Масштаб PNG</span><select class="md-select" data-export="scale">${[1,2,3,4,8,16].map(n=>`<option value="${n}">${n}×</option>`).join('')}</select></label><label class="prop-field-block"><span><!--i18n-->Результат</span><select class="md-select" data-export="format"><option value="png"><!--i18n-->Одно изображение PNG</option><option value="zip"><!--i18n-->Архив с PNG</option><option value="sheet"><!--i18n-->Спрайт-лист в архиве</option></select></label></div>
@@ -58,7 +59,7 @@ export default class ExportPanel {
         const controls=this.get('source');controls.querySelector('[value="prefixes"]').hidden=project.type!=='prefix';
         for(const key of ['active','selected'])controls.querySelector(`[value="${key}"]`).hidden=['prefix','title'].includes(project.type);
         const defaults={source,scale:project.type==='title'?1:this.app.settingsManager.get('exportScale')||1,trim:this.app.settingsManager.get('exportTrim')===true,format:source==='selected'?'zip':'png',columns:4,gap:1,prefix:'',numbered:false,names:'',block:this.app.prefixEditor?.selected||0,
-            titleResolution:project.titleData?.resolution||2048,titleOutput:project.titleData?.output||'auto',titlePadding:project.titleData?.padding??24,...this.titleOptions.get(project)};
+            titleResolution:project.titleData?.resolution||2048,titleHeight:project.titleData?.outputHeight||1152,titleOutput:project.titleData?.output||'auto',titlePadding:project.titleData?.padding??24,...this.titleOptions.get(project)};
         const options=repeat&&this.last?{...defaults,...this.last}:defaults;
         if(project.type==='title'){options.source='project';options.scale=1;options.trim=false;}
         if(project.type!=='prefix'&&options.source==='prefixes')options.source='project';
@@ -81,9 +82,10 @@ export default class ExportPanel {
         for(const key of ['scale','columns','gap','block'])result[key]=Number(result[key]);
         if(this.context?.type==='title'){
             result.source='project';result.scale=1;result.trim=false;
-            result.titleResolution=Number(this.get('titleResolution').value);result.titleOutput=this.get('titleOutput').value;
+            result.titleResolution=numberValue(this.get('titleResolution'));result.titleOutput=this.get('titleOutput').value;
+            result.titleHeight=result.titleOutput==='custom'?numberValue(this.get('titleHeight')):1152;
             result.titlePadding=numberValue(this.get('titlePadding'));
-            if(result.titlePadding===null||![1024,2048,4096].includes(result.titleResolution)||!['auto','square'].includes(result.titleOutput))throw Error('Проверьте числовые параметры экспорта.');
+            if(result.titlePadding===null||result.titleResolution===null||result.titleHeight===null||!['auto','square','custom'].includes(result.titleOutput))throw Error('Проверьте числовые параметры экспорта.');
         }
         return result;
     }
@@ -105,11 +107,14 @@ export default class ExportPanel {
         if(!result.length)throw Error('Нет выбранных слоёв для экспорта.');return result;
     }
 
-    source(entry,options){
+    source(entry,options,preview=false){
         this.assertContext();
         const c=this.context;
-        if(c.type==='title')return this.app.titleEditor.renderer.render({...c.titleData,
-            resolution:options.titleResolution??c.titleData.resolution,output:options.titleOutput??c.titleData.output,padding:options.titlePadding??c.titleData.padding}).canvas;
+        if(c.type==='title'){
+            const result=this.app.titleEditor.renderer.render({...c.titleData,
+                resolution:options.titleResolution??c.titleData.resolution,outputHeight:options.titleHeight??c.titleData.outputHeight,output:options.titleOutput??c.titleData.output,padding:options.titlePadding??c.titleData.padding},{maxSize:preview?640:null});
+            result.canvas.dataset.exportWidth=String(result.width);result.canvas.dataset.exportHeight=String(result.height);return result.canvas;
+        }
         if(options.source==='prefixes'){
             const data=structuredClone(c.prefixData);data.blocks[options.block].text=entry.text;
             return this.app.prefixEditor.renderer.render(data).canvas;
@@ -135,6 +140,7 @@ export default class ExportPanel {
         // Reveal the fields before validating them, so an invalid hidden value
         // can be corrected immediately after switching export formats.
         this.get('prefix-fields').hidden=this.get('source').value!=='prefixes';
+        this.get('title-height').hidden=this.context.type!=='title'||this.get('titleOutput').value!=='custom';
         this.get('sheet-fields').hidden=this.get('format').value!=='sheet';
         let previewSource=null;
         try{
@@ -151,7 +157,7 @@ export default class ExportPanel {
             if(multiple&&options.format==='png'){this.get('format').value='zip';options=this.read();}
             if(options.source==='prefixes'){await this.app.prefixEditor.renderer.load();}
             if(generation!==this.previewGeneration||!this.context)return;
-            const source=previewSource=this.source(entries[0],options),region=getExportRegion(source,options.trim),width=region.width*options.scale,height=region.height*options.scale;
+            const source=previewSource=this.source(entries[0],options,true),region=getExportRegion(source,options.trim),width=(Number(source.dataset.exportWidth)||region.width)*options.scale,height=(Number(source.dataset.exportHeight)||region.height)*options.scale;
             if(width>16384||height>16384||width*height>64*1024*1024)throw Error('Результат слишком велик. Уменьшите масштаб.');
             const preview=this.get('canvas');preview.width=Math.min(640,width);preview.height=Math.max(1,Math.round(height*preview.width/width));
             if(preview.height>480){preview.width=Math.max(1,Math.round(preview.width*480/preview.height));preview.height=480;}
@@ -173,7 +179,7 @@ export default class ExportPanel {
             const names=uniqueExportNames(entries.map(e=>e.name),options),list=this.get('files');list.replaceChildren();
             for(const name of (options.format==='sheet'?['sprites.png','manifest.json']:names.slice(0,5))){const li=document.createElement('li');li.textContent=name;list.append(li);}
             this.get('sheet-fields').hidden=options.format!=='sheet';this.get('save').disabled=false;
-            if(this.context.type==='title')this.titleOptions.set(this.app.getActiveProject(),{titleResolution:options.titleResolution,titleOutput:options.titleOutput,titlePadding:options.titlePadding});
+            if(this.context.type==='title')this.titleOptions.set(this.app.getActiveProject(),{titleResolution:options.titleResolution,titleHeight:this.get('titleHeight').value,titleOutput:options.titleOutput,titlePadding:options.titlePadding});
         }catch(error){if(generation===this.previewGeneration){bindText(this.get('error'), error.message);this.get('error').hidden=false;}}
         finally{if(previewSource)previewSource.width=previewSource.height=1;}
     }

@@ -3,7 +3,7 @@ import {titleControlAvailability} from '../core/TitleControls.mjs';
 import TitleRenderer from '../graphics/TitleRenderer.js';
 import TitleViewport from './TitleViewport.js';
 import Layer from '../graphics/Layer.js';
-import {normalizeTitleDocument,normalizeTitleTransform,addTitleRow,removeTitleRow} from '../core/TitleDocument.mjs';
+import {normalizeTitleDocument,normalizeTitleTransform,addTitleRow,removeTitleRow,captureTitleRow,replaceTitleText} from '../core/TitleDocument.mjs';
 import {TITLE_FONT_CATALOG} from '../core/TitleFontCatalog.mjs';
 import {TITLE_MATERIAL_CATALOG} from '../core/TitleMaterialCatalog.mjs';
 import {normalizeTitleAppearance,TITLE_BLENDS,titleMaterialCatalog} from '../core/TitleAppearance.mjs';
@@ -152,7 +152,7 @@ export default class TitleEditor {
         this.viewport=new TitleViewport(this);
         this.panel.addEventListener('input',event=>this.edit(event));
         this.panel.addEventListener('change',event=>{if(event.target.matches('[data-title-row]')){if(this.commitPendingEdit()===false){this.sync();return;}this.currentRow=Number(event.target.value);this.sync(true);}else this.commitPendingEdit();});
-        this.panel.addEventListener('focusout',()=>this.commitPendingEdit());
+        this.panel.addEventListener('focusout',()=>this.commitPendingEdit(false));
         this.panel.addEventListener('keydown',event=>{
             if(event.key!=='Escape'||!event.target.matches('[aria-invalid="true"]'))return;
             event.preventDefault();event.stopPropagation();event.target.removeAttribute('aria-invalid');event.target.blur();this.sync(true);this.syncTransform(true);this.syncRenderStatus();
@@ -218,9 +218,13 @@ export default class TitleEditor {
     }
     async show(project){
         const visible=project.type==='title';this.panel.hidden=!visible;document.body.classList.toggle('title-project',visible);
+        if(this.displayedProject&&this.displayedProject!==project){
+            const state=this.viewport.states.get(this.displayedProject);
+            if(state){state.inspectorRow=this.currentRow;state.inspectorTab=this.panel.dataset.titleActiveTab;}
+        }
         if(!visible||this.displayedProject!==project)for(const dialog of document.querySelectorAll('.title-material-library'))dialog.close();
         if(!visible){this.opening=null;this.displayedProject=null;this.syncAvailability();this.viewport.show(false);return;}
-        if(this.displayedProject!==project){this.displayedProject=project;this.currentRow=0;this.materialFont=null;for(const input of this.panel.querySelectorAll('[aria-invalid]'))input.removeAttribute('aria-invalid');this.setTab('settings');}
+        if(this.displayedProject!==project){this.displayedProject=project;this.currentRow=this.viewport.state.inspectorRow??0;this.materialFont=null;for(const input of this.panel.querySelectorAll('[aria-invalid]'))input.removeAttribute('aria-invalid');this.setTab(this.viewport.state.inspectorTab||'settings');}
         project.titleData=normalizeTitleDocument(project.titleData);
         this.app.tools.setTool('hand');
         const opening={project};this.opening=opening;this.syncAvailability();this.viewport.show(true);
@@ -314,7 +318,7 @@ export default class TitleEditor {
     }
     targetSettings(value){
         if(this.currentRow<0)return value;
-        if(!value.rows[this.currentRow]){const inherited=titleRowSettings(value,this.currentRow);value.rows[this.currentRow]={font:inherited.font,texture:inherited.texture,role:'auto',spacing:inherited.spacing,lineGap:inherited.lineGap,scale:[...inherited.scale],kerning:inherited.kerning,terminators:inherited.terminators,appearance:clone(inherited.appearance),originalColors:inherited.originalColors,top:inherited.top,bottom:inherited.bottom,side:inherited.side};}
+        if(!value.rows[this.currentRow])value.rows[this.currentRow]={...captureTitleRow(value,this.currentRow),role:'auto'};
         return value.rows[this.currentRow];
     }
     requestApply(project,next){
@@ -330,15 +334,8 @@ export default class TitleEditor {
     edit(event){
         const input=event.target,key=input.dataset.titleField,appearanceKey=input.dataset.titleAppearance,stopIndex=input.dataset.titleStop,transformKey=input.dataset.titleTransform,project=this.project();
         if(this.loading?.before){this.sync();return;}
-        if(input.hasAttribute('data-title-row-text')&&project){
-            const next=clone(this.loading?.project===project?this.loading.next:project.titleData),lines=next.text.split('\n');
-            if(this.currentRow<0||this.currentRow>=lines.length)return;
-            lines[this.currentRow]=input.value.normalize('NFC');
-            const issues=titleLanguageIssues(lines.join('\n'),next.rowLanguages);
-            if([...lines[this.currentRow]].length>64||issues.length){input.setAttribute('aria-invalid','true');bindText(this.panel.querySelector('.title-warning'),'До 64 символов и один алфавит в заголовке.');return;}
-            input.removeAttribute('aria-invalid');next.text=lines.join('\n');this.requestApply(project,normalizeTitleDocument(next));return;
-        }
-        if(input.dataset.titleLanguage!==undefined&&project){this.editTextLanguage(project);return;}
+        if(input.hasAttribute('data-title-row-text')&&project){this.editTextLanguage(project,true);return;}
+        if(input.dataset.titleLanguage!==undefined&&project){this.editTextLanguage(project,this.currentRow>=0);return;}
         if((!key&&!appearanceKey&&stopIndex===undefined&&!transformKey)||!project)return;
         if(key==='text'){
             this.editTextLanguage(project);return;
@@ -360,15 +357,19 @@ export default class TitleEditor {
         else{target[key]=value;if(key==='font')target.spacing=TITLE_FONT_CATALOG[value].characterSpacing||0;}
         this.requestApply(project,normalizeTitleDocument(next));
     }
-    editTextLanguage(project){
-        const input=this.panel.querySelector('[data-title-field="text"]'),rowLanguages=[...this.panel.querySelectorAll('[data-title-language]')].map(select=>select.value);
-        const lines=input.value.normalize('NFC').replace(/\r/g,'').split('\n');
+    editTextLanguage(project,selected=false){
+        const next=clone(this.loading?.project===project?this.loading.next:project.titleData);
+        const input=this.panel.querySelector(selected?'[data-title-row-text]':'[data-title-field="text"]'),rowLanguages=[...this.panel.querySelectorAll('[data-title-language]')].map(select=>select.value);
+        const lines=selected?next.text.split('\n'):input.value.normalize('NFC').replace(/\r/g,'').split('\n');
+        if(selected){if(this.currentRow<0||this.currentRow>=lines.length)return;lines[this.currentRow]=input.value.normalize('NFC');}
+        const text=lines.join('\n');
         for(const select of this.panel.querySelectorAll('[data-title-language]'))select.closest('label').hidden=Number(select.dataset.titleLanguage)>=lines.length;
         if(lines.length>3||lines.some(line=>[...line].length>64)){input.setAttribute('aria-invalid','true');bindText(this.panel.querySelector('.title-warning'),'Не более 3 строк и 64 символов в строке.');return;}
-        const issues=titleLanguageIssues(input.value,rowLanguages);
+        const issues=titleLanguageIssues(text,rowLanguages);
         if(issues.length){input.setAttribute('aria-invalid','true');const issue=issues[0];bindText(this.panel.querySelector('.title-warning'),'Строка {0}: используйте один язык — {1}.',{0:issue.index+1,1:uiLabel(TITLE_TEXT_LANGUAGES[issue.language].name)});return;}
-        input.removeAttribute('aria-invalid');const next=clone(this.loading?.project===project?this.loading.next:project.titleData);next.text=input.value;next.rowLanguages=rowLanguages;
-        this.requestApply(project,normalizeTitleDocument(next));this.sync();
+        input.removeAttribute('aria-invalid');
+        const node=this.viewport.node();if(node&&node.type!=='row'&&next.text.split('\n')[node.row]!==lines[node.row])this.viewport.state.selection=null;
+        this.requestApply(project,replaceTitleText(next,text,rowLanguages));this.sync();
     }
     changeSettings(mutator){
         const project=this.project();if(!project||this.commitPendingEdit()===false)return;
@@ -380,14 +381,14 @@ export default class TitleEditor {
         const next=clone(project.titleData);mutator(next);this.pending={project,before:clone(project.titleData)};
         this.requestApply(project,normalizeTitleDocument(next));if(!this.loading)this.commitPendingEdit();this.sync();return true;
     }
-    commitPendingEdit(){
+    commitPendingEdit(focusInvalid=true){
         if(this.loading||this.opening?.project===this.project())return false;
         this.viewport.finishDrag();
         this.viewport.flushCamera();
         const invalid=this.panel.querySelector('[aria-invalid="true"]');
         if(invalid&&this.project()){
-            for(let details=invalid.closest('details');details;details=details.parentElement.closest('details'))details.open=true;
-            invalid.focus();return false;
+            if(focusInvalid){for(let details=invalid.closest('details');details;details=details.parentElement.closest('details'))details.open=true;invalid.focus();}
+            return false;
         }
         if(!this.pending)return true;
         const {project,before}=this.pending;this.pending=null;
@@ -437,12 +438,14 @@ export default class TitleEditor {
             if(input.type==='checkbox')input.checked=Boolean(current);else input.value=current;
         }
         for(const input of this.panel.querySelectorAll('[data-title-appearance]'))if((force||document.activeElement!==input)&&!input.hasAttribute('aria-invalid')){const current=a[input.dataset.titleAppearance];if(input.type==='checkbox')input.checked=Boolean(current);else input.value=current;}
-        const textInput=this.panel.querySelector('[data-title-field="text"]'),invalidText=textInput.hasAttribute('aria-invalid');
+        const textInput=rowInput.hasAttribute('aria-invalid')?rowInput:this.panel.querySelector('[data-title-field="text"]'),invalidText=textInput.hasAttribute('aria-invalid');
+        const draftLines=[...lines];if(textInput===rowInput&&this.currentRow>=0)draftLines[this.currentRow]=rowInput.value;
+        const draftText=textInput===rowInput?draftLines.join('\n'):textInput.value;
         for(const select of this.panel.querySelectorAll('[data-title-language]')){
             const index=Number(select.dataset.titleLanguage);if(!invalidText&&document.activeElement!==select)select.value=value.rowLanguages[index];
-            select.closest('label').hidden=index>=(invalidText?textInput.value:value.text).split('\n').length;
+            select.closest('label').hidden=index>=(invalidText?draftText:value.text).split('\n').length;
         }
-        const languageIssues=titleLanguageIssues(invalidText?textInput.value:value.text,invalidText?[...this.panel.querySelectorAll('[data-title-language]')].map(select=>select.value):value.rowLanguages);
+        const languageIssues=titleLanguageIssues(invalidText?draftText:value.text,invalidText?[...this.panel.querySelectorAll('[data-title-language]')].map(select=>select.value):value.rowLanguages);
         if(languageIssues.length){textInput.setAttribute('aria-invalid','true');const issue=languageIssues[0];bindText(this.panel.querySelector('.title-warning'),'Строка {0}: используйте один язык — {1}.',{0:issue.index+1,1:uiLabel(TITLE_TEXT_LANGUAGES[issue.language].name)});}
         this.panel.querySelector('[data-title-field="role"]').closest('label').hidden=this.currentRow<0;
         const available=titleControlAvailability(value,this.currentRow);
@@ -516,14 +519,14 @@ export default class TitleEditor {
     }
     importArtwork(key){
         if(this.commitPendingEdit()===false)return;
-        const project=this.project(),row=this.currentRow;
+        const project=this.project(),row=this.currentRow,revision=this.app.projectManager.getRevision(project.id);
         const input=document.createElement('input');input.type='file';input.accept='image/png,image/jpeg,image/webp';
         input.addEventListener('change',async()=>{
             const file=input.files?.[0];if(!file)return;
             if(!['image/png','image/jpeg','image/webp'].includes(file.type)){this.app.showToast('Поддерживаются PNG, JPEG и WebP.','error');return;}
             if(file.size>6*1024*1024){this.app.showToast('Изображение должно быть меньше 6 МБ.','error');return;}
             const reader=new FileReader();reader.onerror=()=>this.app.showToast('Не удалось прочитать изображение.','error');
-            reader.onload=()=>{if(this.project()!==project||this.currentRow!==row)return;this.changeSettings(settings=>{settings.appearance={...settings.appearance,[key]:reader.result,...(key==='image'?{source:'file'}:{overlay:'none'})};});};reader.readAsDataURL(file);
+            reader.onload=()=>{if(this.project()!==project||this.currentRow!==row||this.app.projectManager.getRevision(project.id)!==revision)return;this.changeSettings(settings=>{settings.appearance={...settings.appearance,[key]:reader.result,...(key==='image'?{source:'file'}:{overlay:'none'})};});};reader.readAsDataURL(file);
         },{once:true});input.click();
     }
     syncTransform(force=false){

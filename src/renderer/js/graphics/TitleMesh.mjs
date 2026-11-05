@@ -19,7 +19,7 @@ const corners=(from,to)=>{
 /** Camera/output changes and embedded file bytes do not change mesh buffers. */
 export function titleMeshKey(data,materials){
     const geometry=({appearance,texture,subtitleTexture,originalColors,top,bottom,side,...value})=>value;
-    const {yaw,pitch,zoom,resolution,padding,projection,output,cameraTarget,rows,...geometryData}=data;
+    const {yaw,pitch,zoom,resolution,outputHeight,padding,projection,output,cameraTarget,rows,...geometryData}=data;
     return JSON.stringify({...geometry(geometryData),rows:rows.map(row=>row?geometry(row):null),materials:materials.map(state=>state.key)});
 }
 

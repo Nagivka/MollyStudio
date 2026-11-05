@@ -3,7 +3,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
 (async()=>{let win;try{
  await ready();win=makeWindow(1280,900);await win.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:'title',name:'Title audit'}});await settle(win);
  const result=await win.page.evaluate(async()=>{
-  const a=mollyEditor,e=a.titleEditor,r=e.renderer,p=a.getActiveProject();await p.prefixLoadPromise;
+  const a=mollyEditor,e=a.titleEditor,r=e.renderer,p=a.getActiveProject();await p.prefixLoadPromise;e.currentRow=-1;e.sync();
   const {normalizeTitleDocument}=await import(new URL('js/core/TitleDocument.mjs',location.href));
   const {TITLE_MATERIAL_CATALOG}=await import(new URL('js/core/TitleMaterialCatalog.mjs',location.href));
   const checks=[],expect=(value,label)=>{if(!value)throw Error(label);checks.push(label);},tick=()=>new Promise(resolve=>setTimeout(resolve,10));

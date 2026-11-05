@@ -42,8 +42,10 @@ export function titleOutputPlan(bounds,data,baseBounds=bounds){
     if(!projected.length)projected.push([-1,-1],[1,1]);
     const min=[0,1].map(axis=>Math.min(...projected.map(p=>p[axis]))),max=[0,1].map(axis=>Math.max(...projected.map(p=>p[axis])));
     const extent=min.map((n,i)=>Math.max(.0001,max[i]-n)),aspect=extent[0]/extent[1];
-    const width=data.resolution,padding=Math.min(data.padding,(width-1)/2);
-    const height=data.output==='square'?width:Math.min(4096,Math.max(128,Math.round((width-2*padding)/aspect+2*padding)));
+    const width=data.resolution;
+    const automaticPadding=Math.min(data.padding,(width-1)/2);
+    const height=data.output==='custom'?data.outputHeight:data.output==='square'?width:Math.min(4096,Math.max(128,Math.round((width-2*automaticPadding)/aspect+2*automaticPadding)));
+    const padding=Math.min(automaticPadding,(height-1)/2);
     const ratio=width/height,roomX=Math.max(1,width-2*padding)/width,roomY=Math.max(1,height-2*padding)/height;
     const vertical=Math.max(extent[1]/2/roomY,extent[0]/2/ratio/roomX)*100/data.zoom;
     return {...pose,width,height,ratio,tangent:pose.perspective?vertical:Math.tan(20*Math.PI/180),halfHeight:pose.perspective?pose.distance*vertical:vertical,

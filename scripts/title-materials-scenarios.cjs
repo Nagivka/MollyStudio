@@ -52,6 +52,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
   expect(await app.projectManager.saveProjectAs(),'An advanced title saves through the real MLST file dialog');
   const project=app.getActiveProject(),saved=JSON.parse(await desktopAPI.readFile(project.filePath));await app.projectManager.deserializeProject(saved,project.filePath);await app.getActiveProject().prefixLoadPromise;
   expect(pixels()===tilePixels&&data().rows[1].font==='minecraft-five-bold'&&data().appearance.randomRotation,'Reopening restores row settings and the exact randomized material pixels');
+  editor.currentRow=-1;editor.sync();
   const good=JSON.stringify(data());editor.changeSettings(value=>{value.appearance={...value.appearance,source:'file',fileMode:'atlas',image:'data:image/png;base64,AA=='};});await wait();expect(JSON.stringify(data())===good&&!editor.viewport.stage.inert,'A corrupt imported image leaves the previous document and interactive scene intact');
   await field('[data-title-appearance="source"]','file');await field('[data-title-appearance="fileMode"]','tileable');
   editor.setTab('material');

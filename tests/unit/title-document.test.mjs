@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {normalizeTitleDocument,normalizeTitleTransform,TITLE_FONTS,titleMaterials,titleRowSettings,addTitleRow,removeTitleRow} from '../../src/renderer/js/core/TitleDocument.mjs';
+import {normalizeTitleDocument,normalizeTitleTransform,TITLE_FONTS,titleMaterials,titleRowSettings,addTitleRow,removeTitleRow,replaceTitleText} from '../../src/renderer/js/core/TitleDocument.mjs';
 import {TITLE_FONT_CATALOG} from '../../src/renderer/js/core/TitleFontCatalog.mjs';
 import {createProjectFromForm,buildEditorUrl} from '../../src/renderer/js/core/ProjectFactory.mjs';
 import {readDocumentState} from '../../src/renderer/js/core/typed/DocumentState.mjs';
@@ -35,6 +35,42 @@ test('adding and deleting headings preserves remaining settings, languages and o
  assert.equal(added.text,'TWO\n');assert.equal(added.layout,'stacked');assert.equal(added.rows[0].role,'bottom');assert.equal(added.rows[1].role,'top');assert.equal(removeTitleRow(single,0),null);
  const centered=buildTitleMesh(normalizeTitleDocument({text:'TITLE',rows:[{role:'top'}]}));
  assert.ok(Math.abs(centered.baseBounds.min[1]+centered.baseBounds.max[1])<1e-8);
+});
+
+test('row structure changes keep inherited subtitle materials and effective appearance',()=>{
+ const data=normalizeTitleDocument({text:'FIRST\nSECOND',texture:'stone',subtitleTexture:'gold',depth:31,creeperA:false,appearance:{source:'gradient',hue:17}});
+ const expected=titleRowSettings(data,1),added=addTitleRow(data),removed=removeTitleRow(data,0);
+ for(const [value,index] of [[added,1],[removed,0]]){
+  const actual=titleRowSettings(value,index);
+  for(const key of ['texture','font','role','depth','creeperA','appearance','scale'])assert.deepEqual(actual[key],expected[key],key);
+ }
+});
+
+test('letter and cuboid transforms follow surviving text across insertion, case changes and deletion',()=>{
+ const data=normalizeTitleDocument({text:'ABBA',transforms:{'row-0':{position:[1,0,0]},'row-0/char-1-42':{position:[2,0,0]},'row-0/char-1-42/cube-0':{scale:[2,2,2]},'row-0/char-3-41':{position:[3,0,0]}}});
+ const inserted=replaceTitleText(data,'XAbBA');
+ assert.deepEqual(inserted.transforms['row-0/char-2-62'].position,[2,0,0]);
+ assert.deepEqual(inserted.transforms['row-0/char-2-62/cube-0'].scale,[2,2,2]);
+ assert.deepEqual(inserted.transforms['row-0/char-4-41'].position,[3,0,0]);
+ const deleted=replaceTitleText(data,'AA');
+ assert.deepEqual(Object.keys(deleted.transforms).sort(),['row-0','row-0/char-1-41']);
+ assert.deepEqual(deleted.transforms['row-0/char-1-41'].position,[3,0,0]);
+ assert.ok(data.transforms['row-0/char-1-42']);
+});
+
+test('custom output dimensions preserve camera projection and keep tiny frames valid',()=>{
+ for(const projection of ['perspective','orthographic'])for(const [width,height] of [[1537,863],[33,17],[1,1]]){
+  const data=normalizeTitleDocument({text:'TITLE',projection,resolution:width,output:'custom',outputHeight:height,padding:128});
+  const mesh=buildTitleMesh(data),plan=titleOutputPlan(mesh.bounds,data,mesh.baseBounds);
+  assert.equal(plan.width,width);assert.equal(plan.height,height);assert.equal(plan.ratio,width/height);
+  assert.ok(Number.isFinite(plan.halfHeight)&&plan.halfHeight>0);
+ }
+});
+
+test('automatic image height stays inside editable document limits while custom export permits taller images',()=>{
+ const bounds={min:[-1,-500,0],max:[1,500,1]},data=normalizeTitleDocument({resolution:2048,projection:'orthographic'});
+ assert.equal(titleOutputPlan(bounds,data).height,4096);
+ assert.equal(titleOutputPlan(bounds,{...data,output:'custom',outputHeight:8192}).height,8192);
 });
 
 test('the complete reference catalog uses real, independently authored font models',()=>{

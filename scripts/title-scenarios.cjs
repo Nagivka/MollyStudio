@@ -48,7 +48,7 @@ const {app,root,ready,makeWindow,settle}=require('./lib/electron-harness.cjs');
   const activeTitle=app.getActiveProject();
   const invalid=editor.panel.querySelector('[data-title-field="depth"]');invalid.value='999';invalid.dispatchEvent(new Event('input',{bubbles:true}));
   expect(editor.commitPendingEdit()===false&&activeTitle.titleData.depth===saved.titleData.depth,'Invalid numeric input cannot change or save title settings');invalid.value=String(saved.titleData.depth);invalid.dispatchEvent(new Event('input',{bubbles:true}));invalid.dispatchEvent(new Event('change',{bubbles:true}));
-  editor.panel.querySelector('[data-title-preset="1"]').click();expect(activeTitle.titleData.texture==='gold'&&activeTitle.titleData.originalColors,'Gold preset selects the original material');app.history.undo();
+  editor.panel.querySelector('[data-title-preset="1"]').click();expect(activeTitle.titleData.rows[editor.currentRow].texture==='gold'&&activeTitle.titleData.rows[editor.currentRow].originalColors,'Gold preset applies to the selected heading');app.history.undo();
   app.menuBar.performAction('layer-new');expect(activeTitle.layers.length===1,'Generic layer actions cannot alter the generated scene');
   const renderer=editor.renderer;
   for(const font of ['minecraft-ten','minecraft-five-bold','minecraft-dungeons']){

@@ -57,8 +57,8 @@ export function normalizeTitleDocument(value={}) {
         projection:value.projection==='orthographic'?'orthographic':'perspective',
         yaw:precise(value.yaw,0,-180,180),pitch:precise(value.pitch,-28,-80,80),zoom:precise(value.zoom,100,10,600),
         cameraTarget:[0,1,2].map(i=>precise(value.cameraTarget?.[i],0,-4096,4096)),
-        resolution:[1024,2048,4096].includes(Number(value.resolution))?Number(value.resolution):2048,
-        output:value.output==='square'?'square':'auto',padding:number(value.padding,24,0,128)
+        resolution:number(value.resolution,2048,1,16384),outputHeight:number(value.outputHeight,1152,1,16384),
+        output:['square','custom'].includes(value.output)?value.output:'auto',padding:number(value.padding,24,0,128)
     };
     result.appearance=normalizeTitleAppearance(value.appearance,font);
     result.rows=[0,1,2].map(index=>value.rows?.[index]&&typeof value.rows[index]==='object'?settings(value.rows[index],result,index):null);
@@ -78,7 +78,7 @@ export function titleRowSettings(data,index){
 export function addTitleRow(value){
     const data=normalizeTitleDocument(value),lines=data.text.split('\n');
     if(lines.length>=3)return null;
-    data.rows=lines.map((_,index)=>({...data.rows[index],role:titleRowSettings(data,index).role}));
+    data.rows=lines.map((_,index)=>captureTitleRow(data,index));
     data.layout='stacked';
     data.rows[lines.length]={role:'top'};data.rowLanguages[lines.length]='auto';
     data.text=[...lines,''].join('\n');
@@ -89,7 +89,7 @@ export function removeTitleRow(value,index){
     const data=normalizeTitleDocument(value),lines=data.text.split('\n');
     if(lines.length<=1||!Number.isInteger(index)||index<0||index>=lines.length)return null;
     // Capture automatic roles before indices change, preserving each remaining heading.
-    const rows=lines.map((_,row)=>({...data.rows[row],role:titleRowSettings(data,row).role}));
+    const rows=lines.map((_,row)=>captureTitleRow(data,row));
     lines.splice(index,1);rows.splice(index,1);data.rowLanguages.splice(index,1);
     data.text=lines.join('\n');data.rows=rows;data.rowLanguages.push('auto');
     const transforms={};
@@ -99,4 +99,41 @@ export function removeTitleRow(value,index){
     }
     data.transforms=transforms;
     return normalizeTitleDocument(data);
+}
+
+export function captureTitleRow(data,index){
+    const settings=titleRowSettings(data,index);
+    const keys=['font','texture','role','spacing','lineGap','depth','creeperA','scale','kerning','terminators','appearance','originalColors','top','bottom','side'];
+    return structuredClone(Object.fromEntries(keys.map(key=>[key,settings[key]])));
+}
+
+export function replaceTitleText(value,text,rowLanguages=value.rowLanguages){
+    const before=normalizeTitleDocument(value),next=normalizeTitleDocument({...before,text,rowLanguages});
+    if(before.text===next.text)return next;
+    const oldLines=before.text.split('\n'),newLines=next.text.split('\n');
+    const matches=newLines.map((line,row)=>{
+        const old=[...(oldLines[row]||'')],current=[...line],map=new Map();
+        const lengths=Array.from({length:old.length+1},()=>new Uint8Array(current.length+1));
+        for(let i=old.length-1;i>=0;i--)for(let j=current.length-1;j>=0;j--)
+            lengths[i][j]=old[i].toLowerCase()===current[j].toLowerCase()?1+lengths[i+1][j+1]:Math.max(lengths[i+1][j],lengths[i][j+1]);
+        for(let i=0,j=0;i<old.length&&j<current.length;){
+            if(old[i].toLowerCase()===current[j].toLowerCase()){map.set(i,j);i++;j++;}
+            else if(lengths[i+1][j]>=lengths[i][j+1])i++;else j++;
+        }
+        return {map,characters:current};
+    });
+    next.transforms={};
+    for(const [id,transform] of Object.entries(before.transforms)){
+        const match=/^row-(\d+)(?:\/char-(\d+)-[a-f0-9]+)?/.exec(id),row=Number(match[1]),entry=matches[row];
+        if(!entry)continue;
+        if(match[2]===undefined){next.transforms[id]=transform;continue;}
+        const index=Number(match[2]),spacer=index>=20000&&index<20064;
+        if(index>=10000&&!spacer){next.transforms[id]=transform;continue;}
+        const target=entry.map.get(spacer?index-20000:index);
+        if(target===undefined)continue;
+        const character=spacer?'200b':entry.characters[target].codePointAt(0).toString(16);
+        const key=`row-${row}/char-${spacer?20000+target:target}-${character}${id.slice(match[0].length)}`;
+        next.transforms[key]=transform;
+    }
+    return next;
 }

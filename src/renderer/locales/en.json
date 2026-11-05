@@ -1921,6 +1921,8 @@
   "Меняет только украшение главного меню. Системная дата остаётся прежней.": "Changes only the main menu decoration. The system date stays unchanged.",
   "Применять к": "Apply to",
   "Редактировать заголовок": "Edit heading",
+  "Свой размер": "Custom size",
+  "Высота PNG": "PNG height",
   "Текст выбранного заголовка": "Selected heading text",
   "Общие настройки": "Shared settings",
   "Размер и роль": "Size and role",
@@ -1954,6 +1956,9 @@
   "У этой строки свои настройки шрифта и оформления.": "This row has its own font and appearance settings.",
   "Щёлкните букву в 3D-виде, чтобы изменить её положение, поворот или размер.": "Click a letter in the 3D view to change its position, rotation or size.",
   "3D-вид надписи": "3D title view",
+  "3D-контекст временно недоступен.": "The 3D context is temporarily unavailable.",
+  "Выбранное разрешение не поддерживается видеокартой.": "The graphics card does not support the selected resolution.",
+  "Не удалось отрисовать PNG. Уменьшите разрешение и повторите экспорт.": "PNG rendering failed. Reduce the resolution and try exporting again.",
   "Предпросмотр надписи. Готовый PNG — кнопка «Экспорт».": "Title preview. Save a PNG using Export.",
   "Потяните ось X, Y или Z · Shift — привязка · Esc — снять выбор · ПКМ — камера": "Drag an X, Y or Z axis · Shift to snap · Esc to deselect · Right drag for camera",
   "Щелчок — выбрать букву · ПКМ — повернуть камеру · Колесо — приблизить · Shift+ПКМ — сдвинуть": "Click to select a letter · Right drag to orbit · Scroll to zoom · Shift + right drag to pan"
