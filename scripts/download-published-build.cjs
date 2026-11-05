@@ -14,7 +14,7 @@ async function downloadPublished({version=require('../package.json').version,pla
   const asset=release.assets.find(a=>a.name===name);if(!asset||asset.state!=='uploaded'||asset.size<1||!/^sha256:[a-f0-9]{64}$/.test(asset.digest)||asset.browser_download_url!==base+name)throw Error('Missing or invalid release asset: '+name);
   const final=path.join(directory,name),temporary=final+'.download';const r=await fetch(asset.browser_download_url,{signal:AbortSignal.timeout(600000)});if(!r.ok)throw Error('Package download HTTP '+r.status);
   const hash=crypto.createHash('sha256');let bytes=0;async function* chunks(){for await(const chunk of Readable.fromWeb(r.body)){bytes+=chunk.length;if(bytes>asset.size)throw Error('Package size exceeded');hash.update(chunk);yield chunk;}}
-  await pipeline(chunks(),fss.createWriteStream(temporary));const sha256=hash.digest('hex');if(bytes!==asset.size||'sha256:'+sha256!==asset.digest)throw Error('Published package hash mismatch');await fs.rename(temporary,final);
+  await pipeline(chunks(),fss.createWriteStream(temporary));const sha256=hash.digest('hex');if(bytes!==asset.size||'sha256:'+sha256!==asset.digest)throw Error('Published package hash mismatch');await fs.rename(temporary,final);if(platform==='linux'&&name.endsWith('.AppImage'))await fs.chmod(final,0o755);
   if(!name.endsWith('.blockmap')){const c=await fetch(base+name+'.sha256');if(!c.ok||(await c.text()).trim()!==`${sha256}  ${name}`)throw Error('Published checksum mismatch');}
   verified.push({name,size:bytes,sha256});
  }
