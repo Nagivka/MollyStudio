@@ -1,4 +1,5 @@
 import {numberFieldHTML,numberValue} from './Controls.mjs';
+import {paintFittedPixelPreview,alignPixelPreview,watchPixelRatio} from '../graphics/PixelPreview.mjs';
 import {bindText, labelHTML} from '../core/Locale.mjs';
 
 import Layer from '../graphics/Layer.js';
@@ -22,6 +23,11 @@ export default class TexturePanel {
             <p class="prop-help-text"><!--i18n-->Исходные пиксели сохраняются. Фактуру можно изменить или отключить в любой момент; она сохраняется в проекте и экспортируется в PNG.</p><p data-texture-status role="status" aria-live="polite"></p></div>
             <footer><button class="md-btn outlined" type="button" data-texture-close><!--i18n-->Отмена</button><button class="md-btn primary" type="button" data-texture-apply><!--i18n-->Применить</button></footer>`;
         document.body.append(dialog);
+        let previewWidth=0;
+        const resized=()=>{const width=dialog.querySelector('.asset-picker-body').clientWidth;if(width===previewWidth)return;previewWidth=width;if(dialog.open){cancelAnimationFrame(this.frame);this.frame=requestAnimationFrame(()=>this.preview());}};
+        this.previewObserver=new ResizeObserver(resized);this.previewObserver.observe(dialog.querySelector('.asset-picker-body'));
+        watchPixelRatio(()=>{if(dialog.open)this.preview();});
+        dialog.addEventListener('scroll',()=>alignPixelPreview(dialog.querySelector('[data-texture-preview]')),{capture:true,passive:true});
         dialog.querySelectorAll('[data-texture-close]').forEach(button=>button.addEventListener('click',()=>dialog.close()));
         dialog.addEventListener('close',()=>{
             cancelAnimationFrame(this.frame);this.frame=null;
@@ -67,9 +73,9 @@ export default class TexturePanel {
             this.dialog.querySelectorAll('input[data-texture]').forEach(input=>{input.disabled=type==='none';});
             const texture=this.settings();this.previewLayer.setFX({...this.before,texture});
             const image=this.previewLayer.getRenderCanvas(),preview=this.dialog.querySelector('[data-texture-preview]');
-            const scale=Math.min(4,720/image.width,360/image.height);
-            preview.width=Math.max(1,Math.round(image.width*scale));preview.height=Math.max(1,Math.round(image.height*scale));
-            const ctx=preview.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.clearRect(0,0,preview.width,preview.height);ctx.drawImage(image,0,0,preview.width,preview.height);
+            const body=this.dialog.querySelector('.asset-picker-body'),style=getComputedStyle(body),maxWidth=Math.max(1,body.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight));
+            paintFittedPixelPreview(preview,image,{region:{x:0,y:0,width:image.width,height:image.height},maxWidth:Math.min(720,maxWidth),maxHeight:360,maxScale:4});
+            Promise.allSettled(this.dialog.getAnimations().map(animation=>animation.finished)).then(()=>{if(this.dialog.open)alignPixelPreview(preview);});
             bindText(this.dialog.querySelector('[data-texture-status]'), texture.type==='none'?'Фактура отключена.':'Предпросмотр готов.');
             this.dialog.querySelector('[data-texture-apply]').disabled=false;
         }catch(error){bindText(this.dialog.querySelector('[data-texture-status]'), error.message);this.dialog.querySelector('[data-texture-apply]').disabled=true;}

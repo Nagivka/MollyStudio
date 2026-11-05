@@ -546,37 +546,7 @@ export class ButtonGeneratorController extends ButtonGeneratorModel {
         if (!this.canvas || !this.ctx) return;
         this.syncPreviewZoom();
 
-        this.canvas.width = 176;
-        this.canvas.height = 222;
-        this.ctx.imageSmoothingEnabled = false;
-
-        // Отрисовка шаблона сундука
-        if (this.mcGuiLoaded && this.mcGuiImg.complete) {
-            this.ctx.drawImage(this.mcGuiImg, 0, 0, 176, 222, 0, 0, 176, 222);
-        } else {
-            this.ctx.fillStyle = '#C6C6C6';
-            this.ctx.fillRect(0, 0, 176, 222);
-        }
-
-        const btnW = this.getWidth(this.currentCols);
-        const btnH = this.getHeight(this.currentRows);
-        const btnX = (this.currentSlotMode === 'full' ? 7 : 8);
-        const btnY = (this.currentSlotMode === 'full' ? 17 : 18);
-
-        const btnCanvas = this.renderButton(
-            btnW, btnH, this.colors, this.currentStyle,
-            this.currentOpacity, this.transparentBorder,
-            this.currentChin, this.currentShadow
-        );
-        try { this.ctx.drawImage(btnCanvas, btnX, btnY); }
-        finally { btnCanvas.width = btnCanvas.height = 1; }
-
-        if (this.canvasWrap) {
-            this.canvasWrap.style.width = (176 * this.currentZoom) + 'px';
-            this.canvasWrap.style.height = (222 * this.currentZoom) + 'px';
-        }
-        this.canvas.style.width = (176 * this.currentZoom) + 'px';
-        this.canvas.style.height = (222 * this.currentZoom) + 'px';
+        const {width:btnW,height:btnH}=this.paintGuiPreview();
 
         const colsVal = document.getElementById('colsValText');
         const rowsVal = document.getElementById('rowsValText');

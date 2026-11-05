@@ -7,6 +7,7 @@ import {getExportRegion,prepareExportCanvas} from '../graphics/ExportImage.js';
 import {safeFileStem,uniqueExportNames,parsePrefixList,planSpriteSheet} from '../graphics/ExportPlan.mjs';
 import {createExportArchive} from '../graphics/ExportArchive.mjs';
 import {inspectExportLayers} from '../graphics/ExportDiagnostics.mjs';
+import {paintFittedPixelPreview,alignPixelPreview,watchPixelRatio} from '../graphics/PixelPreview.mjs';
 
 const frame=()=>new Promise(resolve=>setTimeout(resolve,0));
 const blobOf=canvas=>new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(Error('Не удалось закодировать PNG.')),'image/png'));
@@ -37,6 +38,14 @@ export default class ExportPanel {
         <p data-export="error" class="export-error" role="alert" hidden></p><div data-export="progress-panel" hidden><progress data-export="progress" max="1" value="0"></progress><p data-export="status" role="status"></p></div>
         <footer><button type="button" class="md-btn outlined" data-export="cancel"><!--i18n-->Закрыть</button><button type="button" class="md-btn primary" data-export="save"><i class="material-symbols-rounded" aria-hidden="true">download</i><!--i18n--> Сохранить</button></footer>`;
         document.body.append(dialog);this.dialog=dialog;
+        const imageBox=dialog.querySelector('.export-image-box');let layoutKey='';
+        const resized=()=>{
+            const key=[imageBox.clientWidth,devicePixelRatio,innerWidth<=640].join(':');
+            if(key===layoutKey)return;layoutKey=key;
+            if(dialog.open&&this.context&&!this.busy){clearTimeout(this.previewTimer);this.previewTimer=setTimeout(()=>this.preview(),80);}
+        };
+        this.previewObserver=new ResizeObserver(resized);this.previewObserver.observe(imageBox);watchPixelRatio(resized);
+        dialog.addEventListener('scroll',()=>alignPixelPreview(this.get('canvas')),{capture:true,passive:true});
         this.warnings=document.createElement('ul');this.warnings.className='export-warnings';bindAttribute(this.warnings, "aria-label", 'Проверка перед экспортом');this.warnings.hidden=true;
         this.get('error').before(this.warnings);
         this.get('close').addEventListener('click',()=>this.close());this.get('cancel').addEventListener('click',()=>this.close());
@@ -159,11 +168,16 @@ export default class ExportPanel {
             if(generation!==this.previewGeneration||!this.context)return;
             const source=previewSource=this.source(entries[0],options,true),region=getExportRegion(source,options.trim),width=(Number(source.dataset.exportWidth)||region.width)*options.scale,height=(Number(source.dataset.exportHeight)||region.height)*options.scale;
             if(width>16384||height>16384||width*height>64*1024*1024)throw Error('Результат слишком велик. Уменьшите масштаб.');
-            const preview=this.get('canvas');preview.width=Math.min(640,width);preview.height=Math.max(1,Math.round(height*preview.width/width));
-            if(preview.height>480){preview.width=Math.max(1,Math.round(preview.width*480/preview.height));preview.height=480;}
-            const ctx=preview.getContext('2d');ctx.imageSmoothingEnabled=this.context.type==='title';ctx.imageSmoothingQuality='high';ctx.drawImage(source,region.x,region.y,region.width,region.height,0,0,preview.width,preview.height);source.width=source.height=1;
-            preview.style.width=`${Math.min(400,width*Math.min(8,Math.max(1,Math.floor(400/width))))}px`;
-            preview.style.height='auto';preview.style.aspectRatio=preview.width+'/'+preview.height;
+            const preview=this.get('canvas'),box=this.dialog.querySelector('.export-image-box'),boxStyle=getComputedStyle(box);
+            const maxWidth=Math.max(1,Math.min(parseFloat(boxStyle.getPropertyValue('--layout-preview-width'))||400,box.clientWidth-parseFloat(boxStyle.paddingLeft)-parseFloat(boxStyle.paddingRight))),maxHeight=parseFloat(boxStyle.getPropertyValue('--layout-preview-height'))||270;
+            if(this.context.type==='title'){
+                const fit=Math.min(maxWidth/source.width,maxHeight/source.height),ratio=devicePixelRatio||1;
+                preview.width=Math.max(1,Math.round(source.width*fit*ratio));preview.height=Math.max(1,Math.round(source.height*fit*ratio));
+                const ctx=preview.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(source,0,0,preview.width,preview.height);
+                preview.style.width=preview.width/ratio+'px';preview.style.height=preview.height/ratio+'px';alignPixelPreview(preview);
+            }else paintFittedPixelPreview(preview,source,{region,maxWidth,maxHeight});
+            source.width=source.height=1;preview.style.aspectRatio=preview.width+'/'+preview.height;
+            Promise.allSettled(this.dialog.getAnimations().map(animation=>animation.finished)).then(()=>{if(this.dialog.open)alignPixelPreview(preview);});
             let resultWidth=width,resultHeight=height;
             if(options.format==='sheet'){
                 const sizes=[{width,height}];

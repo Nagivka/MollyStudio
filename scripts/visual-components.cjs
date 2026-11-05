@@ -4,11 +4,29 @@ const themes=['dark','oled','midnight','forest','amethyst','light','light-nord',
 (async()=>{let win;const results=[],timer=setTimeout(()=>app.exit(1),600000);try{
     const {inspectInterfaceGeometry}=await import('./lib/interface-geometry.mjs');await ready();win=makeWindow(1440,900);
     const output=path.join(root,'.test-output/visual-components');await fs.mkdir(output,{recursive:true});
-    for(const page of ['canvas','prefix','title','title-material','title-scene','diagnostics']){
-        await win.loadFile(path.join(root,'src/renderer/editor.html'),{query:{new:'true',type:page==='diagnostics'?'canvas':page.startsWith('title')?'title':page,width:'64',height:'64',name:'QA'}});
-        await win.page.evaluate(async page=>{const app=window.mollyEditor;app.settingsManager.set('animationsEnabled',false);if(page==='canvas'){const layer=app.layerManager.addTextLayer('QA',{text:'QA',fontId:'minecraft',color:'#FFFFFF',x:2,y:2});app.tools.setTool('text');app.tools.tools.text.renderTextLayer(layer);}if(page.startsWith('title')){await app.getActiveProject().prefixLoadPromise;const e=app.titleEditor,id=e.renderer.mesh.nodes.find(node=>node.type==='glyph').id;if(page==='title-scene')e.viewport.select(id);else e.setTab(page==='title-material'?'material':'settings');}if(page==='diagnostics'){const {openDiagnostics}=await import(new URL('js/ui/DiagnosticsDialog.js',location.href));await openDiagnostics();}},page);
+    for(const page of ['canvas','gui','shape','button','prefix','prefix-background','title','title-material','title-scene','buttons-size','buttons-style','buttons-color','utilities','diagnostics']){
+        const standalone=page.startsWith('buttons-'),type=page.startsWith('title')?'title':page.startsWith('prefix')?'prefix':['gui','canvas'].includes(page)?page:'canvas';
+        await win.loadFile(path.join(root,'src/renderer',standalone?'buttons.html':'editor.html'),{query:standalone?{}:{new:'true',type,width:'64',height:'64',name:'QA'}});
+        await win.page.evaluate(async page=>{
+            const app=window.mollyEditor;
+            const {default:Settings}=await import(new URL('js/core/SettingsManager.js',location.href));
+            window.visualSettings=app?.settingsManager||new Settings();visualSettings.set('animationsEnabled',false);
+            if(page.startsWith('buttons-')){buttonGenApp.inspectorTabs.select(page.slice(8));if(page==='buttons-color')buttonGenApp.setColorMode('gradient');return;}
+            if(page==='canvas'){const layer=app.layerManager.addTextLayer('QA',{text:'QA',fontId:'minecraft',color:'#FFFFFF',x:2,y:2});app.tools.setTool('text');app.tools.tools.text.renderTextLayer(layer);}
+            if(page==='gui')await app.getActiveProject().templateLoadPromise;
+            if(page==='shape'){const layer=app.layerManager.addLayer('Rectangle');layer.shapeData={type:'rect-empty',x0:4,y0:4,x1:28,y1:24,color:'#CC6633',stroke:2,radius:3,filled:false};app.redrawShapeLayer(layer);app.layerManager.setActive(layer.id);app.syncPropertiesPanel();}
+            if(page==='button'){
+                const {default:Model}=await import(new URL('js/ui/ButtonGeneratorModel.js',location.href));const {importGeneratedButton}=await import(new URL('js/core/GeneratedButtonImport.js',location.href));
+                const model=new Model();Object.assign(model,{currentCols:2,currentRows:1,currentSlotMode:'full',currentSlotSize:18,currentStyle:'ten',currentChin:1,currentShadow:1,currentOpacity:100});
+                await importGeneratedButton(app,model.createButtonData());app.propertiesInspector.buttonProperties.edit({autoShade:false,colorMode:'gradient'});
+            }
+            if(page==='prefix-background'){await app.getActiveProject().prefixLoadPromise;app.prefixEditor.tabs.select('background');}
+            if(page==='utilities')app.menuBar.handleAction('utility-gradient');
+            if(page.startsWith('title')){await app.getActiveProject().prefixLoadPromise;const e=app.titleEditor,id=e.renderer.mesh.nodes.find(node=>node.type==='glyph').id;if(page==='title-scene')e.viewport.select(id);else e.setTab(page==='title-material'?'material':'settings');}
+            if(page==='diagnostics'){const {openDiagnostics}=await import(new URL('js/ui/DiagnosticsDialog.js',location.href));await openDiagnostics();}
+        },page);
         for(const theme of themes){
-            await win.page.evaluate(theme=>window.mollyEditor.settingsManager.set('theme',theme),theme);
+            await win.page.evaluate(theme=>visualSettings.set('theme',theme),theme);
             for(const zoom of [1,1.25,1.5]){
                 win.setContentSize(1440,900);win.webContents.setZoomFactor(zoom);await settle(win);
                 const report=await win.page.evaluate(inspectInterfaceGeometry);

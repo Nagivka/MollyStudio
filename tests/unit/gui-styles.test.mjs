@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {GUI_DESIGNS,recolorGuiPixels} from '../../src/renderer/js/core/GuiDesignPresets.mjs';
 import {createGuiProject,normalizeProjectData,buildEditorUrl,normalizeSavedGuiTemplatePath} from '../../src/renderer/js/core/ProjectFactory.mjs';
-import {paintPixelPreview,pixelPreviewSize} from '../../src/renderer/js/graphics/PixelPreview.mjs';
+import {paintPixelPreview,pixelPreviewSize,fittedPixelScale} from '../../src/renderer/js/graphics/PixelPreview.mjs';
 import {BUTTON_STYLES,normalizeButtonStyle} from '../../src/renderer/js/graphics/ButtonRenderer.js';
 import ButtonGeneratorModel from '../../src/renderer/js/ui/ButtonGeneratorModel.js';
 import {RasterCanvas} from '../helpers/raster-canvas.mjs';
@@ -51,6 +51,16 @@ test('pixel previews crop once and copy only original RGBA values at fractional 
         assert.equal(target.dataset.sourceWidth,'3');assert.equal(target.dataset.previewScale,String(scale));
     }
     const large=pixelPreviewSize(4096,4096,1.5,4);assert.ok(large.pixelWidth*large.pixelHeight<=16*1024*1024);
+});
+
+test('fitted previews use integer physical pixel scales without overflowing their containers',()=>{
+    for(const ratio of [1,1.25,1.5,1.75,2,3])for(const [width,height] of [[20,12],[78,9],[176,222],[4096,4096]])for(const [maxWidth,maxHeight] of [[293,257],[4,6],[1,1]]){
+        const scale=fittedPixelScale(width,height,maxWidth,maxHeight,{deviceRatio:ratio,maxScale:4});
+        const size=pixelPreviewSize(width,height,scale,ratio);
+        assert.ok(size.width<=maxWidth+.5/ratio&&size.height<=maxHeight+.5/ratio);
+        if(scale*ratio>=1)assert.ok(Math.abs(scale*ratio-Math.round(scale*ratio))<1e-8);
+        assert.ok(size.pixelWidth*size.pixelHeight<=maxWidth*ratio*maxHeight*ratio+1000);
+    }
 });
 
 test('OUTLINE and DOUBLE have concentric, symmetric contours without a lower shadow strip',t=>{

@@ -3,6 +3,7 @@ import {bindText,bindAttribute} from '../core/Locale.mjs';
 import {removeColorStop} from '../core/GradientStops.mjs';
 import {normalizeButtonData} from '../core/ButtonDocument.mjs';
 import InspectorTabs from './InspectorTabs.js';
+import {fittedPixelScale,paintPixelPreview,alignPixelPreview,watchPixelRatio} from '../graphics/PixelPreview.mjs';
 
 /** Shared color state; the window and modal provide their own DOM renderers. */
 export default class ButtonGeneratorModel extends ButtonRenderer {
@@ -31,17 +32,35 @@ export default class ButtonGeneratorModel extends ButtonRenderer {
         fit.addEventListener('click',()=>{this.autoFitPreview=true;this.updateView();});
         root.querySelector('.viewport-toolbar .toolbar-group').append(fit);
         this.previewResizeObserver=new ResizeObserver(()=>{if(this.autoFitPreview)this.updateView();});this.previewResizeObserver.observe(this.previewStage);
+        watchPixelRatio(()=>this.updateView());
+        this.previewStage.addEventListener('scroll',()=>alignPixelPreview(this.canvas),{passive:true});
     }
 
     syncPreviewZoom(){
         if(this.autoFitPreview&&this.previewStage.clientWidth&&this.previewStage.clientHeight){
             const style=getComputedStyle(this.previewStage),width=this.previewStage.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight)-4,height=this.previewStage.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom)-4;
-            this.currentZoom=Math.max(1,Math.min(4,Math.floor(Math.min(width/176,height/222))));
+            this.currentZoom=fittedPixelScale(176,222,Math.max(1,width),Math.max(1,height),{deviceRatio:devicePixelRatio,maxScale:4});
         }
         for(const button of this.previewRoot.querySelectorAll('.viewport-toolbar .icon-btn')){
             const active=button.hasAttribute('data-generator-fit')?this.autoFitPreview:!this.autoFitPreview&&Number(button.dataset.z)===this.currentZoom;
             button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));
         }
+    }
+
+    paintGuiPreview(){
+        const source=document.createElement('canvas');source.width=176;source.height=222;
+        const ctx=source.getContext('2d');ctx.imageSmoothingEnabled=false;
+        const width=this.getWidth(this.currentCols),height=this.getHeight(this.currentRows);
+        let button;
+        try{
+            if(this.mcGuiLoaded&&this.mcGuiImg.complete)ctx.drawImage(this.mcGuiImg,0,0,176,222,0,0,176,222);
+            else{ctx.fillStyle='#C6C6C6';ctx.fillRect(0,0,176,222);}
+            button=this.renderButton(width,height,this.colors,this.currentStyle,this.currentOpacity,this.transparentBorder,this.currentChin,this.currentShadow);
+            ctx.drawImage(button,this.currentSlotMode==='full'?7:8,this.currentSlotMode==='full'?17:18);
+            const size=paintPixelPreview(this.canvas,source,{region:{x:0,y:0,width:176,height:222},scale:this.currentZoom});
+            if(this.canvasWrap){this.canvasWrap.style.width=size.width+'px';this.canvasWrap.style.height=size.height+'px';}
+            alignPixelPreview(this.canvas);return {width,height};
+        }finally{source.width=source.height=1;if(button)button.width=button.height=1;}
     }
 
     syncStyleControls(root,prefix='') {

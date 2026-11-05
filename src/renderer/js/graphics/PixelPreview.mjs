@@ -1,8 +1,20 @@
 import {getExportRegion} from './ExportImage.js';
 
+/** Fit to a CSS box using whole physical pixels per source pixel where possible. */
+export function fittedPixelScale(width,height,maxWidth,maxHeight,{deviceRatio=1,maxScale=8}={}){
+    const ratio=Math.max(.1,Math.min(4,Number(deviceRatio)||1));
+    const fit=Math.max(.000001,Math.min(maxWidth/width,maxHeight/height,maxScale))*ratio;
+    return (fit>=1?Math.floor(fit+1e-8):fit)/ratio;
+}
+
+export function paintFittedPixelPreview(canvas,source,{maxWidth,maxHeight,maxScale=8,region=getExportRegion(source,true),deviceRatio=globalThis.devicePixelRatio||1}={}){
+    const scale=fittedPixelScale(region.width,region.height,maxWidth,maxHeight,{deviceRatio,maxScale});
+    const size=paintPixelPreview(canvas,source,{region,scale,deviceRatio});alignPixelPreview(canvas);return size;
+}
+
 /** One nearest-neighbour resample to physical display pixels; CSS never shrinks the result again. */
 export function pixelPreviewSize(width,height,scale=1,deviceRatio=1){
-    const ratio=Math.max(.1,Math.min(4,Number(deviceRatio)||1)),zoom=Math.max(.01,Number(scale)||1);
+    const ratio=Math.max(.1,Math.min(4,Number(deviceRatio)||1)),zoom=Math.max(.000001,Number(scale)||1);
     const density=Math.min(ratio,8192/(width*zoom),8192/(height*zoom),Math.sqrt(16*1024*1024/(width*height*zoom*zoom)));
     const pixelWidth=Math.max(1,Math.round(width*zoom*density)),pixelHeight=Math.max(1,Math.round(height*zoom*density));
     return {pixelWidth,pixelHeight,width:pixelWidth/density,height:pixelHeight/density,density,scale:zoom};

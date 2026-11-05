@@ -106,7 +106,7 @@ try{
     await win.page.locator('.viewport-toolbar [data-z="3"]').click();await settle(win);
     await win.page.evaluate(()=>{if(buttonGenApp.autoFitPreview||buttonGenApp.currentZoom!==3)throw Error('Manual zoom was overridden by fit');});
     await win.page.locator('[data-generator-fit]').click();await settle(win);
-    await win.page.evaluate(()=>{if(!buttonGenApp.autoFitPreview||buttonGenApp.currentZoom!==1)throw Error('Returning to automatic fit failed');});
+    await win.page.evaluate(()=>{if(!buttonGenApp.autoFitPreview||buttonGenApp.currentZoom>1)throw Error('Returning to automatic fit failed');});
     await capture('buttons-minecraft-minimum');checks.push('Standalone button sections fit the minimum window in all four main themes');
     assert.deepEqual(win.__testErrors,[]);await fs.writeFile(path.join(output,'report.json'),JSON.stringify({passed:true,checks},null,2));console.log(JSON.stringify({passed:checks.length,checks}));
 }catch(error){console.error(error);process.exitCode=1;}finally{clearTimeout(timer);win?.destroy();app.exit(process.exitCode||0);}})();

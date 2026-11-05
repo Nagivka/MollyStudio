@@ -7,6 +7,8 @@
     --layout-title-width: clamp(304px, 28vw, 384px);
     --layout-generator-width: 420px;
     --layout-dialog-gutter: var(--space-4);
+    --layout-preview-width: 400px;
+    --layout-preview-height: 270px;
     --settings-nav-width: clamp(152px, 22vw, 210px);
 }
 /* Grid owns window tracks; descendants retain their existing Flexbox controls.
@@ -94,7 +96,10 @@ dialog{max-inline-size:calc(100vw - 2 * var(--layout-dialog-gutter));max-block-s
 /* Controls respond to the panel's width, including a manual panel resize. */
 .md-panel-props { container: inspector / inline-size; }
 .prop-coord-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+:is(.prop-coord-grid,.prefix-grid,.title-fields,.export-fields) { column-gap: var(--space-2); row-gap: var(--space-3); align-items: stretch; }
 :is(.prop-coord-grid,.prefix-grid)>* { min-inline-size: 0; }
+:is(.prop-coord-grid,.title-fields,.export-fields)>label { display: flex; flex-direction: column; min-inline-size: 0; }
+:is(.prop-coord-grid,.title-fields,.export-fields)>label>:is(input,select) { margin-block-start: auto; }
 .inspector-tab { flex-wrap: wrap; row-gap: var(--space-1); }
 .inspector-tab>span { min-inline-size: 0; max-inline-size: 100%; overflow-wrap: anywhere; }
 @container inspector (max-width:260px) {
@@ -126,7 +131,9 @@ dialog{max-inline-size:calc(100vw - 2 * var(--layout-dialog-gutter));max-block-s
 @media(max-width:700px) {
     :is(.buttons-win-shell,.btn-gen-modal) .buttons-win-body { display: grid; grid-template-columns: minmax(0,1fr); grid-template-rows: minmax(140px,35%) minmax(0,1fr); overflow: hidden; }
     :is(.buttons-win-shell,.btn-gen-modal) .buttons-viewport { grid-row: 1; min-height: 0; }
+    :is(.buttons-win-shell,.btn-gen-modal) .canvas-stage { padding: var(--space-2); }
     :is(.buttons-win-shell,.btn-gen-modal) .buttons-sidebar { grid-row: 2; width: 100%; min-width: 0; max-width: none; height: auto; max-height: none; border-inline-end: 0; border-block-start: 1px solid var(--md-outline-variant); }
     :is(.buttons-win-shell,.btn-gen-modal) .buttons-sidebar-scroll-area { overflow-y: auto; }
     :is(.buttons-win-shell,.btn-gen-modal) .buttons-sidebar-footer { flex: 0 0 auto; }
 }
+@media(max-width:640px) { :root { --layout-preview-height: 140px; } }
