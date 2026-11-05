@@ -2,7 +2,7 @@ import {bindText, bindAttribute, translate, uiLabel} from '../core/Locale.mjs';
 import {PREFIX_DESIGNS,GUI_DESIGNS,applyPrefixDesign,recolorGuiPixels} from '../core/DesignPresets.mjs';
 import {DrawCommand} from '../core/Commands.js';
 import {editLayerPixels} from '../graphics/LayerEdit.mjs';
-import {paintPixelPreview,alignPixelPreview,watchPixelRatio} from '../graphics/PixelPreview.mjs';
+import {paintPixelPreview,alignPixelPreview,watchPixelRatio,fittedPixelScale} from '../graphics/PixelPreview.mjs';
 import {getExportRegion} from '../graphics/ExportImage.js';
 
 export default class DesignGallery{
@@ -73,7 +73,11 @@ export default class DesignGallery{
     image(preset){
         if(this.previews.has(preset.id))return this.previews.get(preset.id);
         const source=this.fullImage(preset),canvas=document.createElement('canvas');canvas.setAttribute('aria-hidden','true');
-        try{paintPixelPreview(canvas,source,{scale:1});}
+        try{
+            const region=getExportRegion(source,true);
+            const scale=this.prefix?Math.max(1,fittedPixelScale(region.width,region.height,184,72,{deviceRatio:devicePixelRatio,maxScale:3})):1;
+            paintPixelPreview(canvas,source,{region,scale});
+        }
         catch(error){canvas.width=canvas.height=1;throw error;}
         finally{source.width=source.height=1;}
         this.previews.set(preset.id,canvas);return canvas;
@@ -92,6 +96,7 @@ export default class DesignGallery{
         if(!this.ready||!this.dialog.open)return;
         const grid=this.dialog.querySelector('[data-design-grid]');grid.replaceChildren();const query=this.dialog.querySelector('[data-design-search]').value.toLocaleLowerCase(),category=this.dialog.querySelector('[data-design-category]').value;
         grid.classList.toggle('wide-previews',!this.prefix&&getExportRegion(this.source,true).width>200);
+        grid.classList.toggle('prefix-previews',this.prefix);
         this.previewObserver?.disconnect();
         const generation=this.generation;
         const observer=new IntersectionObserver(entries=>{
