@@ -46,7 +46,8 @@ async function publish({root, env = process.env, fetchImpl = fetch, checkAccessO
     const existing = await api(`${releasesPath}/tags/${info.tag}`, {allow404: true});
     if (existing) throw Error(`Release ${info.tag} already exists; published files will not be overwritten.`);
     const release = await api(releasesPath, {method: 'POST', body: {tag_name: info.tag,
-        name: `MollyStudio ${info.buildVersion}`, body: notes, draft: true, prerelease: false}});
+        // Keep release pages free of changelogs; describe changes separately on request.
+        name: `MollyStudio ${info.buildVersion}`, body: "[Какой файл скачать для вашей ОС](https://github.com/Nagivka/MollyStudio-Releases#скачать)", draft: true, prerelease: false}});
     const uploadBase = release.upload_url?.replace(/\{.*$/, '');
     if (!Number.isSafeInteger(release.id) || uploadBase !== `https://uploads.github.com/repos/${TARGET}/releases/${release.id}/assets`) {
         throw Error('Unexpected upload destination. Release remains a draft.');

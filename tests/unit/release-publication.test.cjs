@@ -63,6 +63,9 @@ test('publication uploads only installer, update metadata, checksum and signed m
     assert.ok(api.calls.slice(1).every(c => c.headers.Authorization === 'Bearer test-target-token'));
     assert.ok(api.calls.every(c => c.redirect === 'error'));
     assert.equal(JSON.parse(api.calls.find(c => c.method === 'POST' && !c.url.includes('uploads.')).body).draft, true);
+    const releaseBody=JSON.parse(api.calls.find(c=>c.method==='POST'&&!c.url.includes('uploads.')).body).body;
+    assert.equal(releaseBody,"[Какой файл скачать для вашей ОС](https://github.com/Nagivka/MollyStudio-Releases#скачать)");
+    assert.ok(!releaseBody.includes('Release notes'));
     assert.equal(api.calls.at(-1).method, 'PATCH');
 });
 
