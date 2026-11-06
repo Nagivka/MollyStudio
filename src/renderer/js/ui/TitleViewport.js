@@ -78,7 +78,9 @@ export default class TitleViewport {
         const box=this.stage.getBoundingClientRect();if(!box.width||!box.height)return;
         const ratio=Math.min(2,window.devicePixelRatio||1);
         try{
-            this.editor.renderer.drawViewport({...project.titleData,yaw:state.yaw,pitch:state.pitch,zoom:state.zoom,cameraTarget:state.target},box.width*ratio,box.height*ratio,state.view==='edit'?state:null,state.view==='edit'?state.selection:null);
+            const settings=this.editor.app.settingsManager;
+            const debug=state.view==='edit'&&settings.get('developerUnlocked')&&settings.get('developerTitleMesh');
+            this.editor.renderer.drawViewport({...project.titleData,yaw:state.yaw,pitch:state.pitch,zoom:state.zoom,cameraTarget:state.target},box.width*ratio,box.height*ratio,state.view==='edit'?state:null,state.view==='edit'?state.selection:null,debug);
             if(!this.editor.panel.querySelector('[data-title-retry]').hidden)this.editor.syncRenderStatus();
             this.drawGizmo(box);
             const plan=this.editor.renderer.lastPlan,frame=plan.frame;this.outputFrame.hidden=!frame;

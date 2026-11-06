@@ -54,10 +54,10 @@ async function workflow(){
     expect(await app.closeProject(id),'Saved prefix closes');expect(await app.projectManager.openRecentProject(prefixFile),'Prefix reopens through the normal file loader');
     expect(JSON.stringify(app.getActiveProject().prefixData)===JSON.stringify(data),'All editable prefix settings survive reopening');
     expect(prefixExpected===await composite(),'Reopened prefix matches the saved pixels');const prefixPNG=await exportPNG();
-    await app.exportPanel.open('prefixes');app.exportPanel.get('names').value='VIP\nVIP\nАДМИН';app.exportPanel.get('format').value='sheet';app.exportPanel.get('columns').value='2';
-    await app.exportPanel.preview();const sheet=await app.exportPanel.run();expect(sheet?.count===3,'Prefix list exports a sprite sheet with repeated and Cyrillic names');
-    expect(new Set(sheet.manifest.images.map(item=>item.file)).size===3,'Repeated prefix names receive unique filenames');app.exportPanel.close();
-    return {checks,gui:{project:guiFile,png:guiPNG,expected:guiExpected},prefix:{project:prefixFile,png:prefixPNG,expected:prefixExpected},sheet};
+    await app.exportPanel.open('prefixes');
+    expect(app.exportPanel.get('source').value==='project','Legacy batch request exports the whole prefix project');
+    expect(app.exportPanel.get('format').value==='png','Export remains a single PNG');app.exportPanel.close();
+    return {checks,gui:{project:guiFile,png:guiPNG,expected:guiExpected},prefix:{project:prefixFile,png:prefixPNG,expected:prefixExpected}};
 }
 
 (async()=>{let win;const timer=setTimeout(()=>app.exit(1),150000);try{
@@ -70,15 +70,6 @@ async function workflow(){
         if(actual.width!==expected.width||actual.height!==expected.height||!actual.data.equals(expected.data))throw Error(name+' exported pixels differ from its saved document');
         result.checks.push(name+': exported PNG matches every composite pixel');await fs.writeFile(path.join(output,name+'.png'),bytes);await fs.copyFile(item.project,path.join(output,name+'.mlst'));delete item.expected;
     }
-    const archive=await fs.readFile(path.join(profile,result.sheet.file)),files=new Map();let offset=0;
-    while(offset+30<=archive.length&&archive.readUInt32LE(offset)===0x04034b50){
-        const size=archive.readUInt32LE(offset+18),length=archive.readUInt16LE(offset+26),extra=archive.readUInt16LE(offset+28),start=offset+30+length+extra;
-        files.set(archive.toString('utf8',offset+30,offset+30+length),archive.subarray(start,start+size));offset=start+size;
-    }
-    const manifest=JSON.parse(files.get('manifest.json').toString()),sheet=PNG.sync.read(files.get('sprites.png'));
-    if(manifest.images.length!==3||sheet.width!==manifest.sheet.width||sheet.height!==manifest.sheet.height||manifest.images.some(frame=>frame.x+frame.width>sheet.width||frame.y+frame.height>sheet.height))throw Error('Written sprite sheet or its JSON coordinates are invalid');
-    await fs.writeFile(path.join(output,'prefixes.zip'),archive);await fs.writeFile(path.join(output,'sprites.png'),files.get('sprites.png'));
-    result.checks.push('Written prefix archive contains a valid PNG sheet and matching JSON frame coordinates');
     if(win.__testErrors.length)throw Error(win.__testErrors.join('\n'));
     await fs.writeFile(path.join(output,'report.json'),JSON.stringify({passed:result.checks.length,...result},null,2));console.log(JSON.stringify({passed:result.checks.length,checks:result.checks}));
 }catch(error){console.error(error);process.exitCode=1;}finally{clearTimeout(timer);win?.destroy();app.exit(process.exitCode||0);}})();

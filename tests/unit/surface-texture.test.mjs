@@ -69,10 +69,10 @@ test('malformed imported layer effects cannot send infinite shadow coordinates t
     layer.setFX('invalid');assert.equal(layer.fx,null);
 }));
 test('hidden sprite-sheet numeric fields do not block exporting a PNG',()=>{
-    const controls=Object.fromEntries(['source','scale','trim','format','columns','gap','prefix','numbered','names','block'].map(key=>[key,{value:'',type:'text'}]));
+    const controls=Object.fromEntries(['source','scale','trim','format','columns','gap','prefix','numbered','names','block'].map(key=>[key,{value:'',type:'text',closest(){return {};}}]));
     Object.assign(controls.format,{value:'png'});Object.assign(controls.columns,{type:'number',value:'',min:'1',max:'32',setAttribute(){}});
     const panel=Object.create(ExportPanel.prototype);panel.get=key=>controls[key];panel.dialog={querySelectorAll:()=>[controls.columns]};
-    assert.doesNotThrow(()=>panel.read());controls.format.value='sheet';assert.throws(()=>panel.read(),/числовые/);
+    assert.doesNotThrow(()=>panel.read());controls.format.value='sheet';assert.equal(panel.read().format,'png');
 });
 test('complex global wand selection fails with a useful error instead of retaining millions of spans',()=>{
     const image=pixels(512,64);for(let y=0;y<image.height;y++)for(let x=0;x<image.width;x++)image.data[(y*image.width+x)*4]=(x+y)%2?0:255;

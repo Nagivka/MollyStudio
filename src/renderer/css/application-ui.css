@@ -1133,6 +1133,11 @@ html[data-platform="darwin"] :is(.titlebar-controls,.settings-win-titlebar-contr
 [data-about-version]{cursor:text;}
 [data-about-version]:focus-visible{outline:2px solid var(--md-primary);outline-offset:3px;}
 [data-developer-setting]{accent-color:var(--md-primary);}
+.developer-canvas-outline,.developer-canvas-point,.developer-canvas-readout{position:fixed;z-index:45;pointer-events:none;}
+.developer-canvas-outline{outline:1px dashed #ff5ec4;}
+.developer-canvas-point{inline-size:7px;block-size:7px;background:#55dfff;transform:translate(-50%,-50%);}
+.developer-canvas-readout{inset:auto 16px 44px auto;max-inline-size:min(420px,80vw);white-space:pre-wrap;overflow-wrap:anywhere;padding:8px;background:var(--md-surface);color:var(--md-on-surface);border:1px solid var(--md-outline);}
+.developer-pixel-fractional{border-color:#f3aa53;}
 .developer-performance{position:fixed;right:12px;bottom:12px;z-index:2147483000;pointer-events:none;padding:6px 10px;background:#111e;color:#8fffc8;border:1px solid #53796b;border-radius:4px;font:12px/1.5 monospace;}
 .studio-basement{position:fixed;inset:0;margin:auto;width:min(760px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;box-sizing:border-box;padding:20px;border:3px solid #a6836a;border-radius:0;background:#252535;color:#f1dab5;font-family:'Minecraft UI',sans-serif;box-shadow:0 16px 64px #0008;}
 .studio-basement::backdrop{background:#080b15d9;}

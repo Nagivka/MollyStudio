@@ -12,6 +12,7 @@ import { importImage } from './ImageImport.js';
 import EventBus from './EventBus.js';
 import History from './History.js';
 import SettingsManager from './SettingsManager.js';
+import {installDeveloperTools} from '../ui/DeveloperTools.js';
 import { DrawCommand } from './Commands.js';
 import LayerManager from '../graphics/LayerManager.js';
 import Renderer from '../graphics/Renderer.js';
@@ -124,6 +125,7 @@ export default class App {
 
         if (this.renderer && mainCanvas) this.renderer.init(mainCanvas, previewCanvas);
         if (this.workspace && canvasWrapper) this.workspace.init(canvasWrapper, mainCanvas);
+        installDeveloperTools(this);
 
         // Parse query parameters from Launcher (index.html)
         const urlParams = new URLSearchParams(window.location.search);

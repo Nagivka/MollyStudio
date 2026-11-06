@@ -2,6 +2,7 @@ import {revealTheme} from './VisualEffects.js';
 import {uiSounds} from './UISounds.js';
 import {openDiagnostics} from './DiagnosticsDialog.js';
 import {actionButtonHTML} from './Controls.mjs';
+import {developerChannel} from './DeveloperTools.js';
 import {bindAttribute, bindText, labelHTML, attributeHTML, uiLabel, localeValue, translate, LANGUAGES} from '../core/Locale.mjs';
 import { renderShortcutSettings } from './ShortcutSettings.js';
 import { NUMERIC_SETTING_RANGES } from '../core/SettingsManager.js';
@@ -164,7 +165,7 @@ export default class SettingsModal {
                         </button>
                         <button class="settings-tab-btn m3-bubble-action" id="settings-modal-tab-export" data-tab="export" role="tab" aria-controls="settings-content-area" aria-selected="false" type="button">
                             <i class="material-symbols-rounded">download</i>
-                            <span><!--i18n-->Экспорт и авто</span>
+                            <span><!--i18n-->Сохранение</span>
                         </button>
                         <button class="settings-tab-btn m3-bubble-action" id="settings-modal-tab-discord" data-tab="discord" role="tab" aria-controls="settings-content-area" aria-selected="false" type="button">
                             <i class="material-symbols-rounded">sports_esports</i>
@@ -226,6 +227,7 @@ export default class SettingsModal {
     }
 
     disposeTab() {
+        this.disposeDeveloper?.();this.disposeDeveloper=null;
         this.disposeUpdates?.();this.disposeUpdates=null;
         this.disposeWeather?.();
         this.disposeWeather = null;
@@ -351,22 +353,84 @@ export default class SettingsModal {
 
     renderDeveloperTab(container){
         if(!this.settings.get('developerUnlocked'))return;
+        const switches = [
+            ['developerLayoutBounds', 'Показывать границы элементов'],
+            ['developerWeatherBounds', 'Показать защитные области погоды', 'Голубые контуры показывают области, в которых скрываются частицы погоды.'],
+            ['developerPerformance', 'Монитор кадров интерфейса', 'Монитор показывает частоту кадров интерфейса, максимальный интервал и число кадров дольше 50 мс.'],
+            ['developerCanvasHits', 'Границы и попадания на холсте'],
+            ['developerPixelGrid', 'Проверка пиксельной чёткости'],
+            ['developerTitleMesh', 'Подсветка граней и границ 3D-букв']
+        ];
         container.innerHTML=`<div class="settings-section"><h3>${labelHTML('Разработчик')}</h3>
         <div class="settings-group"><h4>${labelHTML('Проверка интерфейса')}</h4>
-        ${[['developerLayoutBounds','Показывать границы элементов'],['developerWeatherBounds','Показать защитные области погоды'],['developerPerformance','Монитор кадров интерфейса']].map(([key,label])=>`<label class="md-switch"><input type="checkbox" data-developer-setting="${key}" ${this.settings.get(key)?'checked':''}><span class="md-switch-track"><span class="md-switch-thumb"></span></span><span>${labelHTML(label)}</span></label>`).join('')}
-        <p>${labelHTML('Голубые контуры показывают области, в которых скрываются частицы погоды.')}</p>
-        <p>${labelHTML('Монитор показывает частоту кадров интерфейса, максимальный интервал и число кадров дольше 50 мс.')}</p>
-        <label>${labelHTML('Предпросмотр праздника')}<select class="md-select" data-developer-holiday>${[['auto','Текущая дата'],['newyear','Новый год'],['christmas','Рождество'],['halloween','Хэллоуин'],['studioBirthday','День рождения MollyStudio'],['authorBirthday','День рождения Nagivka']].map(([value,label])=>`<option value="${value}">${labelHTML(label)}</option>`).join('')}</select></label>
-        <p>${labelHTML('Меняет только украшение главного меню. Системная дата остаётся прежней.')}</p></div>
-        <div class="settings-group"><h4>${labelHTML('Диагностика')}</h4><p data-developer-environment></p>
+        ${switches.map(([key,label,hint])=>`<div class="settings-row"><div class="settings-col">
+        <label class="md-switch"><input type="checkbox" data-developer-setting="${key}" ${this.settings.get(key)?'checked':''}>
+        <span class="md-switch-track"><span class="md-switch-thumb"></span></span><span>${labelHTML(label)}</span></label>
+        ${hint ? `<p>${labelHTML(hint)}</p>` : ''}
+        </div></div>`).join('')}</div>
+        <div class="settings-group"><h4>${labelHTML('Предпросмотр праздника')}</h4>
+        <label class="prop-field-block"><span>${labelHTML('Событие в главном меню')}</span>
+        <select class="md-select" data-developer-holiday>${[['auto','Текущая дата'],['newyear','Новый год'],['christmas','Рождество'],['halloween','Хэллоуин'],['studioBirthday','День рождения MollyStudio'],['authorBirthday','День рождения Nagivka']].map(([value,label])=>`<option value="${value}">${labelHTML(label)}</option>`).join('')}</select></label></div>
+        <div class="settings-group"><h4>${labelHTML('Диагностика')}</h4><p><span>${labelHTML('Размер области окна')}</span> · <span data-developer-environment></span></p>
         ${actionButtonHTML({action:'report',label:'Отчёт диагностики',icon:'memory',attribute:'data-developer-action'})}
+        </div><div class="settings-group"><h4>${labelHTML('Запись действий')}</h4>
+        ${actionButtonHTML({action:'record',label:'Начать запись',icon:'play_arrow',attribute:'data-developer-action'})}
+        ${actionButtonHTML({action:'copy',label:'Скопировать запись',icon:'content_copy',attribute:'data-developer-action'})}
+        </div><div class="settings-group"><h4>${labelHTML('Тестовые проекты')}</h4>
+        ${[['gui','GUI'],['canvas','Холст'],['prefix','Префиксы'],['title','3D-надписи']].map(([type,label])=>actionButtonHTML({action:type,label,icon:'add',attribute:'data-developer-sample'})).join('')}
+        </div><div class="settings-group"><h4>${labelHTML('Управление вкладкой')}</h4>
+        ${actionButtonHTML({action:'reset',label:'Сбросить настройки разработчика',icon:'restart_alt',attribute:'data-developer-action'})}
         ${actionButtonHTML({action:'hide',label:'Скрыть вкладку разработчика',icon:'close',attribute:'data-developer-action'})}</div></div>`;
-        for(const input of container.querySelectorAll('[data-developer-setting]'))input.addEventListener('change',()=>this.settings.set(input.dataset.developerSetting,input.checked));
+        const inputs = container.querySelectorAll('[data-developer-setting]');
+        for(const input of inputs)input.addEventListener('change',()=>this.settings.set(input.dataset.developerSetting,input.checked));
         const holiday=container.querySelector('[data-developer-holiday]');holiday.value=this.settings.get('developerHoliday');holiday.addEventListener('change',()=>this.settings.set('developerHoliday',holiday.value));
-        container.querySelector('[data-developer-environment]').textContent=`${innerWidth} × ${innerHeight} · DPR ${devicePixelRatio} · ${this.settings.get('theme')}`;
+        const environment = container.querySelector('[data-developer-environment]');
+        const updateEnvironment = () => { environment.textContent = `${innerWidth} × ${innerHeight} · DPR ${devicePixelRatio}`; };
+        const observer = new ResizeObserver(() => {
+            if (environment.isConnected) updateEnvironment();
+            else observer.disconnect();
+        });
+        observer.observe(environment.closest('.settings-section'));
+        observer.observe(document.documentElement);
+        this.disposeDeveloper = () => observer.disconnect();
+        updateEnvironment();
+        const reset = () => {
+            for (const input of inputs) {
+                this.settings.set(input.dataset.developerSetting, false);
+                input.checked = false;
+            }
+            this.settings.set('developerHoliday', 'auto');
+            holiday.value = 'auto';
+        };
+        container.querySelector('[data-developer-action="reset"]').addEventListener('click', reset);
+        for (const button of container.querySelectorAll('[data-developer-sample]')) {
+            button.disabled = !window.desktopAPI?.openDeveloperSample;
+            button.addEventListener('click', async () => {
+                try { await window.desktopAPI.openDeveloperSample(button.dataset.developerSample); }
+                catch { this.showToast('Не удалось открыть тестовый проект'); }
+            });
+        }
+        const record = (action) => new Promise(resolve => {
+            const channel = new BroadcastChannel(developerChannel);
+            const id = crypto.randomUUID();
+            const finish = (entries) => { clearTimeout(timer); channel.close(); resolve(entries); };
+            const timer = setTimeout(() => finish(null), 1000);
+            channel.onmessage = ({data}) => { if (data?.id === id && Array.isArray(data.entries)) finish(data.entries); };
+            channel.postMessage({id, action});
+        });
+        for (const [button, action] of [['record','start'],['copy','stop']]) {
+            container.querySelector(`[data-developer-action="${button}"]`).addEventListener('click', async () => {
+                const entries = await record(action);
+                if (!entries) { this.showToast('Сначала откройте редактор'); return; }
+                if (action === 'start') { this.showToast('Запись действий началась'); return; }
+                try { await navigator.clipboard.writeText(JSON.stringify(entries, null, 2)); this.showToast('Информация скопирована'); }
+                catch { this.showToast('Не удалось скопировать информацию'); }
+            });
+        }
         container.querySelector('[data-developer-action="report"]').addEventListener('click',()=>openDiagnostics());
         container.querySelector('[data-developer-action="hide"]').addEventListener('click',()=>{
-            for(const key of ['developerLayoutBounds','developerWeatherBounds','developerPerformance'])this.settings.set(key,false);this.settings.set('developerHoliday','auto');this.settings.set('developerUnlocked',false);
+            reset();
+            this.settings.set('developerUnlocked',false);
             (this.modalEl||document).querySelector('[data-tab="developer"]')?.remove();this.switchTab('about');
         });
     }
@@ -884,9 +948,6 @@ export default class SettingsModal {
     // Tab 4: Export & Autosave (Экспорт и автосохранение)
     // =========================================================================
     renderExportTab(container) {
-        const exportScale = this.settings.get('exportScale') || 1;
-        const exportTrim = this.settings.get('exportTrim') || false;
-        const autosaveInt = this.settings.get('autosaveInterval') ?? 0;
         const confirmClose = this.settings.get('confirmClose') ?? true;
 
         const sec = document.createElement('div');
@@ -894,47 +955,10 @@ export default class SettingsModal {
 
         sec.innerHTML = `
             <div class="settings-group">
-                <div class="settings-group-title"><!--i18n-->Параметры экспорта в PNG</div>
-                <div class="settings-group-desc"><!--i18n-->Масштабирование и обработка текстур при экспорте</div>
+                <div class="settings-group-title"><!--i18n-->Автокопии проекта</div>
+                <div class="settings-group-desc"><!--i18n-->Копии для восстановления создаются после изменений. Исходный файл сохраняйте через Ctrl+S.</div>
 
-                <div class="settings-row-wrap" style="margin-top: 10px;">
-                    <div class="settings-col">
-                        <label for="setting-export-scale" class="settings-col-label"><!--i18n-->Масштаб экспортируемого файла:</label>
-                        <select id="setting-export-scale" class="md-select">
-                            <option value="1" ${exportScale == 1 ? 'selected' : ''}><!--i18n-->1x Оригинал</option>
-                            <option value="2" ${exportScale == 2 ? 'selected' : ''}><!--i18n-->2x Увеличение</option>
-                            <option value="4" ${exportScale == 4 ? 'selected' : ''}><!--i18n-->4x Увеличение</option>
-                            <option value="8" ${exportScale == 8 ? 'selected' : ''}><!--i18n-->8x Увеличение</option>
-                            <option value="16" ${exportScale == 16 ? 'selected' : ''}><!--i18n-->16x Увеличение</option>
-                        </select>
-                    </div>
 
-                    <div class="settings-col" style="justify-content: flex-end;">
-                        <label class="md-switch">
-                            <input type="checkbox" id="setting-export-trim" ${exportTrim ? 'checked' : ''}>
-                            <span class="md-switch-track"><span class="md-switch-thumb"></span></span>
-                            <span class="md-switch-label"><!--i18n-->Обрезать прозрачные границы при экспорте</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-divider"></div>
-
-            <div class="settings-group">
-                <div class="settings-group-title"><!--i18n-->Автоматическое сохранение проектов</div>
-                <div class="settings-group-desc"><!--i18n-->Периодическое фоновое сохранение для защиты от непредвиденной потери данных</div>
-
-                <div style="margin-top: 10px; max-width: 320px;">
-                    <label for="setting-autosave-interval" class="settings-col-label"><!--i18n-->Интервал автосохранения:</label>
-                    <select id="setting-autosave-interval" class="md-select">
-                        <option value="0" ${autosaveInt == 0 ? 'selected' : ''}><!--i18n-->Отключено</option>
-                        <option value="1" ${autosaveInt == 1 ? 'selected' : ''}><!--i18n-->Каждую 1 минуту</option>
-                        <option value="3" ${autosaveInt == 3 ? 'selected' : ''}><!--i18n-->Каждые 3 минуты</option>
-                        <option value="5" ${autosaveInt == 5 ? 'selected' : ''}><!--i18n-->Каждые 5 минут</option>
-                        <option value="10" ${autosaveInt == 10 ? 'selected' : ''}><!--i18n-->Каждые 10 минут</option>
-                    </select>
-                </div>
 
                 <div style="margin-top: 14px;">
                     <label class="md-switch">
@@ -947,18 +971,6 @@ export default class SettingsModal {
         `;
 
         container.appendChild(sec);
-
-        sec.querySelector('#setting-export-scale')?.addEventListener('change', (e) => {
-            this.settings.set('exportScale', parseInt(e.target.value, 10));
-        });
-
-        sec.querySelector('#setting-export-trim')?.addEventListener('change', (e) => {
-            this.settings.set('exportTrim', e.target.checked);
-        });
-
-        sec.querySelector('#setting-autosave-interval')?.addEventListener('change', (e) => {
-            this.settings.set('autosaveInterval', parseInt(e.target.value, 10));
-        });
 
         sec.querySelector('#setting-confirm-close')?.addEventListener('change', (e) => {
             this.settings.set('confirmClose', e.target.checked);
@@ -973,7 +985,6 @@ export default class SettingsModal {
         let showProj = this.settings.get('discordShowProject') ?? true;
         let showTool = this.settings.get('discordShowTool') ?? true;
         let showTime = this.settings.get('discordShowTime') ?? true;
-        let clientId = this.settings.get('discordClientId') || '1543550000133574677';
 
         const sec = document.createElement('div');
         sec.className = 'settings-section';
@@ -1127,7 +1138,7 @@ export default class SettingsModal {
             <div class="settings-divider"></div>
 
             <div class="settings-group">
-                <div class="settings-group-title"><!--i18n-->Очистка данных и кэша</div>
+                <div class="settings-group-title"><!--i18n-->Недавние проекты и сброс</div>
                 <div class="settings-group-desc"><!--i18n-->Очистка истории недавних файлов в меню или полный сброс параметров</div>
 
                 <div style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;">

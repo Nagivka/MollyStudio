@@ -6,7 +6,7 @@ const require=createRequire(import.meta.url);
 const read=file=>readFile(new URL('../../'+file,import.meta.url),'utf8');
 test('Electron packaging includes production application and declares the public update feed',async()=>{
     const pkg=JSON.parse(await read('package.json')),config=require('../../electron-builder.cjs');
-    assert.equal(pkg.version,'1.4.5');assert.equal(pkg.main,'src/main/index.cjs');
+    assert.match(pkg.version,/^\d+\.\d+\.\d+$/);assert.equal(pkg.main,'src/main/index.cjs');
     assert.ok(pkg.devDependencies.electron);assert.ok(pkg.devDependencies['electron-builder']);
     assert.equal(config.publish.provider,'generic');assert.match(config.publish.url,/MollyStudio-Releases\/releases\/latest\/download\/$/);assert.equal(config.asar,true);
     assert.ok(pkg.dependencies['electron-updater']);

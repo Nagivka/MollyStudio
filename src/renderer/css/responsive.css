@@ -28,6 +28,47 @@
 .workspace-layout:has(>#title-editor:not([hidden])){grid-template-columns:minmax(var(--layout-canvas-min),1fr) minmax(0,var(--layout-title-width));}
 .workspace-layout:has(>:is(#prefix-editor,#title-editor):not([hidden]))>.canvas-area{grid-column:1;}
 .workspace-layout>:is(#prefix-editor,#title-editor){grid-column:2;grid-row:1;inline-size:100%;min-inline-size:0;}
+.workspace-layout > .generator-resizer { display: none; }
+@media (min-width: 601px) {
+    .workspace-layout:has(>#prefix-editor:not([hidden])) {
+        grid-template-columns: minmax(var(--layout-canvas-min), 1fr) var(--layout-splitter-width)
+            minmax(0, min(var(--custom-generator-width, var(--layout-prefix-width)), 55%));
+    }
+    .workspace-layout:has(>#title-editor:not([hidden])) {
+        grid-template-columns: minmax(var(--layout-canvas-min), 1fr) var(--layout-splitter-width)
+            minmax(0, min(var(--custom-generator-width, var(--layout-title-width)), 55%));
+    }
+    .workspace-layout:has(>:is(#prefix-editor,#title-editor):not([hidden])) > .generator-resizer {
+        display: flex;
+        grid-column: 2;
+    }
+    .workspace-layout > :is(#prefix-editor,#title-editor) { grid-column: 3; }
+}
+.layout-resizer { touch-action: none; user-select: none; }
+.tabs-resizer, .layers-resizer {
+    flex: none;
+    position: relative;
+    cursor: col-resize;
+}
+.tabs-resizer { inline-size: 8px; block-size: 20px; }
+.layers-resizer { block-size: 8px; cursor: row-resize; }
+#layers-panel-section:not(.expanded) > .layers-resizer { display: none; }
+:is(.tabs-resizer, .layers-resizer)::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    background: var(--md-outline-variant);
+    pointer-events: none;
+}
+.layout-resizer:is(:hover, :focus-visible, .dragging)::after { background: var(--md-primary); }
+.doc-tabs-container > .doc-tab {
+    width: var(--custom-tab-width, var(--md-tab-width, 180px));
+    max-width: var(--custom-tab-width, var(--md-tab-width, 220px));
+}
+#layers-panel-section #layers-list-scroll-body {
+    height: var(--custom-layers-height, auto);
+    max-height: min(var(--custom-layers-height, 240px), 65vh);
+}
 .settings-win-shell,.buttons-win-shell{display:grid;grid-template-rows:auto minmax(0,1fr);}
 .new-win-shell{display:grid;grid-template-rows:auto minmax(0,1fr) auto;}
 .settings-win-body{display:grid;grid-template-columns:var(--settings-nav-width) minmax(0,1fr);gap:var(--space-2);}
@@ -137,3 +178,234 @@ dialog{max-inline-size:calc(100vw - 2 * var(--layout-dialog-gutter));max-block-s
     :is(.buttons-win-shell,.btn-gen-modal) .buttons-sidebar-footer { flex: 0 0 auto; }
 }
 @media(max-width:640px) { :root { --layout-preview-height: 140px; } }
+
+/* Standard editors share the GUI inspector surfaces and Expressive button groups.
+   Keep native range styling in the existing slider rules. */
+:root:not([data-theme="minecraft"], [data-theme="light-minecraft"]) {
+    --inspector-control-height: 36px;
+    --inspector-inner-radius: 4px;
+    --inspector-selected-radius: 16px;
+
+    & :is(#prefix-editor, #title-editor) {
+        background: var(--md-surface);
+        border-inline-start: 0;
+        color: var(--md-on-surface);
+    }
+
+    & .prefix-inspector-header {
+        padding: 8px;
+        background: transparent;
+    }
+
+    & .prefix-inspector-header > .md-btn {
+        inline-size: 100%;
+        min-block-size: 40px;
+    }
+
+    & .prefix-scroll {
+        padding: 0 8px 16px;
+        scrollbar-gutter: stable;
+    }
+
+    & .prefix-section {
+        margin-block: 8px;
+        padding: 12px;
+        border: 1px solid var(--md-outline-variant);
+        border-radius: var(--md-shape-corner-panel);
+        background: var(--md-surface-container);
+    }
+
+    & .prefix-section h3 {
+        min-block-size: 28px;
+        font-size: 13px;
+        margin-block-end: 12px;
+    }
+
+    & .prefix-subsection {
+        margin-block-start: 16px;
+        padding-block-start: 16px;
+    }
+
+    & .prefix-subsection h4 {
+        text-transform: none;
+        letter-spacing: normal;
+        font-size: 12px;
+        color: var(--md-on-surface);
+    }
+
+    & .prefix-field {
+        gap: 8px;
+        margin-block-end: 12px;
+    }
+
+    & .title-inspector-header {
+        gap: 12px;
+        margin: 8px 8px 0;
+        padding: 12px;
+        border: 1px solid var(--md-outline-variant);
+        border-radius: var(--md-shape-corner-panel);
+        background: var(--md-surface-container);
+    }
+
+    & .title-inspector-header h3 { font-size: 13px; }
+
+    & .title-inspector-body {
+        padding: 8px 8px 16px;
+    }
+
+    & :is(.title-settings-panel, .title-material-panel, .title-scene-panel) { gap: 8px; }
+
+    & .title-control-group {
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid var(--md-outline-variant);
+        border-radius: var(--md-shape-corner-panel);
+        background: var(--md-surface-container);
+    }
+
+    & :is(#prefix-editor, #title-editor) :is(
+        input[type="text"], input[type="number"], select, textarea
+    ) {
+        min-block-size: var(--inspector-control-height);
+        border: 1px solid var(--md-outline);
+        border-radius: var(--md-shape-corner-input);
+        background: var(--md-surface-container-lowest);
+        color: var(--md-on-surface);
+        font-size: 12px;
+    }
+
+    & .prefix-color-row {
+        background: var(--md-surface-container-lowest);
+        border-radius: var(--md-shape-corner-small);
+        gap: 8px;
+    }
+
+    & :is(.prefix-color-row, .title-gradient-stop) input[type="text"] {
+        min-block-size: 32px;
+    }
+
+    & :is(.inspector-tabs, .title-inspector-tabs) {
+        gap: 2px;
+        padding-block: 4px 8px;
+        border-block-end: 0;
+        background: var(--md-surface-container);
+    }
+
+    & #prefix-editor .inspector-tabs {
+        padding: 8px 0;
+        background: var(--md-surface);
+    }
+
+    & :is(.inspector-tabs, .title-inspector-tabs) > .inspector-tab {
+        min-inline-size: 0;
+        min-block-size: 40px;
+        padding: 8px 4px;
+        gap: 4px;
+        border: 0;
+        border-radius: var(--inspector-inner-radius);
+        background: var(--md-surface-container-high);
+        color: var(--md-on-surface-variant);
+        font-size: 12px;
+    }
+
+    & :is(.inspector-tabs, .title-inspector-tabs) > .inspector-tab:first-child {
+        border-start-start-radius: 24px;
+        border-end-start-radius: 24px;
+    }
+
+    & :is(.inspector-tabs, .title-inspector-tabs) > .inspector-tab:last-child {
+        border-start-end-radius: 24px;
+        border-end-end-radius: 24px;
+    }
+
+    & :is(.inspector-tabs, .title-inspector-tabs) > .inspector-tab:is(.active, [aria-selected="true"]) {
+        border-radius: var(--inspector-selected-radius);
+        background: var(--md-secondary-container);
+        color: var(--md-on-secondary-container);
+    }
+
+    & .m3-segmented-button {
+        gap: 2px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+    }
+
+    & .m3-segmented-button > .m3-segment-item {
+        border: 0;
+        border-radius: var(--inspector-inner-radius);
+        background: var(--md-surface-container-high);
+        color: var(--md-on-surface-variant);
+    }
+
+    & .m3-segmented-button > .m3-segment-item:first-child {
+        border-start-start-radius: 24px;
+        border-end-start-radius: 24px;
+    }
+
+    & .m3-segmented-button > .m3-segment-item:last-child {
+        border-start-end-radius: 24px;
+        border-end-end-radius: 24px;
+    }
+
+    & .m3-segmented-button > .m3-segment-item:is(.active, [aria-pressed="true"], [aria-selected="true"]) {
+        border-radius: var(--inspector-selected-radius);
+        background: var(--md-secondary-container);
+        color: var(--md-on-secondary-container);
+    }
+
+    & :is(.bitmap-font-choices .md-btn, .title-visual-choice) {
+        border-radius: 24px;
+        border-color: var(--md-outline-variant);
+        background: var(--md-surface-container-lowest);
+    }
+
+    & .bitmap-font-choices [aria-pressed="true"] {
+        border-color: var(--md-primary);
+        background: var(--md-secondary-container);
+    }
+
+    & .title-details > summary {
+        min-block-size: 40px;
+        padding-inline: 8px;
+        border-radius: 8px;
+        background: var(--md-surface-container);
+    }
+
+    & .title-details > summary:hover { background: var(--md-surface-container-high); }
+}
+@media (prefers-reduced-motion: no-preference) {
+    :root:not([data-theme*="minecraft"]):not(.no-animations) {
+        & :is(.inspector-tab, .m3-segment-item, .bitmap-font-choices .md-btn) {
+            transition: border-radius 240ms var(--md-motion-easing-standard),
+                background-color 160ms var(--md-motion-easing-standard),
+                color 160ms var(--md-motion-easing-standard);
+        }
+        & :is(.inspector-tab, .m3-segment-item):active:not(:disabled) {
+            border-radius: 12px;
+        }
+    }
+}
+
+:root:not([data-theme="minecraft"], [data-theme="light-minecraft"]) {
+    & :is(.title-mode-buttons, .title-view-buttons) { gap: 2px; }
+    & :is(.title-mode-buttons, .title-view-buttons) > .md-btn {
+        border-color: transparent;
+        border-radius: 4px;
+        background: var(--md-surface-container-high);
+    }
+    & :is(.title-mode-buttons, .title-view-buttons) > .md-btn:first-child {
+        border-start-start-radius: 24px;
+        border-end-start-radius: 24px;
+    }
+    & :is(.title-mode-buttons, .title-view-buttons) > .md-btn:last-child {
+        border-start-end-radius: 24px;
+        border-end-end-radius: 24px;
+    }
+    & .title-viewport-toolbar :is(.title-mode-buttons, .title-view-buttons) > .md-btn[aria-pressed="true"] {
+        border-radius: 16px;
+        background: var(--md-secondary-container);
+        border-color: transparent;
+        color: var(--md-on-secondary-container);
+    }
+}

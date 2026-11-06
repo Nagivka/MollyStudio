@@ -27,12 +27,11 @@ export default class ExportPanel {
             <div class="export-fields">${numberFieldHTML({label:'Ширина PNG',attribute:'data-export',attributeValue:'titleResolution',min:1,max:16384,value:2048})}
             <label class="prop-field-block"><span><!--i18n-->Форма изображения</span><select class="md-select" data-export="titleOutput"><option value="auto"><!--i18n-->По надписи</option><option value="square"><!--i18n-->Квадрат</option><option value="custom"><!--i18n-->Свой размер</option></select></label></div>
             <div data-export="title-height" hidden>${numberFieldHTML({label:'Высота PNG',attribute:'data-export',attributeValue:'titleHeight',min:1,max:16384,value:1152})}</div>
-            ${numberFieldHTML({label:'Поля изображения, px',attribute:'data-export',attributeValue:'titlePadding',min:0,max:128,value:24})}
         </div>
-        <div class="export-fields" data-export="format-fields"><label class="prop-field-block"><span><!--i18n-->Масштаб PNG</span><select class="md-select" data-export="scale">${[1,2,3,4,8,16].map(n=>`<option value="${n}">${n}×</option>`).join('')}</select></label><label class="prop-field-block"><span><!--i18n-->Результат</span><select class="md-select" data-export="format"><option value="png"><!--i18n-->Одно изображение PNG</option><option value="zip"><!--i18n-->Архив с PNG</option><option value="sheet"><!--i18n-->Спрайт-лист в архиве</option></select></label></div>
+        <div class="export-fields" data-export="format-fields"><label class="prop-field-block"><span><!--i18n-->Масштаб PNG</span><select class="md-select" data-export="scale">${[1,2,3,4,8,16].map(n=>`<option value="${n}">${n}×</option>`).join('')}</select></label><select hidden aria-hidden="true" data-export="format"><option value="png"><!--i18n-->Одно изображение PNG</option><option value="zip"><!--i18n-->Архив с PNG</option><option value="sheet"><!--i18n-->Спрайт-лист в архиве</option></select></div>
         ${switchHTML("data-export","Обрезать прозрачные поля",false,"trim")}
         <div class="export-fields" data-export="sheet-fields">${numberFieldHTML({label:"Столбцы",attribute:"data-export",attributeValue:"columns",min:1,max:32,value:4})}${numberFieldHTML({label:"Промежуток, px",attribute:"data-export",attributeValue:"gap",min:0,max:64,value:1})}</div>
-        <label class="prop-field-block"><span><!--i18n-->Начало имени файла</span><input class="md-input" data-export="prefix" maxlength="40" placeholder="Например, server_" data-i18n-placeholder="%D0%9D%D0%B0%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80%2C%20server_"></label>
+        <input type="hidden" data-export="prefix" value="">
         ${switchHTML("data-export","Добавлять порядковый номер",false,"numbered")}
         </section><section class="export-preview" aria-label="Предпросмотр результата" data-i18n-aria-label="%D0%9F%D1%80%D0%B5%D0%B4%D0%BF%D1%80%D0%BE%D1%81%D0%BC%D0%BE%D1%82%D1%80%20%D1%80%D0%B5%D0%B7%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%82%D0%B0"><div class="export-image-box"><canvas data-export="canvas"></canvas></div><output data-export="dimensions" role="status"></output><p class="prop-help-text" data-export="description"></p><ol data-export="files" aria-label="Примеры имён файлов" data-i18n-aria-label="%D0%9F%D1%80%D0%B8%D0%BC%D0%B5%D1%80%D1%8B%20%D0%B8%D0%BC%D1%91%D0%BD%20%D1%84%D0%B0%D0%B9%D0%BB%D0%BE%D0%B2"></ol></section></div>
         <p data-export="error" class="export-error" role="alert" hidden></p><div data-export="progress-panel" hidden><progress data-export="progress" max="1" value="0"></progress><p data-export="status" role="status"></p></div>
@@ -79,7 +78,8 @@ export default class ExportPanel {
         const defaults={source,scale:project.type==='title'?1:this.app.settingsManager.get('exportScale')||1,trim:this.app.settingsManager.get('exportTrim')===true,format:source==='selected'?'zip':'png',columns:4,gap:1,prefix:'',numbered:false,names:'',block:this.app.prefixEditor?.selected||0,
             titleResolution:project.titleData?.resolution||2048,titleHeight:project.titleData?.outputHeight||1152,titleOutput:project.titleData?.output||'auto',titlePadding:project.titleData?.padding??24,...this.titleOptions.get(project)};
         const options=repeat&&this.last?{...defaults,...this.last}:defaults;
-        if(project.type==='title'){options.source='project';options.scale=1;options.trim=false;}
+        options.source='project';options.format='png';options.prefix='';options.numbered=false;
+        if(project.type==='title'){options.scale=1;options.trim=false;}
         if(project.type!=='prefix'&&options.source==='prefixes')options.source='project';
         if(['prefix','title'].includes(project.type)&&['active','selected'].includes(options.source))options.source='project';
         const block=this.get('block');block.replaceChildren();
@@ -88,22 +88,27 @@ export default class ExportPanel {
         this.dialog.classList.toggle('title-export',project.type==='title');
         this.get('title-fields').hidden=project.type!=='title';
         this.get('scale').closest('label').hidden=project.type==='title';
-        this.get('source').closest('label').hidden=project.type==='title';
+        this.get('source').closest('label').hidden=true;
         this.get('trim').closest('label').hidden=project.type==='title';
         this.returnFocus=document.activeElement;this.get('error').hidden=true;this.get('progress-panel').hidden=true;
         if(!this.dialog.open)this.dialog.showModal();this.get(project.type==='title'?'titleResolution':'source').focus();await this.preview();return true;
     }
 
     read(){
+        this.get('source').value='project';
+        this.get('numbered').checked=false;
+        this.get('format').value=['selected','prefixes'].includes(this.get('source').value)?'zip':'png';
+        this.get('prefix').value='';
         if(this.get('format').value==='sheet')for(const key of ['columns','gap'])if(numberValue(this.get(key))===null)throw Error('Проверьте числовые параметры экспорта.');
+        this.get('numbered').closest('label').hidden=!['selected','prefixes'].includes(this.get('source').value);
         const result={};for(const key of ['source','scale','trim','format','columns','gap','prefix','numbered','names','block']){const input=this.get(key);result[key]=input.type==='checkbox'?input.checked:input.value;}
         for(const key of ['scale','columns','gap','block'])result[key]=Number(result[key]);
         if(this.context?.type==='title'){
             result.source='project';result.scale=1;result.trim=false;
             result.titleResolution=numberValue(this.get('titleResolution'));result.titleOutput=this.get('titleOutput').value;
             result.titleHeight=result.titleOutput==='custom'?numberValue(this.get('titleHeight')):1152;
-            result.titlePadding=numberValue(this.get('titlePadding'));
-            if(result.titlePadding===null||result.titleResolution===null||result.titleHeight===null||!['auto','square','custom'].includes(result.titleOutput))throw Error('Проверьте числовые параметры экспорта.');
+            result.titlePadding=24;
+            if(result.titleResolution===null||result.titleHeight===null||!['auto','square','custom'].includes(result.titleOutput))throw Error('Проверьте числовые параметры экспорта.');
         }
         return result;
     }
@@ -159,7 +164,7 @@ export default class ExportPanel {
         // can be corrected immediately after switching export formats.
         this.get('prefix-fields').hidden=this.get('source').value!=='prefixes';
         this.get('title-height').hidden=this.context.type!=='title'||this.get('titleOutput').value!=='custom';
-        this.get('sheet-fields').hidden=this.get('format').value!=='sheet';
+        this.get('sheet-fields').hidden=true;
         let previewSource=null;
         try{
             let options=this.read();

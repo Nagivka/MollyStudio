@@ -22,12 +22,10 @@ const {app,root,profile,ready,makeWindow,settle}=require('./lib/electron-harness
   expect(e.panel.querySelector('.title-warning').textContent.includes('Russian'),'Language validation messages translate the language name with the interface');a.settingsManager.set('language','ru');
   expect(e.commitPendingEdit()===false&&await e.exportModel()===false,'Invalid row languages block saving and model export');
   await text('ПРИВЕТ');expect(data().rowLanguages[0]==='ru'&&data().font==='minecraft-five-bold-cyrillic'&&!e.panel.querySelector('[aria-invalid="true"]'),'Correcting the text commits its pending language choice');
-  await field('[data-title-language="0"]','uk');
-  expect(fonts().join()==='minecraft-ten-cyrillic'&&data().font==='minecraft-ten-cyrillic','Ukrainian offers only the source font with its complete alphabet');
-  await text('ПРИВІТ');expect(!e.panel.querySelector('[aria-invalid="true"]'),'Native Ukrainian letters are accepted');
-  await text('ПРИВІТ\nHELLO\nПРИВЕТ');
+  expect(!e.panel.querySelector('[data-title-language="0"] option[value="uk"]'),'Language picker omits Ukrainian');
+  await text('ПРИВЕТ\nHELLO\nПРИВЕТ');
   await field('[data-title-language="1"]','en');await field('[data-title-language="2"]','ru');
-  for(const [index,language] of ['uk','en','ru'].entries()){
+  for(const [index,language] of ['ru','en','ru'].entries()){
    await field('[data-title-row]',index);
    expect(fonts().join()===titleFontsForLanguage(language).join(),'Row '+(index+1)+' independently filters its native fonts');
    const settings=titleRowSettings(data(),index),catalog=M.fonts[settings.font];
@@ -36,15 +34,15 @@ const {app,root,profile,ready,makeWindow,settle}=require('./lib/electron-harness
   }
   await field('[data-title-row]',-1);
   expect(e.panel.querySelector('[data-title-field="subtitleTexture"]').closest('label').hidden,'Cross-language rows do not expose an incompatible shared subtitle atlas');
-  await text('ПРИВІТ HELLO\nHELLO\nПРИВЕТ');
-  expect(e.panel.querySelector('[data-title-field="text"]').value.startsWith('ПРИВІТ HELLO')&&e.commitPendingEdit()===false,'Mixed alphabets in one row remain editable and block commit');
-  await text('ПРИВІТ\nHELLO\nПРИВЕТ');expect(e.commitPendingEdit()!==false,'Separate languages on separate rows commit normally');
-  const textInput=e.panel.querySelector('[data-title-field="text"]');textInput.focus();await text('ПРИВІТ\nHELLO\nТЕСТ');
-  a.history.undo();await wait();expect(textInput.value===data().text&&data().text==='ПРИВІТ\nHELLO\nПРИВЕТ','Undo refreshes the focused text field together with the native scene');
-  a.history.redo();await wait();expect(textInput.value===data().text&&data().text==='ПРИВІТ\nHELLO\nТЕСТ','Redo refreshes the focused text field without stale text');await text('ПРИВІТ\nHELLO\nПРИВЕТ');
+  await text('ПРИВЕТ HELLO\nHELLO\nПРИВЕТ');
+  expect(e.panel.querySelector('[data-title-field="text"]').value.startsWith('ПРИВЕТ HELLO')&&e.commitPendingEdit()===false,'Mixed alphabets in one row remain editable and block commit');
+  await text('ПРИВЕТ\nHELLO\nПРИВЕТ');expect(e.commitPendingEdit()!==false,'Separate languages on separate rows commit normally');
+  const textInput=e.panel.querySelector('[data-title-field="text"]');textInput.focus();await text('ПРИВЕТ\nHELLO\nТЕСТ');
+  a.history.undo();await wait();expect(textInput.value===data().text&&data().text==='ПРИВЕТ\nHELLO\nПРИВЕТ','Undo refreshes the focused text field together with the native scene');
+  a.history.redo();await wait();expect(textInput.value===data().text&&data().text==='ПРИВЕТ\nHELLO\nТЕСТ','Redo refreshes the focused text field without stale text');await text('ПРИВЕТ\nHELLO\nПРИВЕТ');
   e.change(value=>{value.text='СТАРЫЙ LEGACY';});
   expect(e.panel.querySelector('[data-title-field="text"]').value==='СТАРЫЙ LEGACY'&&e.commitPendingEdit()===false,'Legacy mixed-language text is retained for correction without silent deletion');
-  await text('ПРИВІТ\nHELLO\nПРИВЕТ');
+  await text('ПРИВЕТ\nHELLO\nПРИВЕТ');
   let count=0,overlays=0,row=0;
   const sheet=document.createElement('canvas');sheet.width=1400;sheet.height=4*210;const ctx=sheet.getContext('2d');ctx.fillStyle='#191D23';ctx.fillRect(0,0,sheet.width,sheet.height);
   for(const font of titleFontsForLanguage('ru')){
@@ -68,7 +66,7 @@ const {app,root,profile,ready,makeWindow,settle}=require('./lib/electron-harness
   expect(await a.projectManager.saveProjectAs(),'The multilingual native scene saves through the actual MLST flow');
   const project=a.getActiveProject(),beforeData=JSON.stringify(project.titleData),before=project.layers[0].canvas.toDataURL(),saved=JSON.parse(await desktopAPI.readFile(project.filePath));
   await a.projectManager.deserializeProject(saved,project.filePath);await a.getActiveProject().prefixLoadPromise;
-  expect(JSON.stringify(data())===beforeData&&data().rowLanguages.join()==='uk,en,ru','MLST restores row languages and their independent native fonts/materials');
+  expect(JSON.stringify(data())===beforeData&&data().rowLanguages.join()==='ru,en,ru','MLST restores row languages and their independent native fonts/materials');
   const image=new Image();image.src=before;await image.decode();const c=document.createElement('canvas');c.width=image.width;c.height=image.height;const context=c.getContext('2d',{willReadFrequently:true});context.drawImage(image,0,0);
   const first=context.getImageData(0,0,c.width,c.height).data,second=a.getActiveProject().layers[0].ctx.getImageData(0,0,c.width,c.height).data;let maxRGB=0,maxAlpha=0;
   for(let i=0;i<first.length;i++)if(i%4===3)maxAlpha=Math.max(maxAlpha,Math.abs(first[i]-second[i]));else maxRGB=Math.max(maxRGB,Math.abs(first[i]-second[i]));

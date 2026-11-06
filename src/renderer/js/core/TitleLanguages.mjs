@@ -2,18 +2,16 @@ import {TITLE_FONT_CATALOG} from './TitleFontCatalog.mjs';
 
 export const TITLE_TEXT_LANGUAGES=Object.freeze({
  en:{name:'English',alphabet:'abcdefghijklmnopqrstuvwxyz',font:'minecraft-ten'},
- ru:{name:'Русский',alphabet:'абвгдеёжзийклмнопрстуфхцчшщъыьэюя',font:'minecraft-ten-cyrillic'},
- uk:{name:'Українська',alphabet:'абвгґдеєжзиіїйклмнопрстуфхцчшщьюя',font:'minecraft-ten-cyrillic'}
+ ru:{name:'Русский',alphabet:'абвгдеёжзийклмнопрстуфхцчшщъыьэюя',font:'minecraft-ten-cyrillic'}
 });
 export const titleLanguageModes=Object.freeze(['auto',...Object.keys(TITLE_TEXT_LANGUAGES)]);
 export function titleFontLanguages(font){
- if(font==='minecraft-ten-cyrillic')return ['ru','uk'];
+ if(font==='minecraft-ten-cyrillic')return ['ru'];
  if(font==='minecraft-five-bold-cyrillic')return ['ru'];
  return TITLE_FONT_CATALOG[font]?['en']:[];
 }
 export function titleLanguageForLine(text,mode='auto',font='minecraft-ten'){
  if(TITLE_TEXT_LANGUAGES[mode])return mode;
- if(/[іїєґ]/i.test(text))return 'uk';
  if(/\p{Script=Cyrillic}/u.test(text))return 'ru';
  if(/\p{Script=Latin}/u.test(text))return 'en';
  return titleFontLanguages(font)[0]||'en';

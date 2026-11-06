@@ -9,7 +9,7 @@ import {resolveTitleGlyph,buildTitleMesh} from '../../src/renderer/js/graphics/T
 test('language choices require a complete alphabet in the original source models',()=>{
  assert.equal(titleFontsForLanguage('en').length,11);
  assert.deepEqual(titleFontsForLanguage('ru'),['minecraft-ten-cyrillic','minecraft-five-bold-cyrillic']);
- assert.deepEqual(titleFontsForLanguage('uk'),['minecraft-ten-cyrillic']);
+ assert.deepEqual(titleFontsForLanguage('uk'),[]);
  for(const [language,{alphabet}] of Object.entries(TITLE_TEXT_LANGUAGES))for(const font of titleFontsForLanguage(language))for(const char of alphabet){
   assert.ok(TITLE_FONT_MODELS[font].characters[char],font+'/'+char);
   for(const input of [char,char.toUpperCase()]){
@@ -22,9 +22,9 @@ test('language choices require a complete alphabet in the original source models
 });
 
 test('each row independently uses its native language, font and atlas',()=>{
- const data=normalizeTitleDocument({font:'minecraft-ten-v2',text:'ПРИВЕТ\nHELLO\nПРИВІТ',texture:'gold',rowLanguages:['ru','en','uk']});
+ const data=normalizeTitleDocument({font:'minecraft-ten-v2',text:'ПРИВЕТ\nHELLO\nПРИВЕТ',texture:'gold',rowLanguages:['ru','en','uk']});
  const rows=[0,1,2].map(index=>titleRowSettings(data,index));
- assert.deepEqual(rows.map(row=>row.language),['ru','en','uk']);
+ assert.deepEqual(rows.map(row=>row.language),['ru','en','ru']);
  assert.deepEqual(rows.map(row=>row.font),['minecraft-ten-cyrillic','minecraft-ten','minecraft-ten-cyrillic']);
  assert.deepEqual(normalizeTitleDocument(data),data);
  for(const row of rows)assert.ok(TITLE_MATERIAL_CATALOG.fonts[row.font].textures.some(item=>item.id===row.texture));
@@ -39,16 +39,16 @@ test('unsupported families resolve to explicit native variants without fabricate
  assert.equal(titleFontForLanguage('block-serif','ru'),null);
  assert.deepEqual(titleFontLanguages('block-serif'),['en']);
  assert.equal(normalizeTitleDocument({text:'ПРИВЕТ',font:'block-serif'}).font,'minecraft-ten-cyrillic');
- assert.equal(normalizeTitleDocument({text:'ЄНОТ',font:'minecraft-five-bold-cyrillic'}).font,'minecraft-ten-cyrillic');
+ assert.equal(normalizeTitleDocument({text:'ЄНОТ',font:'minecraft-five-bold-cyrillic'}).font,'minecraft-five-bold-cyrillic');
 });
 
 test('one alphabet per row allows neutral numbers and punctuation and preserves invalid legacy text',()=>{
- assert.deepEqual(titleLanguageIssues('Привет 123!?\nHELLO +42\nЇжак №7'),[]);
+ assert.deepEqual(titleLanguageIssues('Привет 123!?\nHELLO +42\nЁжик №7'),[]);
  assert.deepEqual(titleLanguageIssues('ТЕСТ TEST')[0].foreign,['t','e','s']);
  assert.equal(titleLanguageIssues('HELLO',['ru'])[0].language,'ru');
  assert.equal(titleLanguageIssues('ПРИВЕТ',['en'])[0].language,'en');
  assert.equal(titleLanguageIssues('ЄНОТ',['ru'])[0].foreign[0],'є');
- assert.deepEqual(titleLanguageIssues('ЄНОТ',['uk']),[]);
+ assert.deepEqual(titleLanguageIssues('ЄНОТ',['uk']),[{index:0,language:'ru',foreign:['є']}]);
  assert.equal(titleLanguageIssues('İSTANBUL',['en'])[0].foreign[0],'i\u0307');
  const legacy=normalizeTitleDocument({text:'MOLLY СТУДИЯ'});
  assert.equal(legacy.text,'MOLLY СТУДИЯ');assert.equal(titleLanguageIssues(legacy.text).length,1);

@@ -65,6 +65,14 @@ const minimum={launcher:[900,600],canvas:[900,600],gui:[900,600],prefix:[900,600
                 if(after.width<=before.width+30||await win.page.locator('#workspace').evaluate(node=>node.clientWidth<200))throw Error('Grid layout broke inspector resizing');
                 const persisted=await win.page.evaluate(()=>Number(localStorage.getItem('molly_panel_width')));
                 if(Math.abs(persisted-after.width)>2)throw Error('Inspector width was not persisted');
+                const tab = win.page.locator('.doc-tab').first();
+                const tabWidth = (await tab.boundingBox()).width;
+                await win.page.locator('.tabs-resizer').press('ArrowRight');
+                await settle(win);
+                if ((await tab.boundingBox()).width <= tabWidth ||
+                    !await win.page.evaluate(() => Number(localStorage.getItem('molly_tab_width')))) {
+                    throw Error('Keyboard resize did not change and persist tab width');
+                }
             }
             console.log('Checked responsive '+name);
         }

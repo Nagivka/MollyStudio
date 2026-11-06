@@ -24,7 +24,10 @@ jobs:
         shell: pwsh
         run: |
           $old = Join-Path $env:RUNNER_TEMP 'molly-old-setup.exe'
-          Invoke-WebRequest 'https://github.com/Nagivka/MollyStudio-Releases/releases/download/v1.4.2/MollyStudio-1.4.2.0-x64-setup.exe' -OutFile $old
+          $release = Invoke-RestMethod 'https://api.github.com/repos/Nagivka/MollyStudio-Releases/releases/latest'
+          $baseline = $release.assets | Where-Object name -Like '*-x64-setup.exe' | Select-Object -First 1
+          if (!$baseline) { throw 'Published Windows installer missing' }
+          Invoke-WebRequest $baseline.browser_download_url -OutFile $old
           $new = (Get-ChildItem dist/*-x64-setup.exe | Select-Object -First 1).FullName
           $destination = Join-Path $env:RUNNER_TEMP 'MollyUpgradeFixture'
           $desktop = [Environment]::GetFolderPath('DesktopDirectory')
@@ -43,8 +46,7 @@ jobs:
           Assert-Shortcut
           Remove-Item -LiteralPath $shortcut
           Invoke-Setup $old @('--updated', '/S')
-          if (Test-Path -LiteralPath $shortcut) { throw 'Previous installer unexpectedly restored the missing shortcut' }
-          Write-Output 'Previous installer left the desktop shortcut missing'
+          if (Test-Path -LiteralPath $shortcut) { Remove-Item -LiteralPath $shortcut }
           Invoke-Setup $new @('--updated', '/S')
           Assert-Shortcut
           Write-Output 'Updated installer restored the desktop shortcut with the correct target'

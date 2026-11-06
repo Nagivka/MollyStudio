@@ -91,6 +91,14 @@ function registerIpc(electron, runtime) {
             if (Buffer.byteLength(JSON.stringify(data)) > 64 * 1024 * 1024) throw Error('Слишком большой результат генератора.');
             await runtime.transfers.request(windows.get('main'), window, action, data);
             windows.show(windows.get('main')); return true;
+        case 'developer-sample': {
+            if (label !== 'settings' || !['gui','canvas','prefix','title'].includes(data?.type)) throw Error('Invalid sample project');
+            ensureEditorOpen();
+            const names = {gui:'Пример GUI',canvas:'Пример холста',prefix:'Пример префикса',title:'Пример надписи'};
+            windows.send('main', 'project-created', {type:data.type,name:names[data.type],width:64,height:64,template:'container/default/container_27.png'});
+            windows.show(windows.get('main'));
+            return true;
+        }
         case 'project-created':
             ensureEditorOpen();
             if (label !== 'new-project') throw Error('Запрос предназначен окну нового проекта.');

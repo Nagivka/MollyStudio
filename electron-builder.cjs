@@ -1,7 +1,7 @@
 module.exports = {
     appId: 'ua.nagivka.mollystudio',
     productName: 'MollyStudio',
-    buildVersion: '1.4.5.0',
+    buildVersion: '1.4.6.0',
     copyright: 'Copyright © 2026 nagivka',
     directories: {output: 'dist'},
     files: ['src/main/**/*.cjs', 'src/preload/**/*.cjs', 'src/renderer/**/*', 'package.json', '!src/main/test-mode.cjs'],

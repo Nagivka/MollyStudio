@@ -49,6 +49,7 @@ uniform vec3 uBottom;
 uniform vec3 uSide;
 uniform vec2 uRange;
 uniform bool uWire;
+uniform bool uDebugFaces;
 varying vec2 vUV;
 varying vec4 vUVBounds;
 varying vec3 vNormal;
@@ -60,6 +61,7 @@ void main(){
     vec4 texel=texture2D(uTexture,clamp(vUV,vUVBounds.xy+inset,vUVBounds.zw-inset));
     if(texel.a<0.5)discard;
     vec3 n=normalize(vNormal);
+    if(uDebugFaces){gl_FragColor=vec4(abs(n)*0.7+0.2,1.0);return;}
     // The reference preview uses MeshBasicMaterial: preserve authored colors.
     float light=1.0;
     vec3 result=texel.rgb;
@@ -158,7 +160,7 @@ export default class TitleRenderer {
         gl.attachShader(program,vertex);gl.attachShader(program,fragment);gl.linkProgram(program);gl.deleteShader(vertex);gl.deleteShader(fragment);
         if(!gl.getProgramParameter(program,gl.LINK_STATUS)){const error=gl.getProgramInfoLog(program);gl.deleteProgram(program);throw Error(error);}
         this.gl=gl;this.program=program;this.batches=[];
-        this.uniforms=Object.fromEntries(['uAngles','uTarget','uClip','uShift','uWire','uCamera','uOrtho','uPerspective','uTexture','uTexelSize','uOriginal','uTop','uBottom','uSide','uRange'].map(key=>[key,gl.getUniformLocation(program,key)]));
+        this.uniforms=Object.fromEntries(['uAngles','uTarget','uClip','uShift','uWire','uDebugFaces','uCamera','uOrtho','uPerspective','uTexture','uTexelSize','uOriginal','uTop','uBottom','uSide','uRange'].map(key=>[key,gl.getUniformLocation(program,key)]));
         this.attributes=['aPosition','aNormal','aUV','aUVBounds'].map(name=>gl.getAttribLocation(program,name));
         gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);gl.clearColor(0,0,0,0);this.wireBuffer=gl.createBuffer();
     }
@@ -206,7 +208,7 @@ export default class TitleRenderer {
         return titleEditingPlan(this.mesh.bounds,this.mesh.baseBounds,{...data,yaw:view.yaw,pitch:view.pitch,zoom:view.zoom,cameraTarget:view.target||data.cameraTarget},width,height);
     }
 
-    draw(data,plan,selection=null){
+    draw(data,plan,selection=null,debug=false){
         const {gl,uniforms:u}=this;
         const maxSize=gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
         if(plan.width>maxSize||plan.height>maxSize)throw Error('Выбранное разрешение не поддерживается видеокартой.');
@@ -220,22 +222,50 @@ export default class TitleRenderer {
         gl.uniform1i(u.uOriginal,true);gl.uniform3fv(u.uTop,color(data.top));gl.uniform3fv(u.uBottom,color(data.bottom));gl.uniform3fv(u.uSide,color(data.side));
         gl.uniform2f(u.uRange,this.mesh.bounds.min[1],this.mesh.bounds.max[1]);gl.uniform1i(u.uTexture,0);gl.uniform1i(u.uWire,0);
         gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+        gl.uniform1i(u.uDebugFaces,debug);
         const bind=buffer=>{
             gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
             for(let i=0;i<4;i++){gl.enableVertexAttribArray(this.attributes[i]);gl.vertexAttribPointer(this.attributes[i],[3,3,2,4][i],gl.FLOAT,false,48,[0,12,24,32][i]);}
         };
         for(const batch of this.batches){bind(batch.buffer);gl.uniform2fv(u.uTexelSize,batch.texelSize);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,batch.texture);gl.drawArrays(gl.TRIANGLES,0,batch.count);}
         const node=this.mesh.nodes.find(node=>node.id===selection);
+        if (debug) {
+            bind(this.wireBuffer);
+            gl.uniform1i(u.uWire,1);
+            for (const batch of this.mesh.batches) {
+                if (!batch.debugEdges) {
+                    const vertices = batch.vertices;
+                    const edges = new Float32Array(vertices.length * 3);
+                    for (let i = 0; i < vertices.length; i += 24) {
+                        const order = [0, 8, 8, 16, 16, 0];
+                        for (let j = 0; j < order.length; j++) {
+                            const from = i + order[j], to = i * 3 + j * 12;
+                            edges[to] = vertices[from];
+                            edges[to+1] = vertices[from+1];
+                            edges[to+2] = vertices[from+2];
+                        }
+                    }
+                    batch.debugEdges = edges;
+                }
+                const edges = batch.debugEdges;
+                gl.bufferData(gl.ARRAY_BUFFER,edges,gl.STREAM_DRAW);
+                gl.depthFunc(gl.LEQUAL);
+                gl.drawArrays(gl.LINES,0,edges.length/12);
+                gl.depthFunc(gl.LESS);
+            }
+            gl.uniform1i(u.uWire,0);
+        }
         if(node){
-            const points=boundsCorners(node.bounds),vertices=[];
+            const vertices=[];
+            const points=boundsCorners(node.bounds);
             for(let i=0;i<8;i++)for(let axis=0;axis<3;axis++)if(!(i&(1<<axis)))for(const p of [points[i],points[i|(1<<axis)]])vertices.push(...p,0,0,1,0,0,0,0,1,1);
             bind(this.wireBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(vertices),gl.DYNAMIC_DRAW);
             gl.uniform1i(u.uWire,1);gl.disable(gl.DEPTH_TEST);gl.drawArrays(gl.LINES,0,vertices.length/12);gl.enable(gl.DEPTH_TEST);gl.uniform1i(u.uWire,0);
         }
     }
-    drawViewport(value,width,height,view,selection){
+    drawViewport(value,width,height,view,selection,debug=false){
         const data=this.prepare(value),plan=this.plan(data,Math.max(1,Math.round(width)),Math.max(1,Math.round(height)),view);
-        this.draw(data,plan,selection);return this.mesh;
+        this.draw(data,plan,selection,debug);return this.mesh;
     }
     render(value,options={}){
         if(!this.exportRenderer){this.exportRenderer=new TitleRenderer();this.exportRenderer.images=this.images;this.exportRenderer.parentRenderer=this;}

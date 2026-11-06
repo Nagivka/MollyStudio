@@ -18,18 +18,17 @@ const {app, root, ready, makeWindow, settle} = require('./lib/electron-harness.c
             title.change(data => {data.resolution = 1024;data.output = 'auto';data.padding = 16;data.scale = [1.2, 1, 1];data.meshMode = 'solid';data.outline = 0;});
             const before = JSON.stringify(project.titleData), panel = editor.exportPanel;
             if (!await panel.open()) throw Error('Title export did not open');
-            if (panel.get('title-fields').hidden || panel.get('titlePadding').value !== '16') throw Error('Legacy export options did not load');
-            panel.get('titleResolution').value = '2048';panel.get('titleOutput').value = 'square';panel.get('titlePadding').value = '32';
+            if (panel.get('title-fields').hidden || panel.get('titlePadding') !== null) throw Error('Legacy export options did not load');
+            panel.get('titleResolution').value = '2048';panel.get('titleOutput').value = 'square';
             await panel.preview();
             const options = panel.read(), image = panel.source(panel.entries(options)[0], options);
             const dimensions = [image.width, image.height];image.width = image.height = 1;
             if (dimensions[0] !== 2048 || dimensions[1] !== 2048 || panel.get('save').disabled) throw Error('Export controls did not produce a 2048px square');
-            panel.get('titlePadding').value = '-1';await panel.preview();
-            if (!panel.get('save').disabled || panel.get('error').hidden) throw Error('Invalid padding was accepted');
+            if (panel.read().titlePadding !== 24) throw Error('Automatic padding failed');
             panel.close();
             if (JSON.stringify(project.titleData) !== before) throw Error('Export options modified the editable title');
             await panel.open();
-            if (panel.get('titleResolution').value !== '2048' || panel.get('titlePadding').value !== '32' || panel.get('titleOutput').value !== 'square') throw Error('Valid export options were not remembered');
+            if (panel.get('titleResolution').value !== '2048' || panel.get('titlePadding') !== null || panel.get('titleOutput').value !== 'square') throw Error('Valid export options were not remembered');
             panel.get('titleResolution').value='1537';panel.get('titleHeight').value='863';panel.get('titleOutput').value='custom';
             await panel.preview();
             if(panel.get('dimensions').textContent!=='1537 × 863 px'||panel.get('canvas').width>640)throw Error('Custom dimensions or bounded preview failed');
@@ -51,7 +50,7 @@ const {app, root, ready, makeWindow, settle} = require('./lib/electron-harness.c
             panel.close();
             editor.switchProject(project.id);await project.prefixLoadPromise;
             await panel.open();
-            return {removedControls: true, legacySettingsPreserved: true, dimensions, customDimensions:[1537,863], invalidPaddingRejected: true, canvasExportUnaffected: true};
+            return {removedControls: true, legacySettingsPreserved: true, dimensions, customDimensions:[1537,863], fixedPadding: true, canvasExportUnaffected: true};
         });
         win.setContentSize(1000,700);
         for(const theme of ['dark','light','minecraft','light-minecraft']){

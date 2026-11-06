@@ -199,10 +199,8 @@ export default class AutoLayoutManager {
                 this.root.style.setProperty('--md-panel-width', `${Math.max(minimum,Math.min(safeMax,idealWidth))}px`);
             } else {
                 // Respect user manual resize, but defensively clamp so canvas is never crushed
-                const currentWidth = parseInt(getComputedStyle(this.root).getPropertyValue('--md-panel-width'), 10) || 270;
-                if (currentWidth > safeMax || currentWidth < minimum) {
-                    this.root.style.setProperty('--md-panel-width', `${Math.max(minimum, Math.min(safeMax, currentWidth))}px`);
-                }
+                const preferredWidth = Number(localStorage.getItem('molly_panel_width')) || 270;
+                this.root.style.setProperty('--md-panel-width', `${Math.max(minimum, Math.min(safeMax, preferredWidth))}px`);
             }
         }
 

@@ -91,6 +91,7 @@ const api = {
     broadcastSettings: data => call('settings-broadcast', data),
     onSettingsUpdated: callback => listen('settings-updated', callback),
     notifyProjectCreated: data => call('project-created', data),
+    openDeveloperSample: type => call('developer-sample', {type}),
     onProjectCreated: callback => listen('project-created', callback),
     showSaveDialog: options => call('dialog-save', options),
     showOpenDialog: options => call('dialog-open', options),

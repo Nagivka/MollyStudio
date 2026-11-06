@@ -65,15 +65,84 @@ export default class WindowLayoutController {
             }
         }
 
-        // 2. Auto-sizing Layer Manager Panel (Content & Flex-aware, no manual dragging needed)
-        try {
-            localStorage.removeItem('molly_layers_height');
-        } catch (_) {}
-        const layersBody = document.getElementById('layers-list-scroll-body');
-        if (layersBody) {
-            layersBody.style.height = '';
-            layersBody.style.maxHeight = '';
-        }
+        const workspace = document.querySelector('.workspace-layout');
+        const tabs = document.querySelector('.doc-tab-bar');
+        const layers = document.getElementById('layers-list-scroll-body');
+        const specialPanel = () => workspace.querySelector(':is(#prefix-editor, #title-editor):not([hidden])');
+        this.setupLayoutHandle(workspace, {
+            key: 'molly_generator_width', property: '--custom-generator-width',
+            label: 'Ширина панели генератора', className: 'generator-resizer panel-resizer-v',
+            minimum: 260, maximum: 580, direction: -1,
+            measure: () => specialPanel()?.getBoundingClientRect().width
+        });
+        this.setupLayoutHandle(tabs, {
+            key: 'molly_tab_width', property: '--custom-tab-width',
+            label: 'Ширина вкладок', className: 'tabs-resizer',
+            minimum: 110, maximum: 340,
+            measure: () => tabs.querySelector('.doc-tab')?.getBoundingClientRect().width || 180
+        });
+        this.setupLayoutHandle(layers?.parentElement, {
+            key: 'molly_layers_height', property: '--custom-layers-height',
+            label: 'Высота списка слоёв', className: 'layers-resizer',
+            minimum: 96, maximum: 640, vertical: true,
+            measure: () => layers.getBoundingClientRect().height
+        });
+    }
+
+    setupLayoutHandle(parent, {key, property, label, className, minimum, maximum, measure, vertical = false, direction = 1}) {
+        if (!parent) return;
+        const handle = document.createElement('div');
+        const style = document.documentElement.style;
+        handle.className = `layout-resizer ${className}`;
+        handle.tabIndex = 0;
+        handle.setAttribute('role', 'separator');
+        handle.setAttribute('aria-orientation', vertical ? 'horizontal' : 'vertical');
+        handle.setAttribute('aria-valuemin', minimum);
+        handle.setAttribute('aria-valuemax', maximum);
+        bindAttribute(handle, 'aria-label', label);
+        bindAttribute(handle, 'title', label);
+        parent.append(handle);
+        const apply = (value) => {
+            const size = Math.round(Math.max(minimum, Math.min(maximum, value)));
+            style.setProperty(property, `${size}px`);
+            handle.setAttribute('aria-valuenow', size);
+            return size;
+        };
+        const save = (size) => localStorage.setItem(key, size);
+        const saved = Number(localStorage.getItem(key));
+        if (saved > 0 && Number.isFinite(saved)) apply(saved);
+        handle.addEventListener('focus', () => handle.setAttribute('aria-valuenow', Math.round(measure() || minimum)));
+        handle.addEventListener('dblclick', () => {
+            style.removeProperty(property);
+            localStorage.removeItem(key);
+            handle.setAttribute('aria-valuenow', Math.round(measure() || minimum));
+        });
+        const coordinate = event => vertical ? event.clientY : event.clientX;
+        let drag;
+        handle.addEventListener('pointerdown', event => {
+            if (event.button !== 0 || drag) return;
+            handle.focus({preventScroll: true});
+            handle.setPointerCapture(event.pointerId);
+            drag = {id: event.pointerId, start: coordinate(event), size: measure() || minimum};
+            handle.classList.add('dragging');
+        });
+        handle.addEventListener('pointermove', event => {
+            if (drag?.id !== event.pointerId) return;
+            drag.value = apply(drag.size + direction * (coordinate(event) - drag.start));
+        });
+        handle.addEventListener('lostpointercapture', event => {
+            if (drag?.id !== event.pointerId) return;
+            if (drag.value !== undefined) save(drag.value);
+            drag = null;
+            handle.classList.remove('dragging');
+        });
+        handle.addEventListener('keydown', event => {
+            const delta = (vertical ? {ArrowUp: -8, ArrowDown: 8} : {ArrowLeft: -8, ArrowRight: 8})[event.key];
+            if (!delta) return;
+            event.preventDefault();
+            event.stopPropagation();
+            save(apply((measure() || minimum) + direction * delta));
+        });
     }
 
     setupM3Sliders() {
