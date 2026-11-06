@@ -37,7 +37,7 @@ async function checkProjectAssociation(executable, fixture) {
 
 (async()=>{
     if(!process.env.CI)throw Error('Run packaged smoke checks on a disposable CI runner.');
-    const report=JSON.parse(await fs.readFile(path.join(root,`dist/build-${process.platform}-${process.arch}.json`),'utf8'));
+    const report=process.argv[2] ? null : JSON.parse(await fs.readFile(path.join(root,`dist/build-${process.platform}-${process.arch}.json`),'utf8'));
     const directory=await fs.mkdtemp(path.join(os.tmpdir(),'molly-packaged-smoke-'));
     const wayland=process.argv[3]==='wayland',appImage=process.argv[3]==='appimage';
     const profile=wayland?path.join(directory,'config','MollyStudio'):path.join(directory,'profile');

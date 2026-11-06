@@ -44,8 +44,10 @@ jobs:
           Remove-Item -LiteralPath $shortcut
           Invoke-Setup $old @('--updated', '/S')
           if (Test-Path -LiteralPath $shortcut) { throw 'Previous installer unexpectedly restored the missing shortcut' }
+          Write-Output 'Previous installer left the desktop shortcut missing'
           Invoke-Setup $new @('--updated', '/S')
           Assert-Shortcut
+          Write-Output 'Updated installer restored the desktop shortcut with the correct target'
           node scripts/packaged-platform-smoke.cjs $executable installed
   macos-manual:
     strategy:
