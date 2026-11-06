@@ -10,18 +10,22 @@ const {app,root,ready,makeWindow,settle,evaluateMain,command}=require('./lib/ele
         const unsupported=await command('update-status');expect(!unsupported.supported,'Development sessions never contact the update server automatically');
         await command('test-control',{operation:'update-fixture'});
         settings=makeWindow(960,760,{label:'settings'});await settings.loadFile(path.join(root,'src/renderer/settings.html'),{query:{tab:'about'}});settings.page.setDefaultTimeout(15000);await settle(settings);
-        await evaluateMain(()=>globalThis.__mollyTestRuntime.updates.start());
-        await settings.page.waitForFunction(()=>document.querySelector('.update-status')?.textContent.includes('Доступна версия 1.4.2'));
-        await main.page.waitForFunction(()=>document.querySelector('.update-banner')&&!document.querySelector('.update-banner').hidden);
-        expect(true,'Startup automatically checks the signed release and shows availability in both windows without a manual check');
+        const macOnly = process.argv.includes('--mac-only');
+        if (!macOnly) {
+            await evaluateMain(()=>globalThis.__mollyTestRuntime.updates.start());
+            await settings.page.waitForFunction(()=>document.querySelector('.update-status')?.textContent.includes('Доступна версия 1.4.2'));
+            await main.page.waitForFunction(()=>document.querySelector('.update-banner')&&!document.querySelector('.update-banner').hidden);
+            expect(true,'Startup automatically checks the signed release and shows availability in both windows without a manual check');
+        }
         await evaluateMain(()=>globalThis.__mollyTestRuntime.updates.set({manualInstall:true,
+            status:'available',version:'1.4.2',
             downloadUrl:'https://github.com/Nagivka/MollyStudio-Releases/releases/download/v1.4.2/MollyStudio-1.4.2.0-arm64-mac.dmg'}));
         await settings.page.waitForFunction(()=>document.querySelector('[data-update="download"] span')?.textContent==='Скачать DMG');
         expect(await settings.page.locator('[data-update-preference="autoDownload"]').isHidden(),'Manual Mac updates hide automatic downloading');
         await settings.page.locator('[data-update="download"]').click();
         expect((await command('update-status')).status==='available','Manual Mac download opens an external link without starting the installer');
         expect(await main.page.locator('.update-banner [data-update="download"]').isVisible(),'The main menu offers the Mac update download');
-        if (process.argv.includes('--mac-only')) {
+        if (macOnly) {
             console.log(JSON.stringify({passed:checks.length,checks}, null, 2));
             return;
         }
