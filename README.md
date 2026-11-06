@@ -9,11 +9,11 @@
 | Система | Какой файл скачать |
 | --- | --- |
 | Windows 10/11, x64 | `*-x64-setup.exe` — установщик |
-| macOS, Apple Silicon (M1 и новее) | `*-arm64.dmg` |
-| macOS, Intel | `*-x64.dmg` |
-| Linux, универсальный запуск | `*-x64.AppImage` или `*-arm64.AppImage` |
-| Ubuntu, Debian, Linux Mint | `*-x64.deb` или `*-arm64.deb` |
-| Fedora, openSUSE и системы с RPM | `*-x64.rpm` или `*-arm64.rpm` |
+| macOS, Apple Silicon (M1 и новее) | `*-arm64-mac.dmg` |
+| macOS, Intel | `*-x64-mac.dmg` |
+| Linux, универсальный запуск | `*-x64-linux.AppImage` или `*-arm64-linux.AppImage` |
+| Ubuntu, Debian, Linux Mint | `*-x64-linux.deb` или `*-arm64-linux.deb` |
+| Fedora, openSUSE и системы с RPM | `*-x64-linux.rpm` или `*-arm64-linux.rpm` |
 
 Для обычного Intel/AMD-компьютера выбирайте **x64**, для ARM — **arm64**. В Linux разрешите запуск AppImage в свойствах файла. Совместимость и ограничения: [подробнее](docs/platform-compatibility.md).
 
