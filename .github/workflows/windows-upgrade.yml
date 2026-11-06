@@ -1,0 +1,49 @@
+name: Test Windows installer upgrade
+on:
+  workflow_dispatch:
+  push:
+    branches: ['codex/windows-update-qa']
+permissions:
+  contents: read
+jobs:
+  upgrade:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: node node_modules/electron/install.js
+      - run: npm run dist:nsis
+      - name: Replace the previous installation using updater flags
+        shell: pwsh
+        run: |
+          $old = Join-Path $env:RUNNER_TEMP 'molly-old-setup.exe'
+          Invoke-WebRequest 'https://github.com/Nagivka/MollyStudio-Releases/releases/download/v1.4.2/MollyStudio-1.4.2.0-x64-setup.exe' -OutFile $old
+          $new = (Get-ChildItem dist/*-x64-setup.exe | Select-Object -First 1).FullName
+          $destination = Join-Path $env:RUNNER_TEMP 'MollyUpgradeFixture'
+          $desktop = [Environment]::GetFolderPath('DesktopDirectory')
+          $shortcut = Join-Path $desktop 'MollyStudio.lnk'
+          $executable = Join-Path $destination 'MollyStudio.exe'
+          function Invoke-Setup($path, $arguments) {
+            $process = Start-Process -FilePath $path -ArgumentList $arguments -WindowStyle Hidden -Wait -PassThru
+            if ($process.ExitCode -ne 0) { throw "Installer exit code $($process.ExitCode)" }
+          }
+          function Assert-Shortcut {
+            if (!(Test-Path -LiteralPath $shortcut -PathType Leaf)) { throw 'Desktop shortcut missing' }
+            $target = (New-Object -ComObject WScript.Shell).CreateShortcut($shortcut).TargetPath
+            if ($target -ne $executable) { throw "Unexpected desktop shortcut target: $target" }
+          }
+          Invoke-Setup $old @('/S', "/D=$destination")
+          Assert-Shortcut
+          Remove-Item -LiteralPath $shortcut
+          Invoke-Setup $old @('--updated', '/S')
+          if (Test-Path -LiteralPath $shortcut) { throw 'Previous installer unexpectedly restored the missing shortcut' }
+          Invoke-Setup $new @('--updated', '/S')
+          Assert-Shortcut
+          node scripts/packaged-platform-smoke.cjs $executable installed

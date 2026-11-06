@@ -43,6 +43,7 @@ module.exports = {
         finishArgs:['--socket=wayland','--socket=fallback-x11','--share=ipc','--device=dri','--socket=pulseaudio','--share=network','--filesystem=home','--filesystem=/media','--filesystem=/run/media','--filesystem=/mnt']
     },
     nsis: {oneClick: false, perMachine: false, allowToChangeInstallationDirectory: true,
+        include: 'scripts/installer/shortcuts.nsh',
         createDesktopShortcut: true, createStartMenuShortcut: true, shortcutName: 'MollyStudio',
         installerLanguages: ['ru_RU', 'en_US'], displayLanguageSelector: true, deleteAppDataOnUninstall: false},
     portable: {artifactName: 'MollyStudio-${buildVersion}-${arch}-portable.${ext}'}
