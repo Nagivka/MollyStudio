@@ -21,6 +21,10 @@ const {app,root,ready,makeWindow,settle,evaluateMain,command}=require('./lib/ele
         await settings.page.locator('[data-update="download"]').click();
         expect((await command('update-status')).status==='available','Manual Mac download opens an external link without starting the installer');
         expect(await main.page.locator('.update-banner [data-update="download"]').isVisible(),'The main menu offers the Mac update download');
+        if (process.argv.includes('--mac-only')) {
+            console.log(JSON.stringify({passed:checks.length,checks}, null, 2));
+            return;
+        }
         await evaluateMain(()=>globalThis.__mollyTestRuntime.updates.set({manualInstall:false,downloadUrl:''}));
         const themes=['dark','light','minecraft','light-minecraft'];
         for(const theme of themes){
