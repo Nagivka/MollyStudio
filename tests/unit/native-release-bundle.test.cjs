@@ -19,7 +19,10 @@ async function fixture(t){
 test('native release staging includes checked artifacts only, and keeps ad-hoc Mac builds out of automatic updates',async t=>{
     const f=await fixture(t),mac=await f.native('darwin','arm64',false),linux=await f.native('linux','x64',false);await fs.writeFile(path.join(f.root,'dist','source.zip'),'private source');
     const files=await prepareReleaseBundle(f.root,f.info,f.key,f.publicKey),names=files.map(file=>file.name);
-    assert.ok(names.includes(mac.name)&&names.includes(mac.name.replace(/\.zip$/,'.dmg')));assert.ok(!names.includes(mac.target.metadata)&&!names.includes(mac.target.manifest));assert.ok(!names.includes('source.zip'));
+    assert.ok(names.includes(mac.name.replace(/\.zip$/,'.dmg')));
+    assert.ok(!names.includes(mac.name)&&!names.includes(mac.target.metadata)&&!names.includes(mac.target.manifest));
+    assert.ok(!names.some(name=>name.endsWith('.tar.gz')||name.endsWith('.sha256')||name==='source.zip'));
+    assert.ok(names.includes('SHA256SUMS.txt'));
     assert.ok(names.includes(linux.name.replace(/\.AppImage$/,'.rpm')),'Only checked RPM files are included in release staging');
     const manifest=readManifest(files.find(file=>file.name===linux.target.manifest).bytes.toString(),f.info.version,f.publicKey,linux.target);assert.equal(manifest.platform,'linux');assert.equal(manifest.arch,'x64');assert.equal(new Set(names).size,names.length);
 });
@@ -54,7 +57,7 @@ async function nativePublication(t,{runChanges={},existing=[]}={}){
 }
 test('native append publishes four checked platforms and never touches Windows assets',async t=>{
  const f=await nativePublication(t),result=await publishNative(f),uploads=f.calls.filter(c=>c.method==='POST');
- assert.equal(result.files.length,28);assert.equal(uploads.length,28);
+ assert.equal(result.files.length,20);assert.equal(uploads.length,20);
  assert.ok(result.files.includes('release-manifest-linux-arm64.json'));
  assert.ok(!result.files.some(name=>name.includes('setup.exe')||name==='latest.yml'||name==='release-manifest.json'||name.startsWith('release-manifest-darwin')));
  assert.ok(f.calls.every(c=>c.method!=='PATCH'&&c.method!=='DELETE'));
@@ -65,5 +68,5 @@ test('native append rejects a failed or foreign build before release writes',asy
  }
 });
 test('native append preflights conflicting published packages before uploading anything',async t=>{
- const f=await nativePublication(t,{existing:[{name:'MollyStudio-1.4.6.0-x64-mac.zip',size:12,digest:'sha256:wrong'}]});await assert.rejects(publishNative(f),/Existing native artifact differs/);assert.ok(f.calls.every(c=>c.method==='GET'));
+ const f=await nativePublication(t,{existing:[{name:'MollyStudio-1.4.6.0-x64-mac.dmg',size:12,digest:'sha256:wrong'}]});await assert.rejects(publishNative(f),/Existing native artifact differs/);assert.ok(f.calls.every(c=>c.method==='GET'));
 });

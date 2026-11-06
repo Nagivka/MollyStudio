@@ -36,9 +36,15 @@ export function paintPixelPreview(canvas,source,{region=getExportRegion(source,t
     ctx.putImageData(image,0,0);return size;
 }
 export function alignPixelPreview(canvas){
-    if(!canvas.isConnected)return;
-    canvas.style.translate='0px 0px';const r=canvas.getBoundingClientRect(),ratio=globalThis.devicePixelRatio||1;
-    canvas.style.translate=`${Math.round(r.left*ratio)/ratio-r.left}px ${Math.round(r.top*ratio)/ratio-r.top}px`;
+    if (!canvas.isConnected) return;
+    // Align the layout box before Chromium rasterizes it. A fractional
+    // transform can move the already snapped image between device pixels.
+    canvas.style.position = 'relative';
+    canvas.style.left = canvas.style.top = '0px';
+    const {left, top} = canvas.getBoundingClientRect();
+    const ratio = globalThis.devicePixelRatio || 1;
+    canvas.style.left = `${Math.round(left * ratio) / ratio - left}px`;
+    canvas.style.top = `${Math.round(top * ratio) / ratio - top}px`;
 }
 
 /** Moving a window between monitors can change DPR without changing its CSS size. */

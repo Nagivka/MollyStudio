@@ -62,8 +62,17 @@ export default class ExportPanel {
         if(this.busy)return false;
         if(this.app.tools.finishDocument({preserveSelection:true})===false||this.app.prefixEditor?.commitPendingEdit?.()===false)return false;
         this.create();const project=this.app.getActiveProject();if(!project)return false;
-        try{await this.app.projectManager.prepareProject(project);}catch(error){this.app.showToast(error.message,'error');return false;}
-        if(this.app.getActiveProject()!==project)return false;
+        try {
+            // Export composites the live layers, so it does not need MLST PNG caches.
+            await this.app.projectManager.prepareProject(project, {encodeImages: false});
+        } catch (error) {
+            this.app.showToast(error.message, 'error');
+            return false;
+        }
+        if (this.app.getActiveProject() !== project || this.busy) return false;
+        // The user can start another gesture while the template or fonts load.
+        if (this.app.tools.finishDocument({preserveSelection: true}) === false ||
+            this.app.prefixEditor?.commitPendingEdit?.() === false) return false;
         this.context={id:project.id,revision:this.app.projectManager.getRevision(project.id),name:project.name,type:project.type,layers:[...this.app.layerManager.getLayers()],config:{...this.app.config},prefixData:project.type==='prefix'?structuredClone(project.prefixData):null,titleData:project.type==='title'?structuredClone(project.titleData):null,selected:[...this.app.layerManager.selectedLayerIds],active:this.app.layerManager.activeLayerId};
         const controls=this.get('source');controls.querySelector('[value="prefixes"]').hidden=project.type!=='prefix';
         for(const key of ['active','selected'])controls.querySelector(`[value="${key}"]`).hidden=['prefix','title'].includes(project.type);

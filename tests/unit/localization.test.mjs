@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {LANGUAGES, normalizeLanguage, setLanguage, translate, getLocale, labelHTML, attributeHTML, uiLabel} from '../../src/renderer/js/core/Locale.mjs';
+import {GUI_DESIGNS, PREFIX_DESIGNS} from '../../src/renderer/js/core/DesignPresets.mjs';
+import {TITLE_DESIGNS} from '../../src/renderer/js/core/TitleDesignPresets.mjs';
 import english from '../../src/renderer/locales/en.json' with {type:'json'};
 import {readdir,readFile} from 'node:fs/promises';
 import {createRequire} from 'node:module';
@@ -24,6 +26,14 @@ test('English catalog values are nonempty plain text', () => {
     for (const [source, value] of Object.entries(english)) {
         assert.ok(source && value, source);
         assert.ok(!/[<>]/.test(value), source);
+    }
+});
+
+test('every design name and category is translated', () => {
+    for (const {name, category} of [...GUI_DESIGNS, ...PREFIX_DESIGNS, ...TITLE_DESIGNS]) {
+        for (const label of [name, category]) {
+            if (/[А-Яа-яЁё]/u.test(label ?? '')) assert.ok(Object.hasOwn(english, label), label);
+        }
     }
 });
 

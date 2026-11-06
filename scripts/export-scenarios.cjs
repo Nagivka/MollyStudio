@@ -19,6 +19,16 @@ async function exerciseExport(){
     first.ctx.fillStyle='#FF0000';first.ctx.fillRect(2,3,4,5);first.invalidateSource();
     second.ctx.fillStyle='#00FF00';second.ctx.fillRect(12,13,6,7);second.invalidateSource();
     manager.selectedLayerIds=new Set([first.id,second.id]);app.renderer.render();
+
+    const projectManager=app.projectManager;
+    const prepareLayerImages=projectManager.prepareLayerImages;
+    projectManager.prepareLayerImages=()=>{throw Error('Export requested MLST layer encoding');};
+    try {
+        expect(await panel.open('project'), 'Export opens without pre-encoding layers for project storage');
+        panel.close();
+    } finally {
+        projectManager.prepareLayerImages=prepareLayerImages;
+    }
     await panel.open('selected');panel.get('trim').checked=true;panel.get('scale').value='2';await panel.preview();
     expect(panel.get('dimensions').textContent.startsWith('8 × 10 px'),'Export preview shows the trimmed and scaled dimensions before writing');
     const result=await panel.run();expect(result?.count===2,'Selected layers export as one archive');

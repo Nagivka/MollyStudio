@@ -391,12 +391,12 @@ export default class ProjectManager {
         }
     }
 
-    async prepareProject(project) {
+    async prepareProject(project, {encodeImages = true} = {}) {
         await project.templateLoadPromise;
         if (await project.prefixLoadPromise === false) {
             throw new Error('Не удалось подготовить префикс. Откройте его снова перед сохранением.');
         }
-        await this.prepareLayerImages(project);
+        if (encodeImages) await this.prepareLayerImages(project);
     }
 
     async prepareProjectForSave(project) {

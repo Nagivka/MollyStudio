@@ -57,7 +57,8 @@ test('publication uploads only installer, update metadata, checksum and signed m
     const f = await fixture(t), api = mockApi();
     await publish({...f, fetchImpl: api.fetchImpl});
     const uploads = api.calls.filter(c => c.url.startsWith('https://uploads.github.com/'));
-    assert.deepEqual(uploads.map(c => new URL(c.url).searchParams.get('name')), [f.name, f.name + '.blockmap','latest.yml', f.name + '.sha256', 'release-manifest.json']);
+    assert.deepEqual(uploads.map(c => new URL(c.url).searchParams.get('name')), [f.name, f.name + '.blockmap','latest.yml', 'release-manifest.json', 'SHA256SUMS.txt']);
+    assert.equal(uploads.at(-1).body.toString(), `${hash(f.bytes)}  ${f.name}\n`);
     assert.equal(api.calls[0].headers.Authorization, 'Bearer test-source-token');
     assert.ok(api.calls.slice(1).every(c => c.headers.Authorization === 'Bearer test-target-token'));
     assert.ok(api.calls.every(c => c.redirect === 'error'));

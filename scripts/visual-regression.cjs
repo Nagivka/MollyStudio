@@ -155,11 +155,15 @@ function canvasSamples(page) {
 function verifyCapturedCanvas(actual, samples) {
     if (!samples.length) throw new Error('No visible opaque canvas samples');
     const bitmap = actual.toBitmap(), { width } = actual.getSize();
-    const matches = samples.filter(sample => {
+    const mismatches = samples.flatMap(sample => {
         const offset = (sample.y * width + sample.x) * 4;
-        return Math.max(Math.abs(bitmap[offset + 2] - sample.rgb[0]), Math.abs(bitmap[offset + 1] - sample.rgb[1]), Math.abs(bitmap[offset] - sample.rgb[2])) < 36;
-    }).length;
-    if (matches < samples.length * .75) throw new Error('Captured screenshot lost canvas pixels although the drawing buffer is populated');
+        const captured = [bitmap[offset + 2], bitmap[offset + 1], bitmap[offset]];
+        return captured.some((channel, index) => Math.abs(channel - sample.rgb[index]) >= 36)
+            ? [{...sample, captured}] : [];
+    });
+    if (mismatches.length > samples.length * .25) {
+        throw new Error('Captured screenshot differs from the canvas pixels: ' + JSON.stringify(mismatches.slice(0, 3)));
+    }
 }
 
 (async () => {
@@ -212,10 +216,10 @@ function verifyCapturedCanvas(actual, samples) {
                             if (width === 1280 && zoom === 1) {
                                 const file = `${page}-${theme}.png`, destination = path.join(baselineRoot, file);
                                 const actual = await window.webContents.capturePage(undefined, { stayHidden: true });
-                                if (page === 'editor' || page === 'buttons') verifyCapturedCanvas(actual, await window.webContents.executeJavaScript(`(${canvasSamples.toString()})('${page}')`));
                                 if (captureOnly) await fs.writeFile(path.join(outputRoot, 'captures', file), actual.toPNG());
-                                else if (update) staged.set(destination, actual.toPNG());
-                                else {
+                                if (page === 'editor' || page === 'buttons') verifyCapturedCanvas(actual, await window.webContents.executeJavaScript(`(${canvasSamples.toString()})('${page}')`));
+                                if (update) staged.set(destination, actual.toPNG());
+                                else if (!captureOnly) {
                                     const previous = await fs.readFile(destination).catch(() => null);
                                     if (!previous) throw new Error(`Missing baseline ${file}; create it explicitly with npm run test:visual:update`);
                                     const comparison = compare(nativeImage.createFromBuffer(previous), actual);

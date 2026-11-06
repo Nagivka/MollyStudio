@@ -15,21 +15,53 @@ async function downloadPublished({version=require('../package.json').version,pla
   const c=await fetch(base+'SHA256SUMS.txt',{signal:AbortSignal.timeout(30000)});if(!c.ok)throw Error('Published checksum list is unavailable');
   for(const line of (await c.text()).trim().split(/\r?\n/)){const match=/^([a-f0-9]{64})  ([^/\\]+)$/.exec(line);if(!match||checksums.has(match[2]))throw Error('Invalid checksum list');checksums.set(match[2],match[1]);}
  }
+ const signedFiles = new Map();
+ if (platform !== 'darwin') {
+  const response = await fetch(base + target.manifest, {signal: AbortSignal.timeout(30000)});
+  if (!response.ok) throw Error('Missing signed update manifest');
+  const manifest = readManifest(await response.text(), version, PUBLIC_KEY, target);
+  for (const file of manifest.files) signedFiles.set(file.name, file);
+  const metadata = await fetch(base + target.metadata, {signal: AbortSignal.timeout(30000)});
+  if (!metadata.ok) throw Error('Missing signed update metadata');
+  const bytes = Buffer.from(await metadata.arrayBuffer());
+  const expected = signedFiles.get(target.metadata);
+  if (bytes.length !== expected.size || crypto.createHash('sha256').update(bytes).digest('hex') !== expected.sha256) {
+   throw Error('Signed update metadata mismatch');
+  }
+ }
  const verified=[];
  for(const name of names){
   const asset=release.assets.find(a=>a.name===name);if(!asset||asset.state!=='uploaded'||asset.size<1||!/^sha256:[a-f0-9]{64}$/.test(asset.digest)||asset.browser_download_url!==base+name)throw Error('Missing or invalid release asset: '+name);
-  const final=path.join(directory,name),temporary=final+'.download';const r=await fetch(asset.browser_download_url,{signal:AbortSignal.timeout(600000)});if(!r.ok)throw Error('Package download HTTP '+r.status);
-  const hash=crypto.createHash('sha256');let bytes=0;async function* chunks(){for await(const chunk of Readable.fromWeb(r.body)){bytes+=chunk.length;if(bytes>asset.size)throw Error('Package size exceeded');hash.update(chunk);yield chunk;}}
-  await pipeline(chunks(),fss.createWriteStream(temporary));const sha256=hash.digest('hex');if(bytes!==asset.size||'sha256:'+sha256!==asset.digest)throw Error('Published package hash mismatch');await fs.rename(temporary,final);if(platform==='linux'&&name.endsWith('.AppImage'))await fs.chmod(final,0o755);
+  const sha256 = asset.digest.slice('sha256:'.length);
+  const signed = signedFiles.get(name);
+  if (signed && (signed.sha256 !== sha256 || signed.size !== asset.size)) throw Error('Signed package hash mismatch');
   if(!name.endsWith('.blockmap')){
-   if(checksums.size){if(checksums.get(name)!==sha256)throw Error('Published checksum list mismatch');}
+   if(checksums.has(name)){if(checksums.get(name)!==sha256)throw Error('Published checksum list mismatch');}
    else{const c=await fetch(base+name+'.sha256',{signal:AbortSignal.timeout(30000)});if(!c.ok||(await c.text()).trim()!==`${sha256}  ${name}`)throw Error('Published checksum mismatch');}
   }
-  verified.push({name,size:bytes,sha256});
- }
- if(platform!=='darwin'){
-  const r=await fetch(base+target.manifest);if(!r.ok)throw Error('Missing signed update manifest');const manifest=readManifest(await r.text(),version,PUBLIC_KEY,target);
-  for(const file of verified){const entry=manifest.files.find(f=>f.name===file.name);if(entry&&(entry.sha256!==file.sha256||entry.size!==file.size))throw Error('Signed package hash mismatch');}
+  const final = path.join(directory, name);
+  const temporary = final + '.' + crypto.randomUUID() + '.download';
+  const download = await fetch(asset.browser_download_url, {signal: AbortSignal.timeout(600000)});
+  if (!download.ok) throw Error('Package download HTTP ' + download.status);
+  const hash = crypto.createHash('sha256');
+  let bytes = 0;
+  async function* chunks() {
+   for await (const chunk of Readable.fromWeb(download.body)) {
+    bytes += chunk.length;
+    if (bytes > asset.size) throw Error('Package size exceeded');
+    hash.update(chunk);
+    yield chunk;
+   }
+  }
+  try {
+   await pipeline(chunks(), fss.createWriteStream(temporary, {flags: 'wx'}));
+   if (bytes !== asset.size || hash.digest('hex') !== sha256) throw Error('Published package hash mismatch');
+   if (name.endsWith('.AppImage')) await fs.chmod(temporary, 0o755);
+   await fs.rename(temporary, final);
+  } finally {
+   await fs.rm(temporary, {force: true});
+  }
+  verified.push({name, size: bytes, sha256});
  }
  const unpacked=platform==='darwin'?`dist/published-mac-${arch}/MollyStudio.app`:platform==='linux'?'dist/linux-unpacked':'dist/published-win';
  const report={version,platform,arch,unpacked,downloadedFrom:release.html_url,files:verified,verifiedAt:new Date().toISOString()};

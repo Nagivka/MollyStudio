@@ -643,7 +643,6 @@
     display: block;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
-    border-radius: var(--md-shape-corner-small);
 }
 
 :where(.buttons-win-shell, .btn-gen-modal) .viewport-hint {
